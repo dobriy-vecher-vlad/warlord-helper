@@ -188,42 +188,42 @@ const serverHub = [{
 	api: 'vk1',
 	site: 'vk.com',
 	company: 'ВКонтакте',
-	logo: `${pathImages}/main/logo_vk.svg`,
+	logo: `${pathImages}main/logo_vk.svg`,
 }, {
 	id: 2,
 	name: 'Антарес',
 	api: 'vk2',
 	site: 'vk.com',
 	company: 'ВКонтакте',
-	logo: `${pathImages}/main/logo_vk.svg`,
+	logo: `${pathImages}main/logo_vk.svg`,
 }, {
 	id: 3,
 	name: 'Эрмун',
 	api: 'ya',
 	site: 'yandex.ru',
 	company: 'Яндекс',
-	logo: `${pathImages}/main/logo_yandex.svg`,
+	logo: `${pathImages}main/logo_yandex.svg`,
 }, {
 	id: 4,
 	name: 'Эрмун',
 	api: 'ok1',
 	site: 'ok.ru',
 	company: 'Одноклассники',
-	logo: `${pathImages}/main/logo_ok.svg`,
+	logo: `${pathImages}main/logo_ok.svg`,
 }, {
 	id: 5,
 	name: 'Антарес',
 	api: 'ok2',
 	site: 'ok.ru',
 	company: 'Одноклассники',
-	logo: `${pathImages}/main/logo_ok.svg`,
+	logo: `${pathImages}main/logo_ok.svg`,
 }, {
 	id: 6,
 	name: 'Эрмун',
 	api: 'gm',
 	site: 'vkplay.ru',
 	company: 'VK Play',
-	logo: `${pathImages}/main/logo_vk.svg`,
+	logo: `${pathImages}main/logo_vk.svg`,
 }];
 
 
