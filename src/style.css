@@ -1629,8 +1629,8 @@ body[scheme=space_gray] {
 	background-position: center;
 }
 .ImageLabel--error {
-	background-image: url('https://dobriy-vecher-vlad.github.io/warlord/wiki-new/media/helpers/fix_label.svg');
-	/* background-image: url('https://dobriy-vecher-vlad.github.io/warlord/wiki-new/media/helpers/error_label.png'); */
+	background-image: url('https://warlord-helper.website.yandexcloud.net/media/helpers/fix_label.svg');
+	/* background-image: url('https://warlord-helper.website.yandexcloud.net/media/helpers/error_label.png'); */
 }
 .ImageLabel + .Spacing {
 	margin-top: -5.5px;

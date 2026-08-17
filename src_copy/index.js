@@ -187,7 +187,7 @@ Object.defineProperty(Array.prototype, 'includesArray', {
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 const wikiVersion = '1.8.0';
-const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 const serverHub = [{
 	id: 1,
 	name: 'Эрмун',

@@ -274,7 +274,7 @@ class PANEL extends React.Component {
 				let time = ratingProfilesTime || this._isMounted && getTime();
 				let dataRating;
 				if (!ratingProfilesTime) {
-					dataRating = this._isMounted && await getData(`https://dobriy-vecher-vlad.github.io/warlord/data/users/${['ermun', 'antares'][this.state.server-1]}/${time}.json`);
+					dataRating = this._isMounted && await getData(`https://warlord.website.yandexcloud.net/data/users/${['ermun', 'antares'][this.state.server-1]}/${time}.json`);
 					if (dataRating && typeof dataRating === 'object') {
 						ratingProfilesData[0].items = dataRating.sort((a, b) => {
 							return b.exp - a.exp
@@ -346,7 +346,7 @@ class PANEL extends React.Component {
 				let milliseconds = getTime(true);
 				let dataRating;
 				if (!ratingGuildsTime) {
-					dataRating = this._isMounted && await getData(`https://dobriy-vecher-vlad.github.io/warlord/data/guilds/${['ermun', 'antares'][this.state.server-1]}/${time}.json`);
+					dataRating = this._isMounted && await getData(`https://warlord.website.yandexcloud.net/data/guilds/${['ermun', 'antares'][this.state.server-1]}/${time}.json`);
 					if (dataRating && typeof dataRating === 'object') {
 						for (let guild of dataRating) {
 							guild.leader = guild?.users?.find(user => user.id == guild.leader)?.vkId || guild.leader;
@@ -470,7 +470,7 @@ class PANEL extends React.Component {
 	};
 	render() {
 		const { setState, state, options, parent } = this.props;
-		const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+		const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 		const grid = state.isDesktop ? {display: 'grid', alignItems: 'center', gridTemplateColumns: '40px 32px auto auto', gridGap: '8px'} : {display: 'grid', alignItems: 'center', gridTemplateColumns: '40px 32px auto auto', gridGap: '16px'};
 		return (
 			<View id="rating" activePanel={!state.activePanel ? 'rating' : state.activePanel}>

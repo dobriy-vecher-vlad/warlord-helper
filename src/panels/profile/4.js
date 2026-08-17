@@ -53,7 +53,7 @@ class PANEL extends React.Component {
 			return itemA < itemB ? -1 : 1;
 		});
 		const { donutsPage } = this.state;
-		const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+		const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 		const title = 'Доны';
 		const description = 'Мой профиль';
 		const avatar = 'labels/28.png';

@@ -740,7 +740,7 @@ class PANEL extends React.Component {
 		if (mode == 'energy' && action == 'collect') {
 			let DATA_ENERGY;
 			if (!SAVED_DATA_ENERGY) {
-				DATA_ENERGY = this._isMounted && await getData(`https://dobriy-vecher-vlad.github.io/warlord/data/energy/${['ermun', 'antares'][this.props.state.server-1]}.json`);
+				DATA_ENERGY = this._isMounted && await getData(`https://warlord.website.yandexcloud.net/data/energy/${['ermun', 'antares'][this.props.state.server-1]}.json`);
 				if (DATA_ENERGY && typeof DATA_ENERGY === 'object') {
 					SAVED_DATA_ENERGY = DATA_ENERGY;
 				} else this._isMounted && needReload && this.setBotLog(`Ошибка при получении списка энергии`, 'text');
@@ -904,7 +904,7 @@ class PANEL extends React.Component {
 	};
 	render() {
 		const { state, options, parent } = this.props;
-		const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+		const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 		const title = 'Ресурсы';
 		const description = 'Мой профиль';
 		const avatar = 'labels/14.png';

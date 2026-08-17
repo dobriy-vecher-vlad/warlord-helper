@@ -458,7 +458,7 @@ class PANEL extends React.Component {
 		const { state, options, parent } = this.props;
 		const { botSettings } = this.state;
 		const { BotArena } = this;
-		const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+		const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 		const title = 'Арена';
 		const description = 'Мой профиль';
 		const avatar = 'labels/30.png';

@@ -81,7 +81,7 @@ const Tasks = props => {
 						disabled={tasks.favorite}
 						className="RichCell--new"
 						multiline
-						before={<Avatar mode="app" size={48} src="https://dobriy-vecher-vlad.github.io/warlord/wiki-new/media/helpers/group_avatar.png" />}
+						before={<Avatar mode="app" size={48} src="https://warlord-helper.website.yandexcloud.net/media/helpers/group_avatar.png" />}
 						caption="+7 дней подписки"
 						after={tasks.favorite ? <span style={{color: 'var(--dynamic_green)'}}>Выполнено</span> : <span style={{color: 'var(--dynamic_blue)'}}>Выполнить</span>}
 					>Добавь в избранное</RichCell>
@@ -89,7 +89,7 @@ const Tasks = props => {
 						onClick={VKWebAppAddToFavorites}
 						className="RichCell--new"
 						multiline
-						before={<Avatar mode="app" size={48} src="https://dobriy-vecher-vlad.github.io/warlord/wiki-new/media/helpers/group_avatar.png" />}
+						before={<Avatar mode="app" size={48} src="https://warlord-helper.website.yandexcloud.net/media/helpers/group_avatar.png" />}
 						caption="+7 дней подписки"
 						after={!tasks.favorite ? <span style={{color: 'var(--dynamic_green)'}}>Выполнено</span> : <span style={{color: 'var(--dynamic_blue)'}}>Выполнить</span>}
 					>Добавь в избранное</RichCell>

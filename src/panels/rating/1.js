@@ -39,7 +39,7 @@ class PANEL extends React.Component {
 	render() {
 		const { state, options, parent } = this.props;
 		const { ratingPage } = this.state;
-		const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+		const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 		const ratingTab = this.props.currentRating;
 		const title = ratingTab ? `${ratingTab.name} (${ratingTab.subname})` : 'Не определено';
 		const description = ratingTab ? `Рейтинг — ${['профили', 'гильдии'][ratingTab.tab-1]}` : 'Рейтинг — не определено';

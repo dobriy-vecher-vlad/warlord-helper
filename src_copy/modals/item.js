@@ -32,7 +32,7 @@ class MODAL extends React.Component {
 	render() {
 		const { state, options, data } = this.props;
 		const item = Items[data.id];
-		const pathImages = 'https://dobriy-vecher-vlad.github.io/warlord-helper/media/images/';
+		const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 		let scroll = [];
 		dataMap.adventures.find(adventure => {
 			if (adventure.floors.find(floor => floor.items.find(item => item.id == data.id))) {
