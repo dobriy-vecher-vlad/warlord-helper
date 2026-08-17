@@ -1,20 +1,14 @@
 name: Deploy to Yandex Cloud
-
 on:
   push:
     branches:
-      - main # Скрипт будет запускаться при пуше в ветку main
-
+      - main
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
     steps:
-      # 1. Скачиваем актуальный код из вашего репозитория
       - name: Checkout repository
         uses: actions/checkout@v4
-
-      # 2. Загружаем папку build в Yandex Object Storage
       - name: Deploy to Yandex S3
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YANDEX_ACCESS_KEY_ID }}
