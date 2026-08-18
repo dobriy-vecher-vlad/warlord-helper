@@ -275,7 +275,7 @@ class PANEL extends React.Component {
 				let dataRating;
 				if (!ratingProfilesTime) {
 					dataRating = this._isMounted && await getData(`https://warlord.website.yandexcloud.net/data/users/${['ermun', 'antares'][this.state.server-1]}/${time}.json`);
-					if (dataRating && typeof dataRating === 'object') {
+					if (Array.isArray(dataRating)) {
 						ratingProfilesData[0].items = dataRating.sort((a, b) => {
 							return b.exp - a.exp
 						}).map(user => ({
@@ -347,7 +347,7 @@ class PANEL extends React.Component {
 				let dataRating;
 				if (!ratingGuildsTime) {
 					dataRating = this._isMounted && await getData(`https://warlord.website.yandexcloud.net/data/guilds/${['ermun', 'antares'][this.state.server-1]}/${time}.json`);
-					if (dataRating && typeof dataRating === 'object') {
+					if (Array.isArray(dataRating)) {
 						for (let guild of dataRating) {
 							guild.leader = guild?.users?.find(user => user.id == guild.leader)?.vkId || guild.leader;
 							guild.tag = await this.calcTag(guild.users.find(user => user.id == guild.leader)?.name, guild.users[0].name);

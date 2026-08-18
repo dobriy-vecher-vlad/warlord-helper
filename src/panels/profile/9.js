@@ -741,13 +741,13 @@ class PANEL extends React.Component {
 			let DATA_ENERGY;
 			if (!SAVED_DATA_ENERGY) {
 				DATA_ENERGY = this._isMounted && await getData(`https://warlord.website.yandexcloud.net/data/energy/${['ermun', 'antares'][this.props.state.server-1]}.json`);
-				if (DATA_ENERGY && typeof DATA_ENERGY === 'object') {
+				if (Array.isArray(DATA_ENERGY)) {
 					SAVED_DATA_ENERGY = DATA_ENERGY;
 				} else this._isMounted && needReload && this.setBotLog(`Ошибка при получении списка энергии`, 'text');
 			} else {
 				DATA_ENERGY = SAVED_DATA_ENERGY;
 			}
-			if (DATA_ENERGY && typeof DATA_ENERGY === 'object') {
+			if (Array.isArray(DATA_ENERGY)) {
 				let data;
 				let reward = [];
 				let count = 0;
@@ -757,7 +757,7 @@ class PANEL extends React.Component {
 						rid: energy.from,
 						lid: energy.id,
 					}, getGameAuth);
-					if (data && typeof data === 'object' && !(data.msg && data.msg == 'Время получения подарка истекло.')) {
+					if (Array.isArray(data) && !(data.msg && data.msg == 'Время получения подарка истекло.')) {
 						data = this._isMounted && await getGame(this.props.state.server, {
 							i: 86,
 							t1: energy.from,

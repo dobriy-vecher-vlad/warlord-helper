@@ -180,7 +180,7 @@ Object.defineProperty(Array.prototype, 'includesArray', {
 });
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-const wikiVersion = '1.8.1';
+const wikiVersion = '1.8.2';
 const pathImages = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 const serverHub = [{
 	id: 1,

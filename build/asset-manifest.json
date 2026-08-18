@@ -1,7 +1,7 @@
 {
   "files": {
-    "main.css": "./static/css/main.14072696.css",
-    "main.js": "./static/js/main.cdd7109a.js",
+    "main.css": "./static/css/main.79de309f.css",
+    "main.js": "./static/js/main.05ae64c6.js",
     "static/media/VKSansDisplay-DemiBold.ttf": "./static/media/VKSansDisplay-DemiBold.35d217715e5b7bd4200f.ttf",
     "static/media/VKSansDisplay-Bold.ttf": "./static/media/VKSansDisplay-Bold.50b10c4432b08a7dd008.ttf",
     "static/media/VKSansDisplay-Medium.ttf": "./static/media/VKSansDisplay-Medium.5dae08a30b1f173f7639.ttf",
@@ -16,11 +16,11 @@
     "static/media/II.svg": "./static/media/II.c8a33c7e8ad12bbc793403a0d3402afb.svg",
     "static/media/I.svg": "./static/media/I.19b672c6454613d5ac194cf5dc7ee827.svg",
     "index.html": "./index.html",
-    "main.14072696.css.map": "./static/css/main.14072696.css.map",
-    "main.cdd7109a.js.map": "./static/js/main.cdd7109a.js.map"
+    "main.79de309f.css.map": "./static/css/main.79de309f.css.map",
+    "main.05ae64c6.js.map": "./static/js/main.05ae64c6.js.map"
   },
   "entrypoints": [
-    "static/css/main.14072696.css",
-    "static/js/main.cdd7109a.js"
+    "static/css/main.79de309f.css",
+    "static/js/main.05ae64c6.js"
   ]
 }
