@@ -17,7 +17,8 @@ jobs:
         run: |
           aws s3 sync ./build/ s3://${{ secrets.YANDEX_BUCKET_NAME }}/build/ \
             --endpoint-url=https://storage.yandexcloud.net \
-            --delete
+            --delete \
+            --size-only
       - name: Sync media folder
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YANDEX_ACCESS_KEY_ID }}
@@ -26,4 +27,5 @@ jobs:
         run: |
           aws s3 sync ./media/ s3://${{ secrets.YANDEX_BUCKET_NAME }}/media/ \
             --endpoint-url=https://storage.yandexcloud.net \
-            --delete
+            --delete \
+            --size-only
