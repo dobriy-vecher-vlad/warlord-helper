@@ -9,22 +9,21 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Clean S3 Bucket
+      - name: Sync build folder
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YANDEX_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YANDEX_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ru-central1
         run: |
-          aws s3 rm s3://${{ secrets.YANDEX_BUCKET_NAME }} --recursive \
-            --endpoint-url=https://storage.yandexcloud.net
-      - name: Deploy to Yandex S3
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.YANDEX_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.YANDEX_SECRET_ACCESS_KEY }}
-          AWS_DEFAULT_REGION: ru-central1
-        run: |
-          aws s3 sync ./ s3://${{ secrets.YANDEX_BUCKET_NAME }} \
+          aws s3 sync ./build/ s3://${{ secrets.YANDEX_BUCKET_NAME }}/build/ \
             --endpoint-url=https://storage.yandexcloud.net \
-            --exclude "*" \
-            --include "build/*" \
-            --include "media/*"
+            --delete
+      - name: Sync media folder
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.YANDEX_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.YANDEX_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ru-central1
+        run: |
+          aws s3 sync ./media/ s3://${{ secrets.YANDEX_BUCKET_NAME }}/media/ \
+            --endpoint-url=https://storage.yandexcloud.net \
+            --delete
