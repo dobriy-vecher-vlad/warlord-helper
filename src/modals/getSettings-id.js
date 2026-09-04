@@ -46,7 +46,7 @@ class MODAL extends React.Component {
 							type="number"
 							name="id"
 							placeholder="id"
-							max="999999999"
+							max="999999999999"
 							min="1"
 							value={key}
 							onChange={e => this.setState({ key: Math.max(Number(e.target.min), Math.min(Number(e.target.max), e.target.value))})}
