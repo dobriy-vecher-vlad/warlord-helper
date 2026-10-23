@@ -1,0 +1,1 @@
+import{n as e,t}from"./createStore-Cm3gRxFC.js";var n={item:!0,scroll:!0,collection:!0,personal:!0,stock:!0},r=t({...n}),i=()=>e(r,e=>e);function a(e,t){r.set({[e]:t})}function o(){r.set({...n})}export{a as n,i as r,o as t};

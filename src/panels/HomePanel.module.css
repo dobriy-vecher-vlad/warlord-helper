@@ -1,0 +1,303 @@
+/* Баннеры */
+.banners {
+	height: 178px;
+}
+
+:global([data-layout='desktop']) .banners {
+	margin: 0 -7px;
+	height: calc(375 / ((318 + 8) / 100) / 100 * 178px);
+}
+
+.bannerSlide {
+	height: 100%;
+	padding: 0 4px;
+	box-sizing: border-box;
+}
+
+.banner {
+	position: relative;
+	height: 100%;
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--content_tint_background);
+}
+
+.bannerPreload {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	color: var(--icon_secondary);
+}
+
+.bannerImage {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+}
+
+.bannerContent {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	align-items: flex-end;
+	padding: 16px;
+}
+
+.bannerButton {
+	display: inline-flex;
+	align-items: center;
+	height: 30px;
+	padding: 0 16px;
+	border-radius: 10px;
+	background: #e1e3e6;
+	color: #19191a;
+	font-size: 14px;
+	line-height: 18px;
+	font-weight: 500;
+	text-decoration: none;
+}
+
+:global([data-layout='desktop']) .bannerButton {
+	height: 36px;
+	padding: 0 20px;
+	font-size: 15px;
+	line-height: 20px;
+}
+
+/* Новости */
+.newsGrid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+	margin-top: 8px;
+}
+
+.news {
+	display: block;
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--content_tint_background);
+	text-decoration: none;
+	color: inherit;
+}
+
+.newsImage {
+	display: block;
+	height: 128px;
+	border-radius: 10px;
+}
+
+/* Как background-size: cover с центровкой */
+.newsImage img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: inherit;
+	object-fit: cover;
+	object-position: center;
+}
+
+.newsContent {
+	display: flex;
+	flex-direction: column;
+	padding: 8px;
+}
+
+.newsTitle,
+.newsDate {
+	font-size: 13px;
+	line-height: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.newsTitle {
+	color: var(--text_primary);
+}
+
+.newsDate {
+	margin-top: 2px;
+	color: var(--text_secondary);
+}
+
+/* Крупные карточки новостей на телефоне: подпись поверх картинки */
+.newsLarge {
+	position: relative;
+	flex: 0 0 196px;
+	height: 256px;
+}
+
+.newsLarge .newsImage {
+	height: 100%;
+}
+
+.newsLarge .newsContent {
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	padding: 24px 12px 12px;
+	background: linear-gradient(360deg, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0) 100%);
+}
+
+.newsLarge .newsTitle {
+	font-size: 14px;
+	line-height: 18px;
+}
+
+.newsLarge .newsDate {
+	font-weight: 500;
+}
+
+.newsScroll {
+	display: flex;
+	gap: 8px;
+	padding: 0 4px 8px;
+	overflow-x: auto;
+	scrollbar-width: none;
+}
+
+.newsScroll::-webkit-scrollbar {
+	display: none;
+}
+
+/* Телефон: верхний блок и блок новостей разделены полосой фона со скруглениями */
+.mobileTop {
+	/* В старом приложении под шапкой был отступ 5px и ещё 8px до баннеров */
+	padding-top: 13px;
+	padding-bottom: 8px;
+	background: var(--background_content);
+}
+
+.mobileTop > :first-child {
+	margin-bottom: 8px;
+}
+
+.tiles {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 8px;
+	padding: 0 8px;
+}
+
+.tile {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 8px;
+	border-radius: 10px;
+	text-decoration: none;
+	color: inherit;
+	cursor: pointer;
+}
+
+/* Пустая ячейка сетки: не нажимается, курсор обычный */
+.tileEmpty {
+	cursor: default;
+}
+
+.tileIcon {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	height: 40px;
+	color: var(--fill);
+}
+
+/* Подложка-«сквиркл» цвета иконки */
+.tileIcon::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-color: var(--fill);
+	opacity: 0.075;
+	mask: url('data:image/svg+xml,<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><path d="M200 100L199.902 125.058L199.605 135.402L199.111 143.288L198.417 149.869L197.522 155.589L196.425 160.673L195.122 165.252L193.611 169.408L191.887 173.2L189.945 176.667L187.779 179.839L185.38 182.738L182.738 185.38L179.839 187.779L176.667 189.945L173.2 191.887L169.408 193.611L165.252 195.122L160.673 196.425L155.589 197.522L149.869 198.417L143.288 199.111L135.402 199.605L125.058 199.902L100.012 200L74.942 199.902L64.5975 199.605L56.7125 199.111L50.131 198.417L44.4105 197.522L39.3265 196.425L34.748 195.122L30.5915 193.611L26.8 191.887L23.333 189.945L20.161 187.779L17.2625 185.38L14.6205 182.738L12.221 179.839L10.0545 176.667L8.1125 173.2L6.3885 169.408L4.8775 165.252L3.575 160.673L2.478 155.589L1.5835 149.869L0.8895 143.288L0.395 135.402L0.0984998 125.058L0 100.018L0.0984998 74.942L0.395 64.5975L0.8895 56.7125L1.5835 50.131L2.478 44.4105L3.575 39.3265L4.8775 34.748L6.3885 30.5915L8.1125 26.8L10.0545 23.333L12.221 20.161L14.6205 17.2625L17.2625 14.6205L20.161 12.221L23.333 10.0545L26.8 8.1125L30.5915 6.3885L34.748 4.8775L39.3265 3.575L44.4105 2.478L50.131 1.5835L56.7125 0.8895L64.5975 0.395L74.942 0.0984998L99.9785 0L125.058 0.0984998L135.402 0.395L143.288 0.8895L149.869 1.5835L155.589 2.478L160.673 3.575L165.252 4.8775L169.408 6.3885L173.2 8.1125L176.667 10.0545L179.839 12.221L182.738 14.6205L185.38 17.2625L187.779 20.161L189.945 23.333L191.887 26.8L193.611 30.5915L195.122 34.748L196.425 39.3265L197.522 44.4105L198.417 50.131L199.111 56.7125L199.605 64.5975L199.902 74.942L200 99.975V100Z"/></svg>')
+		center / contain no-repeat;
+}
+
+.tileIcon > svg {
+	position: relative;
+}
+
+.tileTitle {
+	width: 100%;
+	padding-top: 6px;
+	text-align: center;
+	font-size: 14px;
+	line-height: 18px;
+	color: var(--text_primary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.roundGap {
+	position: relative;
+	height: 48px;
+	margin: -8px 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	background: var(--background_page);
+}
+
+.roundGap::before,
+.roundGap::after {
+	content: '';
+	display: block;
+	height: 16px;
+	background: var(--background_content);
+}
+
+.roundGap::before {
+	border-radius: 0 0 16px 16px;
+}
+
+.roundGap::after {
+	border-radius: 16px 16px 0 0;
+}
+
+.mobileNews {
+	padding-top: 8px;
+	background: var(--background_content);
+}
+
+.head,
+.subhead {
+	display: flex;
+	justify-content: center;
+	letter-spacing: 0.25px;
+	font-family: var(--font-display);
+	font-weight: 500;
+}
+
+.head {
+	padding-top: 8px;
+	font-size: 20px;
+	line-height: 14px;
+	color: var(--text_primary);
+}
+
+.subhead {
+	margin-top: 7px;
+	margin-bottom: 16px;
+	font-size: 13px;
+	line-height: 16px;
+	font-weight: 500;
+	color: var(--text_secondary);
+}
+
+/* Размер спиннера как у VKUI 4 (large) */
+.bannerPreload svg {
+	width: 55px;
+	height: 55px;
+}
+
+:global([data-layout='mobile']) .bannerPreload svg {
+	width: 44px;
+	height: 44px;
+}

@@ -1,0 +1,34 @@
+/* Заглушка загрузки: бледная полоса с бегущим бликом */
+.skeleton {
+	position: relative;
+	overflow: hidden;
+	background-color: rgba(174, 183, 194, 0.12);
+}
+
+.skeleton::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-image: linear-gradient(90deg, transparent 0%, rgba(174, 183, 194, 0.12) 50%, transparent 100%);
+	transform: translateX(-100%);
+	animation: skeleton 1.2s ease infinite;
+}
+
+:global(.vkui--vkIOS--dark) .skeleton,
+:global(.vkui--vkIOS--dark) .skeleton::after {
+	--skeleton: rgba(93, 95, 97, 0.12);
+}
+
+:global(.vkui--vkIOS--dark) .skeleton {
+	background-color: var(--skeleton);
+}
+
+:global(.vkui--vkIOS--dark) .skeleton::after {
+	background-image: linear-gradient(90deg, transparent 0%, var(--skeleton) 50%, transparent 100%);
+}
+
+@keyframes skeleton {
+	to {
+		transform: translateX(100%);
+	}
+}

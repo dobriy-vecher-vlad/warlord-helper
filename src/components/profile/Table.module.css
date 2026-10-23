@@ -1,0 +1,99 @@
+/* Таблицы профиля и рейтинга (TableCell в старом приложении): строки по сетке, текст 13/20 */
+.row {
+	display: block;
+	padding: 0 8px;
+	color: var(--text_primary);
+	text-decoration: none;
+	border-radius: 10px;
+}
+
+.row + .row {
+	margin-top: 8px;
+}
+
+:global([data-layout='mobile']) .row {
+	padding: 0 12px;
+	/* Строка во всю ширину экрана: подсветка без скруглений */
+	border-radius: 0;
+}
+
+.content {
+	display: grid;
+	align-items: center;
+}
+
+.cell {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	min-width: 0;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.cell > span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 13px;
+	line-height: 20px;
+	font-weight: 400;
+}
+
+.cell > svg {
+	flex-shrink: 0;
+	margin-left: 8px;
+}
+
+.count,
+.head {
+	color: var(--text_secondary);
+}
+
+.head {
+	justify-content: flex-start;
+}
+
+.avatar {
+	height: 32px;
+}
+
+.avatar img {
+	display: block;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	object-fit: cover;
+}
+
+/* Листание страниц */
+.pager {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.pagerText {
+	font-size: 13px;
+	line-height: 20px;
+	color: var(--text_secondary);
+}
+
+.pagerButtons {
+	display: flex;
+}
+
+.pagerButton {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1px 16px;
+	border-radius: 10px;
+	color: var(--button_tertiary_foreground);
+	cursor: pointer;
+}
+
+.pagerButton[aria-disabled='true'] {
+	opacity: 0.4;
+	cursor: default;
+}

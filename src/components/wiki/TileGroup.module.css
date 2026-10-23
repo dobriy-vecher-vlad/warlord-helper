@@ -1,0 +1,61 @@
+.header {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 4px 4px 0;
+	margin-bottom: 8px;
+}
+
+.headerTitle {
+	font-size: 17px;
+	line-height: 22px;
+	font-weight: 600;
+	color: var(--text_primary);
+}
+
+/* В старом заголовке ссылка стоит на 0,5px ниже середины строки заголовка */
+.headerAfter {
+	margin-left: auto;
+	position: relative;
+	top: 0.5px;
+}
+
+:global([data-layout='mobile']) .header {
+	padding: 4px 12px 0;
+}
+
+.headerLink {
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text_link);
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.headerLink:hover {
+	text-decoration: underline;
+}
+
+.headerLink svg {
+	display: inline-block;
+	vertical-align: middle;
+}
+
+.counter {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	box-sizing: border-box;
+	border-radius: 9px;
+	font-size: 12px;
+	line-height: 14px;
+	background: var(--counter_prominent_background);
+	color: var(--counter_prominent_text);
+}
+
+:global([data-layout='mobile']) .headerLink {
+	font-size: 16px;
+}

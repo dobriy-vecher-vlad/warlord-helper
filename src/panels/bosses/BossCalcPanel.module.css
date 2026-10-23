@@ -1,0 +1,103 @@
+/* Поля навыков: персонаж слева (ПК), справа сетка 2 + 3 поля */
+.inputs {
+	display: flex;
+	align-items: center;
+	padding: 24px 24px 32px;
+}
+
+/* Персонаж 128px (Avatar mode="app" VKUI 4): основа и три слоя экипировки */
+.persona {
+	position: relative;
+	flex-shrink: 0;
+	width: 128px;
+	height: 128px;
+	margin-right: 32px;
+	border-radius: 18px;
+	background: center / cover no-repeat;
+	overflow: hidden;
+}
+
+.persona span {
+	position: absolute;
+	inset: 0;
+	background-position-x: center;
+}
+
+.fields {
+	flex: 1;
+	min-width: 0;
+}
+
+.grid2,
+.grid3 {
+	display: grid;
+	gap: 8px;
+}
+
+.grid2 {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.grid3 {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	margin-top: 8px;
+}
+
+/* Значок 24px в конце поля (Input VKUI) */
+.inputIcon {
+	margin: 0 6px;
+	--icon-radius: 6px;
+}
+
+/* Телефон: поля с отступом 24px (снизу ещё 8px отступа), сетки с полями 8px (CardGrid) */
+:global([data-layout='mobile']) .inputs {
+	padding: 24px 24px 32px;
+}
+
+:global([data-layout='mobile']) .grid2,
+:global([data-layout='mobile']) .grid3 {
+	padding: 0 8px;
+}
+
+:global([data-layout='mobile']) .inputIcon {
+	margin: 0 10px;
+	--icon-radius: 8px;
+}
+
+/* Выбор босса, «Создать своего», ослабление: на ПК один ряд, на телефоне ослабление отдельным рядом */
+.selects {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.selects > * {
+	flex: 1;
+	min-width: 0;
+}
+
+.selects > .create {
+	flex: 0 0 auto;
+}
+
+:global([data-layout='mobile']) .selects {
+	flex-wrap: wrap;
+	padding: 0 8px;
+}
+
+/* Телефон: выбор босса ровно в половину ряда, кнопка — остаток */
+:global([data-layout='mobile']) .selects > :first-child {
+	flex: 0 0 50%;
+}
+
+:global([data-layout='mobile']) .selects > .create {
+	flex: 1;
+}
+
+:global([data-layout='mobile']) .selects > .discount {
+	flex: 0 0 100%;
+}
+
+.bannerGap {
+	margin-top: 8px;
+}

@@ -1,0 +1,368 @@
+/* --- Шапка с вкладками «Профили / Гильдии» ---
+   Классы повторены, чтобы перебить отступ карточки .AppGroup (html[data-layout] .AppGroup) */
+.headerCard.headerCard.headerCard {
+	margin-bottom: 16px;
+}
+
+/* Шапка: поля по краям одинаковые (4px), кнопки 44×44 сами по размеру, пустой слот 44px держит вкладки по центру */
+.desktopHeader {
+	display: flex;
+	align-items: center;
+	height: 38px;
+	padding: 0 4px;
+	margin: 0 -7px;
+}
+
+.headerSide {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	width: 44px;
+}
+
+.tabs {
+	display: flex;
+	flex: 1;
+	min-width: 0;
+	align-self: stretch;
+	align-items: center;
+}
+
+.tab {
+	position: relative;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex: 1;
+	height: 44px;
+	padding: 10px 12px;
+	box-sizing: border-box;
+	cursor: pointer;
+}
+
+.tabLabel {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_secondary);
+}
+
+.tabSelected .tabLabel {
+	color: var(--text_primary);
+}
+
+.tabUnderline {
+	position: absolute;
+	left: 12px;
+	right: 12px;
+	bottom: 3px;
+	height: 2px;
+	border-radius: 2px;
+	background: var(--accent);
+	opacity: 0;
+}
+
+.tabSelected .tabUnderline {
+	opacity: 1;
+}
+
+/* Телефон: закреплённая шапка 52px с «назад» и вкладками между слотами по 44px */
+.mobileHeader {
+	position: sticky;
+	top: 0;
+	z-index: 3;
+	display: flex;
+	align-items: center;
+	height: 52px;
+	padding: var(--vkui_internal--safe_area_inset_top, 0px) 4px 0;
+	box-sizing: content-box;
+	background: var(--header_background);
+	box-shadow: inset 0 -1px 0 var(--separator_common);
+}
+
+/* Вкладки в шапке на телефоне: 48px, подчёркивание в 5px от низа */
+.mobileHeader .tab {
+	height: 48px;
+	padding: 12px;
+}
+
+.mobileHeader .tabUnderline {
+	bottom: 5px;
+}
+
+.mobileHeader .tabLabel {
+	font-size: 16px;
+}
+
+/* «Назад»: цвет шапки, как в VKUI 4 */
+.back {
+	flex-shrink: 0;
+	color: var(--header_tint);
+}
+
+/* На телефоне Tappable VKUI 8 снимает скругление — возвращаем 10px, как на ПК */
+.back.back {
+	border-radius: 10px;
+}
+
+/* --- Карточки рейтингов: по две в ряд, первая во всю ширину --- */
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, calc((100% - 8px) / 2));
+	gap: 8px;
+}
+
+.cell {
+	min-width: 0;
+}
+
+.card.card.card {
+	margin-bottom: 0;
+	height: 100%;
+	box-sizing: border-box;
+}
+
+.wide {
+	grid-column: span 2;
+}
+
+.header {
+	display: flex;
+	align-items: flex-start;
+	padding: 0 8px;
+}
+
+.headerMain {
+	flex: 1;
+	min-width: 0;
+	margin: 6px 0 16px;
+}
+
+.title {
+	margin-top: -1px;
+	font-size: 17px;
+	line-height: 22px;
+	font-weight: 600;
+	color: var(--text_primary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.subtitle {
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.more {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	margin: 7px 0 0 12px;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text_link);
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+/* Стрелка в VKUI 4 на 2px ниже середины строки */
+.more svg {
+	margin-top: 4px;
+}
+
+.rows {
+	display: flex;
+	flex-direction: column;
+}
+
+/* Разделитель 16px с линией по центру (отступы 12px) */
+.separator {
+	position: relative;
+	height: 16px;
+	margin-bottom: 1px;
+}
+
+.separator::after {
+	content: '';
+	position: absolute;
+	left: 12px;
+	right: 12px;
+	top: 50%;
+	height: var(--thin-border);
+	background: var(--separator_common);
+}
+
+/* Квадрат с тегом гильдии (InitialsAvatar VKUI 4); класс повторён, чтобы перебить стиль ячейки таблицы */
+.tag.tag {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: linear-gradient(135deg, #b1b6bd, #99a2ad);
+	font-family: var(--font-display);
+	font-size: 12px;
+	line-height: 20px;
+	font-weight: 500;
+	text-transform: uppercase;
+	color: #fff;
+}
+
+.tag.tag.tag_red {
+	background: linear-gradient(135deg, #ff7583, #e52e40);
+}
+
+.tag.tag.tag_orange {
+	background: linear-gradient(135deg, #ffbf80, #e66b2e);
+}
+
+.tag.tag.tag_yellow {
+	background: linear-gradient(135deg, #ffd54f, #e7a902);
+}
+
+.tag.tag.tag_green {
+	background: linear-gradient(135deg, #6cd97e, #12b212);
+}
+
+.tag.tag.tag_l-blue {
+	background: linear-gradient(135deg, #7df1fa, #2bb4d6);
+}
+
+.tag.tag.tag_violet {
+	background: linear-gradient(135deg, #d3a6ff, #8f3fe0);
+}
+
+/* --- Поиск и дата обновления --- */
+.footerCard.footerCard.footerCard {
+	margin-top: 16px;
+}
+
+.gap8 {
+	height: 8px;
+}
+
+.footer {
+	font-size: 13px;
+	line-height: 16px;
+	text-align: center;
+	color: var(--text_secondary);
+}
+
+/* Телефон: карточки в одну колонку с полями 8px сверху и снизу, между ними линия; под шапкой 5px */
+:global([data-layout='mobile']) .grid {
+	grid-template-columns: minmax(0, 1fr);
+	gap: 0;
+	padding-top: 5px;
+}
+
+:global(html[data-layout='mobile']) .card.card.card {
+	padding: 8px 0;
+}
+
+:global([data-layout='mobile']) .header {
+	padding: 0 12px;
+}
+
+/* «Список» на телефоне: текст 16px, до стрелки — ширина пробела (в старом «Список » и значок) */
+:global([data-layout='mobile']) .more {
+	gap: 0.27em;
+	margin-top: 6px;
+	font-size: 16px;
+	line-height: 21px;
+}
+
+:global([data-layout='mobile']) .more svg {
+	margin-top: 5px;
+}
+
+:global([data-layout='mobile']) .wide {
+	grid-column: auto;
+}
+
+:global([data-layout='mobile']) .cell:not(:last-child)::after {
+	content: '';
+	display: block;
+	height: var(--thin-border);
+	background: var(--separator_common);
+}
+
+:global(html[data-layout='mobile']) .footerCard.footerCard.footerCard {
+	margin-top: 0;
+	padding: 8px 0;
+}
+
+/* --- Ошибка --- */
+.error {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
+}
+
+.error img {
+	width: 150px;
+	height: 150px;
+}
+
+.errorTitle,
+.errorText {
+	width: 50%;
+	margin-bottom: 12px;
+	line-height: 1.25;
+	color: var(--text_primary);
+}
+
+.errorTitle {
+	font-size: 24px;
+	font-weight: 600;
+}
+
+.errorText {
+	font-size: 17px;
+	font-weight: 500;
+}
+
+:global([data-layout='mobile']) .errorTitle,
+:global([data-layout='mobile']) .errorText {
+	width: 75%;
+}
+
+.errorAction {
+	color: var(--dynamic_blue);
+}
+
+/* --- Полный список --- */
+.listHead {
+	padding-bottom: 8px;
+}
+
+.avatarSpace {
+	height: 32px;
+}
+
+.listBottom {
+	padding: 2px 0;
+}
+
+.hint {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+	margin: auto;
+	font-size: 13px;
+	line-height: 20px;
+	text-align: center;
+	color: var(--text_secondary);
+}
+
+:global([data-layout='mobile']) .hint {
+	width: 75%;
+}

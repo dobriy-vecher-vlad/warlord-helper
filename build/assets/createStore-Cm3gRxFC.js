@@ -1,0 +1,1 @@
+import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t}from"./react-HFaXCuHX.js";var n=e(t(),1);function r(e){let t=e,n=new Set;return{get:()=>t,set:e=>{t=typeof e==`function`?e(t):{...t,...e},n.forEach(e=>e())},subscribe:e=>(n.add(e),()=>n.delete(e))}}function i(e,t){return(0,n.useSyncExternalStore)(e.subscribe,()=>t(e.get()))}export{i as n,r as t};

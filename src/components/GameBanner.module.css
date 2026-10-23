@@ -1,0 +1,188 @@
+/* Баннер босса: фон локации затемнён, фигура босса отражена и выглядывает слева снизу */
+.banner {
+	position: relative;
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--content_tint_background);
+}
+
+.background {
+	position: absolute;
+	inset: 0;
+	background: #9c9c9c center / cover;
+	background-blend-mode: multiply;
+}
+
+.person {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 1;
+	transform: scale(-1, 1) translate(25%, 50%);
+}
+
+.content {
+	position: relative;
+	z-index: 2;
+	display: flex;
+	flex-direction: column;
+	padding: 16px 0 0 16px;
+	box-sizing: border-box;
+	color: #fff;
+}
+
+.title {
+	font-size: 20px;
+	line-height: 16px;
+	font-weight: 500;
+}
+
+.subtitle {
+	margin: 4px 0 8px;
+	font-size: 15px;
+	line-height: 20px;
+	opacity: 0.72;
+}
+
+/* Панель результатов: пергамент в золотой рамке */
+.actions {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	/* 60% — без внутренних отступов, как в VKUI 4 */
+	width: 60%;
+	margin: 16px 0 0 auto;
+	padding: 8px;
+	box-sizing: content-box;
+	border-radius: 5px 0 0;
+	background: #ecd6be;
+	box-shadow:
+		0 0 0 3px #d0b9a3,
+		0 0 0 5px #5b4113,
+		0 0 0 11px #ffbc11,
+		0 0 0 13px #00000080;
+}
+
+.parchment {
+	display: flex;
+	flex-direction: column;
+	height: 58px;
+	padding: 9px 8px 0;
+	box-sizing: border-box;
+	background: #e8d1bb;
+	box-shadow:
+		0 0 0 1px #cab29b,
+		0 0 0 2px #ecd5bd,
+		inset 0 0 0 1px #ecd5bd,
+		inset 0 0 0 2px #cab29b;
+}
+
+.value {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: #000;
+}
+
+.label {
+	margin-top: 3px;
+	font-size: 13px;
+	line-height: 16px;
+	color: #8a7149;
+}
+
+/* Телефон: фигура над панелью, панель снизу на всю ширину */
+:global([data-layout='mobile']) .banner {
+	margin: 0 8px;
+}
+
+:global([data-layout='mobile']) .content {
+	padding: 16px 16px 0;
+}
+
+:global([data-layout='mobile']) .actions {
+	width: calc(100% - 32px - 13px);
+	margin: 216px auto 0;
+	border-radius: 5px 5px 0 0;
+}
+
+:global([data-layout='mobile']) .person {
+	bottom: auto;
+	transform: scale(-1, 1);
+}
+
+/* Телефон: подзаголовок 16px, в карточках поля 12px, значение 16px и серая подпись (обычная плотность VKUI 4) */
+:global([data-layout='mobile']) .subtitle {
+	font-size: 16px;
+}
+
+:global([data-layout='mobile']) .parchment:not(.withBadge) {
+	padding: 9px 12px 0;
+}
+
+:global([data-layout='mobile']) .parchment:not(.withBadge) .value {
+	font-size: 16px;
+}
+
+:global([data-layout='mobile']) .parchment:not(.withBadge) .label {
+	color: var(--text_secondary);
+}
+
+/* Предмет (калькулятор улучшения) */
+.item {
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	z-index: 1;
+	transform: translate(15%, -15%);
+}
+
+:global([data-layout='mobile']) .item {
+	left: 50%;
+	bottom: auto;
+	transform: translate(-50%, 50%);
+}
+
+/* Карточка с номером уровня слева (calc предметов): 54px, текст от верха 9px, номер по центру */
+.withBadge {
+	flex-direction: row;
+	align-items: flex-start;
+	height: 54px;
+	padding: 0 12px 0 8px;
+}
+
+.withBadge .badge {
+	align-self: center;
+}
+
+.withBadge .parchmentBody {
+	padding-top: 9px;
+}
+
+/* Телефон: карточка уровня 53px, подпись на 1px выше */
+:global([data-layout='mobile']) .withBadge {
+	height: 53px;
+}
+
+:global([data-layout='mobile']) .withBadge .label {
+	margin-top: 2px;
+}
+
+.badge {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+	width: 24px;
+	height: 24px;
+	margin-right: 8px;
+	font-weight: 500;
+	line-height: 24px;
+	color: #7b6137;
+}
+
+.parchmentBody {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}

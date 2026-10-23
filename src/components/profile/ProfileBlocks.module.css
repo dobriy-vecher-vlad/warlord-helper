@@ -1,0 +1,41 @@
+/* --- Вкладки: штатные Tabs/TabsItem VKUI; поля 12px вместо 16px, как в VKUI 4 --- */
+/* На ПК вкладки на всю ширину карточки: выступают за её поля 8px */
+:global([data-layout='desktop']) .tabs {
+	margin: 0 -8px;
+}
+
+/* Ряд вкладок не уже блока; на ПК по краям пустые блоки по 8px, возвращая поле, срезанное у родителя */
+.list {
+	display: flex;
+	box-sizing: border-box;
+	width: max-content;
+	min-width: 100%;
+}
+
+:global([data-layout='desktop']) .list::before,
+:global([data-layout='desktop']) .list::after {
+	content: '';
+	flex: none;
+	width: 8px;
+}
+
+.tab.tab {
+	padding-left: 12px;
+	padding-right: 12px;
+}
+
+.tab :global(.vkuiTabsItem__underline) {
+	left: 12px;
+	right: 12px;
+}
+
+.tabStatus {
+	/* Число рядом с названием вкладки: 13/16, как в старом (у VKUI 8 было 16px) */
+	font-size: 13px;
+	line-height: 16px;
+	font-weight: 500;
+	color: var(--text_tertiary);
+	/* Как в старом: число на 1,5px выше центра строки */
+	position: relative;
+	top: -1.5px;
+}

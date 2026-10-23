@@ -1,0 +1,84 @@
+.gallery {
+	/* Высота как в старом приложении: 178px на телефоне, пропорционально больше на десктопе */
+	height: 178px;
+}
+
+:global([data-layout='desktop']) .gallery {
+	margin: 0 -7px;
+	height: calc(375 / ((318 + 8) / 100) / 100 * 178px);
+}
+
+.slide {
+	height: 100%;
+	padding: 0 12px;
+	box-sizing: border-box;
+}
+
+:global([data-layout='desktop']) .slide {
+	padding: 0 7px;
+}
+
+.banner {
+	position: relative;
+	height: 100%;
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--content_tint_background);
+}
+
+.preload {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	color: var(--icon_secondary);
+}
+
+.image {
+	position: absolute;
+	inset: 0;
+	background-size: cover;
+	background-position: center;
+}
+
+.content {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: 16px;
+	background: linear-gradient(0deg, rgb(0 0 0 / 75%), rgb(0 0 0 / 0%));
+	color: #fff;
+}
+
+.title {
+	font-size: 20px;
+	line-height: 24px;
+	font-weight: 500;
+}
+
+/* Как Banner__subheader в VKUI 4: белый, приглушённый прозрачностью */
+.subtitle {
+	margin-top: 4px;
+	opacity: 0.72;
+	font-size: 15px;
+	line-height: 20px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Размер спиннера как у VKUI 4 (large) */
+.preload svg {
+	width: 55px;
+	height: 55px;
+}
+
+:global([data-layout='mobile']) .subtitle {
+	font-size: 16px;
+}
+
+:global([data-layout='mobile']) .preload svg {
+	width: 44px;
+	height: 44px;
+}

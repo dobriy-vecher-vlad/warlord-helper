@@ -1,0 +1,1 @@
+var e=(e,t)=>e.reduce((e,n)=>e+n[t].length,0);export{e as t};

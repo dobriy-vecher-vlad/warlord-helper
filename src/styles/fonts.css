@@ -1,0 +1,14 @@
+/*
+ * VK Sans Display 500 — шрифт крупных заголовков (как в старом приложении: VKUI 4 и заголовок «Новости» на главной).
+ * Остальной текст — системный шрифт VKUI.
+ */
+@font-face {
+	font-family: 'VK Sans Display';
+	src: url('../fonts/VKSansDisplay-Medium.ttf') format('truetype');
+	font-weight: 500;
+	font-display: swap;
+}
+
+:root {
+	--font-display: 'VK Sans Display', var(--vkui--font_family_base);
+}

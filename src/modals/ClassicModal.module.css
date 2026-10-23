@@ -1,0 +1,72 @@
+/* Шапка 52px: по краям одинаковые поля 4px, кнопки 44×44 сами по размеру, заголовок по центру шрифтом VK Sans Display 21px, снизу разделитель */
+.header {
+	position: relative;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	height: 52px;
+	padding: 0 4px;
+	box-sizing: border-box;
+	box-shadow: inset 0 -1px 0 var(--separator_common);
+}
+
+.before,
+.after {
+	position: relative;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+}
+
+.after {
+	margin-left: auto;
+}
+
+.title {
+	position: absolute;
+	inset: 0;
+	padding: 0 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 26px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--text_primary);
+	font-family: var(--font-display);
+	font-size: 21px;
+	font-weight: 500;
+	pointer-events: none;
+}
+
+/* Размер и подложка — штатные у PanelHeaderButton (44×44) */
+.button {
+	color: var(--header_tint);
+}
+
+/* На телефоне Tappable VKUI 8 снимает скругление (media max-width 767.9px) — возвращаем 10px, как на ПК */
+.button.button,
+.textButton.textButton {
+	border-radius: 10px;
+}
+
+.button[aria-disabled='true'],
+.button[disabled] {
+	opacity: 0.4;
+	cursor: default;
+}
+
+/* Текстовая кнопка: высота 44 штатная (primitive у PanelHeaderButton), поля 12px вместо 10px */
+.textButton.textButton {
+	padding: 0 12px;
+}
+
+.content {
+	padding-bottom: 0;
+}
+
+/* Закреплённый низ окна: линия сверху, как под шапкой */
+.footer {
+	box-shadow: inset 0 1px 0 var(--separator_common);
+}

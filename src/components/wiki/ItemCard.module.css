@@ -1,0 +1,133 @@
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .grid {
+	grid-template-columns: minmax(0, 1fr);
+	padding: 0 8px;
+}
+
+.card {
+	display: flex;
+	align-items: center;
+	padding: 4px;
+	border-radius: 10px;
+	cursor: pointer;
+	min-width: 0;
+}
+
+.withAction {
+	cursor: default;
+}
+
+.image {
+	position: relative;
+	flex-shrink: 0;
+	width: 60px;
+	height: 60px;
+	margin-right: 6px;
+	border-radius: 12px;
+	overflow: hidden;
+}
+
+.image img {
+	position: relative;
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: none;
+}
+
+.preload {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	color: var(--icon_secondary);
+}
+
+.body {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.title {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.caption {
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.after {
+	flex-shrink: 0;
+	display: flex;
+	width: 28px;
+	justify-content: flex-end;
+	color: var(--dynamic_blue);
+}
+
+/* Телефон: больше отступ после картинки и крупнее подпись (обычная плотность VKUI 4) */
+:global([data-layout='mobile']) .image {
+	margin-right: 18px;
+}
+
+:global([data-layout='mobile']) .caption {
+	font-size: 14px;
+	line-height: 18px;
+}
+
+/* Профиль: по три карточки в ряд на ПК и по две на телефоне (CardGrid s / m) */
+.grid.wide {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+:global([data-layout='mobile']) .grid.wide {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+/* Строка под подписью (камни): карточка выравнивается по верху, как RichCell с bottom */
+.bottom {
+	display: flex;
+	margin-top: 5px;
+}
+
+.withBottom {
+	align-items: flex-start;
+}
+
+/* Карточка выбора (Card__Item--checkbox): светлая подложка и тонкая рамка; выбранная — рамка акцентного цвета */
+.selectable {
+	background-color: var(--background_light);
+	box-shadow: inset 0 0 0 var(--thin-border) var(--image_border);
+}
+
+.selected {
+	box-shadow: inset 0 0 0 var(--thin-border) var(--accent);
+}
+
+/* Карточка с кнопкой справа: подпись переносится, кнопка по центру по высоте */
+.withAction .caption {
+	white-space: normal;
+}
+
+.action {
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	padding-left: 4px;
+}

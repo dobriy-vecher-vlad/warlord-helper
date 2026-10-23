@@ -1,0 +1,62 @@
+/* Подсказка «Выберите предмет»: высота как у выбранного предмета с характеристиками */
+.hint {
+	overflow: hidden;
+}
+
+/* Выбранный предмет внизу: без подложки и рамки (Card__Item--action) */
+.selected {
+	display: flex;
+	flex-direction: column;
+}
+
+:global([data-layout='mobile']) .selected {
+	padding: 0 8px;
+}
+
+/* --- Характеристики выбранного предмета (CounterCell) --- */
+.counters {
+	display: flex;
+	justify-content: center;
+	align-items: stretch;
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .counters {
+	flex-wrap: wrap;
+}
+
+.counter {
+	display: flex;
+	align-items: center;
+	gap: 24px;
+	padding: 8px 16px;
+	border-radius: 10px;
+	box-shadow: inset 0 0 0 var(--thin-border) var(--image_border);
+}
+
+.counterTitle,
+.counterText {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--text_primary);
+}
+
+.counterContent {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.counterText {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.counterText:not(:first-child) {
+	color: var(--button_commerce_background);
+}

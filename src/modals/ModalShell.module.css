@@ -1,0 +1,198 @@
+.content {
+	padding: 12px;
+}
+
+:global([data-layout='mobile']) .content {
+	/* Отступы как в старом окне на телефоне (включая 8px в конце, которые добавлял старый код) */
+	padding: 8px 0;
+}
+
+/* Крупная картинка с размытым свечением (десктоп) */
+.previewHeader {
+	position: relative;
+	text-align: center;
+	overflow: hidden;
+	margin: -12px -12px 0;
+	/* Как в старом: пустая шапка окна 52px с отступом -44px и ещё 24px до картинки */
+	padding: 44px 12px 0;
+}
+
+.previewActions {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	z-index: 2;
+}
+
+.preview {
+	position: relative;
+	display: block;
+	width: 128px;
+	height: 128px;
+	margin: 0 auto;
+}
+
+.preview .picture {
+	position: relative;
+	z-index: 1;
+	display: block;
+	width: 128px;
+	height: 128px;
+	border-radius: 8px;
+	object-fit: cover;
+	box-shadow: 0 0 16px rgb(0 0 0 / 50%);
+}
+
+.glow {
+	position: absolute;
+	left: -64px;
+	top: -192px;
+	width: 256px;
+	height: 256px;
+	border-radius: 8px;
+	filter: blur(30px) brightness(1.5);
+	pointer-events: none;
+}
+
+:global(.vkui--vkIOS--dark) .glow {
+	opacity: 0.25;
+}
+
+.previewTitle,
+.previewDescription {
+	position: relative;
+	z-index: 1;
+	font-size: 16px;
+	line-height: 21px;
+}
+
+.previewTitle {
+	margin-top: 12px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.previewDescription {
+	color: var(--text_secondary);
+}
+
+/* Линия под описанием: на 12px ниже, чем у обычного разделителя */
+.previewDivider {
+	margin-top: 12px;
+}
+
+/* Компактная шапка (телефон): 60px, картинка 36px, крестик справа, линия на всю ширину */
+.mobileHeader {
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	height: 60px;
+	padding: 0 4px 0 12px;
+	box-sizing: border-box;
+	box-shadow: inset 0 calc(-1 * var(--thin-border)) 0 var(--separator_common);
+	text-align: left;
+}
+
+/* Кнопка 44×44 (PanelHeaderButton) в 4px от края окна */
+.mobileClose {
+	flex-shrink: 0;
+	margin-left: auto;
+	color: var(--icon_secondary);
+}
+
+/* Круглая кнопка; на телефоне Tappable VKUI 8 снимает скругление, поэтому селектор усилен */
+.mobileClose.mobileClose {
+	border-radius: 50%;
+}
+
+.small {
+	flex-shrink: 0;
+	display: block;
+	width: 36px;
+	height: 36px;
+	margin-right: 12px;
+}
+
+.small .picture {
+	display: block;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	object-fit: cover;
+}
+
+.mobileText {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+}
+
+.mobileName {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.mobileDescription {
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}
+
+/* Шапка окна без картинки (десктоп): 52px, поля 4px, заголовок по центру, линия снизу на всю ширину */
+.plainHeader {
+	position: relative;
+	display: flex;
+	align-items: center;
+	flex-shrink: 0;
+	height: 52px;
+	padding: 0 4px;
+	box-sizing: border-box;
+	box-shadow: inset 0 -1px 0 var(--separator_common);
+}
+
+.plainActions {
+	position: relative;
+	z-index: 1;
+	margin-left: auto;
+}
+
+.plainTitle {
+	position: absolute;
+	inset: 0;
+	padding: 0 60px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 26px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	color: var(--text_primary);
+	font-family: var(--font-display);
+	font-size: 21px;
+	font-weight: 500;
+	pointer-events: none;
+}
+
+/* Рамка картинки с обводкой (ImageBorder): скругление как у картинки */
+.frame {
+	display: block;
+	z-index: 1;
+}
+
+.preview .frame {
+	width: 128px;
+	height: 128px;
+	border-radius: 8px;
+}
+
+.small .frame {
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+}

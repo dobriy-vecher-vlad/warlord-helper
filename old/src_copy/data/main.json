@@ -1,0 +1,134 @@
+{
+	"news": [{
+		"link": "https://vk.com/wall-138604865_5976",
+		"title": "Одноклассники",
+		"description": "10 марта 2023",
+		"icon": "main/news_20.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_5518",
+		"title": "Пополнение ассортимента",
+		"description": "28 декабря 2022",
+		"icon": "main/news_18.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_4996",
+		"title": "Кузница и порядок сортировки",
+		"description": "30 сентября 2022",
+		"icon": "main/news_17.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_4181",
+		"title": "Яндекс",
+		"description": "16 мая 2022",
+		"icon": "main/news_19.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_4139",
+		"title": "Автоматизация ресурсов",
+		"description": "10 мая 2022",
+		"icon": "main/news_16.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_4002",
+		"title": "Рейтинг гильдий",
+		"description": "19 апреля 2022",
+		"icon": "main/news_15.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3663",
+		"title": "Рейтинг",
+		"description": "06 февраля 2022",
+		"icon": "main/news_14.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3366",
+		"title": "Пополнение ассортимента",
+		"description": "30 ноября 2021",
+		"icon": "main/news_13.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3303",
+		"title": "Автоматизация арены",
+		"description": "01 ноября 2021",
+		"icon": "main/news_12.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3224",
+		"title": "Профили и Рейды",
+		"description": "09 октября 2021",
+		"icon": "main/news_11.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3087",
+		"title": "Пополнение ассортимента",
+		"description": "30 августа 2021",
+		"icon": "main/news_10.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3036",
+		"title": "Мобильная версия",
+		"description": "19 августа 2021",
+		"icon": "main/news_9.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_3016",
+		"title": "Обновление рейдов",
+		"description": "09 августа 2021",
+		"icon": "main/news_8.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2937",
+		"title": "Автоматизация рейдов",
+		"description": "05 июня 2021",
+		"icon": "main/news_7.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2908",
+		"title": "Сканер друзей",
+		"description": "01 июня 2021",
+		"icon": "main/news_6.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2596",
+		"title": "Пополнение ассортимента",
+		"description": "14 мая 2021",
+		"icon": "main/news_5.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2577",
+		"title": "Боссы, Обыск и Мустафа",
+		"description": "03 мая 2021",
+		"icon": "main/news_4.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2500",
+		"title": "Калькулятор боссов",
+		"description": "16 апреля 2021",
+		"icon": "main/news_3.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2489",
+		"title": "Антарес и Разное",
+		"description": "12 апреля 2021",
+		"icon": "main/news_2.png"
+	}, {
+		"link": "https://vk.com/wall-138604865_2459",
+		"title": "Коллекции и Кузница",
+		"description": "10 апреля 2021",
+		"icon": "main/news_1.png"
+	}],
+	"banners": [{
+		"link": "https://chrome.google.com/webstore/detail/warlord-script/lnohbnecjodgkjkfcfaamadbeiapofoa",
+		"title": "Warlord Script",
+		"description": "Расширение, позволяющее смотреть\nлюбые характеристики игроков",
+		"action": "Установить",
+		"icon": "main/label_1.png"
+	}, {
+		"link": "https://vk.com/wiki.warlord",
+		"title": "Сообщество приложения",
+		"description": "Вся информация по игре\nи многое другое",
+		"action": "Вступить",
+		"icon": "main/label_2.png"
+	}, {
+		"link": "https://vk.com/club125247255",
+		"title": "События Warlord",
+		"description": "Новости игры, энергия\nи многое другое",
+		"action": "Вступить",
+		"icon": "main/label_5.png"
+	}, {
+		"link": "https://vk.com/club133931816",
+		"title": "Конституционный Cуд",
+		"description": "Вас кинули? Обманули?\nВам некуда податься?",
+		"action": "Сообщить",
+		"icon": "main/label_4.png"
+	}, {
+		"link": "https://vk.com/club122851042",
+		"title": "Сообщество игры",
+		"description": "Официальное сообщество\nс розыгрышами призов",
+		"action": "Вступить",
+		"icon": "main/label_3.png"
+	}]
+}

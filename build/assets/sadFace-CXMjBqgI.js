@@ -1,0 +1,1 @@
+var e=new URL(`sadFace-BOIyDIV2.svg`,import.meta.url).href;export{e as t};

@@ -1078,7 +1078,7 @@
 			"icon": "arena/chest_1.png"
 		}, {
 			"title": "Серебряный сундук",
-			"description": "Лига войнов I",
+			"description": "Лига воинов I",
 			"time": 10800,
 			"skip": 15,
 			"items": [

@@ -1,0 +1,273 @@
+/* PullToRefresh VKUI 8: своя кнопка «Обновить» не нужна */
+.refresh :global(.vkuiPullToRefresh__refreshAction) {
+	display: none;
+}
+
+/* --- Ресурсы над карточками: картинка 18px и число, строка 30px, по краям 16px --- */
+.chips {
+	margin: 0 -8px;
+}
+
+.chipsIn {
+	display: flex;
+	padding: 0 16px;
+}
+
+:global([data-layout='mobile']) .chips {
+	margin: 0;
+}
+
+:global([data-layout='mobile']) .chipsIn {
+	padding: 0 12px;
+}
+
+.chip {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	gap: 6px;
+	padding: 6px 0;
+	white-space: nowrap;
+	font-size: 13px;
+	line-height: 18px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.chip + .chip {
+	margin-left: 18px;
+}
+
+.chip img {
+	display: block;
+	width: 18px;
+	height: 18px;
+	border-radius: 4px;
+	object-fit: cover;
+}
+
+/* --- Карточки действий: по две в ряд через 4px --- */
+.cards {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 4px;
+}
+
+:global([data-layout='mobile']) .cards {
+	grid-template-columns: minmax(0, 1fr);
+	margin: 0 8px;
+}
+
+.card {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	padding: 12px 16px;
+	border-radius: 10px;
+	background: var(--content_tint_background);
+	overflow: hidden;
+	cursor: default;
+}
+
+/* Тонкая рамка поверх содержимого */
+.card::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border: var(--thin-border) solid #e9e9e9;
+	border-radius: inherit;
+	pointer-events: none;
+}
+
+:global(.vkui--vkIOS--dark) .card::after {
+	border-color: #2b2b2b;
+}
+
+.cardDisabled {
+	opacity: 0.5;
+	pointer-events: none;
+	user-select: none;
+}
+
+.cardIn {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+/* Подсказка поверх недоступной карточки */
+.hint {
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 12px 16px;
+	border-radius: inherit;
+	background-color: rgb(245 245 245 / 75%);
+	text-align: center;
+	text-transform: lowercase;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_primary);
+}
+
+.hint::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	z-index: 1;
+	border: var(--thin-border) solid var(--input_border, #e1e3e6);
+	border-radius: inherit;
+}
+
+:global(.vkui--vkIOS--dark) .hint {
+	background-color: rgb(35 35 36 / 75%);
+}
+
+.head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.headTitle,
+.headAfter {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.headAfter {
+	font-size: 12px;
+	color: var(--text_secondary);
+}
+
+.body {
+	margin: 2px 0 auto;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}
+
+.link {
+	display: inline-flex;
+	color: var(--text_link);
+	text-decoration: none;
+}
+
+.link svg {
+	margin-left: 4px;
+}
+
+.bottom {
+	display: grid;
+	grid-template-columns: repeat(2, calc((100% - 12px) / 2));
+	gap: 12px;
+	margin-top: 12px;
+}
+
+.bottom > * {
+	height: fit-content;
+}
+
+.bottom > :only-child {
+	grid-column: span 2;
+}
+
+.bottomExtra {
+	margin-top: 0;
+}
+
+/* Разделитель во всю ширину карточки */
+.cardSeparator {
+	position: relative;
+	height: 16px;
+	margin: 0 -16px 1px;
+}
+
+.cardSeparator::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 50%;
+	height: var(--thin-border);
+	background: #e9e9e9;
+}
+
+:global(.vkui--vkIOS--dark) .cardSeparator::after {
+	background: #2b2b2b;
+}
+
+/* Флажок «Собирать со всех» (Checkbox VKUI): строка на всю ширину карточки, значок в 16px от края, подпись 13/16 */
+.checkbox.checkbox {
+	box-sizing: border-box;
+	width: calc(100% + 32px);
+	min-height: 20px;
+	margin: -8px -16px -12px;
+	padding: 8px 16px 12px;
+	border-radius: 0;
+}
+
+.checkbox.checkbox :global(.vkuiCheckboxInput__host),
+.checkbox.checkbox :global(.vkuiCheckboxInput__host) svg {
+	width: 20px;
+	height: 20px;
+}
+
+.checkbox.checkbox :global(.vkuiSelectionControlLabel__host) {
+	margin: 0 0 0 8px;
+	padding: 0;
+}
+
+.checkbox.checkbox :global(.vkuiSelectionControlLabel__title) {
+	font-size: 13px;
+	line-height: 16px;
+}
+
+/* Поля номера набега (Input VKUI): 28px, текст 13/16 */
+.input {
+	box-sizing: border-box;
+	min-height: 28px;
+}
+
+.input :global(.vkuiFormField__content) {
+	align-items: center;
+	min-height: 26px;
+	margin: 1px 0;
+}
+
+.input :global(.vkuiInput__el) {
+	height: fit-content;
+	padding: 1px 11px;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+/* Число профилей на кнопке «Собрать со всех» (Counter s prominent на вторичной кнопке VKUI 4): цвет текста кнопки, цифра цветом фона */
+.counter {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	box-sizing: border-box;
+	border-radius: 9px;
+	background: currentColor;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+.counter > span {
+	color: var(--background_content);
+}

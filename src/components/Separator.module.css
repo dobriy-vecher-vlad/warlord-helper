@@ -1,0 +1,6 @@
+/* Линия 1px по центру блока рисуется его фоном (без псевдоэлемента) */
+.separator {
+	margin-left: calc(-1 * var(--bleed, 0px));
+	margin-right: calc(-1 * var(--bleed, 0px));
+	background: linear-gradient(var(--separator_common), var(--separator_common)) center / calc(100% - 2 * var(--inset, 0px)) var(--thin-border) no-repeat;
+}

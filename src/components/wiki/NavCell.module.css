@@ -1,0 +1,169 @@
+.cell {
+	display: flex;
+	align-items: center;
+	min-height: 64px;
+	padding: 0 8px;
+	box-sizing: border-box;
+	border-radius: 10px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.image,
+.icon {
+	flex-shrink: 0;
+	width: 48px;
+	height: 48px;
+	margin: 8px 16px 8px 0;
+	border-radius: 10px;
+}
+
+.image img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	border-radius: inherit;
+	object-fit: cover;
+}
+
+.icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--accent);
+}
+
+.body {
+	display: flex;
+	flex-direction: column;
+	flex: 1;
+	min-width: 0;
+}
+
+.title {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.subtitle {
+	margin-top: 3px;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}
+
+.indicator {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+	padding: 10px 0 10px 4px;
+	text-align: right;
+	overflow: hidden;
+}
+
+.count {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.countLabel {
+	margin-top: 3px;
+	font-size: 14px;
+	line-height: 18px;
+	color: var(--text_secondary);
+}
+
+.chevron {
+	flex-shrink: 0;
+	margin-left: 12px;
+	color: var(--icon_tertiary);
+}
+
+/* Отметка выбранной строки на месте стрелки */
+.selected {
+	flex-shrink: 0;
+	margin-left: 12px;
+	color: var(--accent);
+}
+
+/* Телефон: «обычная» плотность VKUI 4 — строка 61px, поля 12px, текст крупнее и тоньше */
+:global([data-layout='mobile']) .cell {
+	min-height: 61px;
+	padding: 0 12px;
+	/* Строка во всю ширину экрана: подсветка без скруглений */
+	border-radius: 0;
+}
+
+:global([data-layout='mobile']) .image,
+:global([data-layout='mobile']) .icon {
+	margin: 7px 12px 6px 0;
+}
+
+:global([data-layout='mobile']) .title {
+	font-size: 16px;
+	font-weight: 400;
+}
+
+:global([data-layout='mobile']) .subtitle {
+	margin-top: 2px;
+}
+
+:global([data-layout='mobile']) .count {
+	font-weight: 400;
+}
+
+/* Текстовый блок 38px в строке 61px: VKUI 4 округлял центровку вверх */
+:global([data-layout='mobile']) .body,
+:global([data-layout='mobile']) .indicator {
+	position: relative;
+	top: -1px;
+}
+
+/* Профиль: строка без счётчика 60px, со счётчиком 61px; картинка по центру строки */
+:global([data-layout='mobile']) .profile {
+	min-height: 60px;
+}
+
+:global([data-layout='mobile']) .profile .image,
+:global([data-layout='mobile']) .profile .icon {
+	margin: 6px 12px 6px 0;
+}
+
+/* Строка с иконкой вместо картинки и без подписи: высота 48px, значок в колонке 48px без вертикальных полей */
+.compact,
+:global([data-layout='mobile']) .compact {
+	min-height: 48px;
+}
+
+.compact .icon {
+	margin: 0 16px 0 0;
+}
+
+:global([data-layout='mobile']) .compact .icon {
+	margin: 0 12px 0 0;
+}
+
+/* Строка без действия */
+.static {
+	cursor: default;
+}
+
+/* Метка справа, перед стрелкой */
+.after {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	margin-left: 8px;
+}
+
+/* Метка перед числом: небольшой зазор до числа */
+.badge {
+	display: flex;
+	flex-shrink: 0;
+	align-items: center;
+	margin: 0 4px 0 8px;
+}

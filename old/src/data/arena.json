@@ -1,0 +1,1423 @@
+{
+	"images": ["arena/label_1.png"],
+	"season": [{
+		"name": "Предметы за 2016 год",
+		"month": [
+			{
+				"name": "Июль 2016",
+				"items": [
+					{
+						"id": 116,
+						"item": true
+					},
+					{
+						"id": 603,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2016_7.png"
+			}, {
+				"name": "Август 2016",
+				"items": [
+					{
+						"id": 181,
+						"item": true
+					},
+					{
+						"id": 40,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2016_8.png"
+			}, {
+				"name": "Сентябрь 2016",
+				"items": [
+					{
+						"id": 127,
+						"item": true
+					},
+					{
+						"id": 124,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2016_9.png"
+			}, {
+				"name": "Октябрь 2016",
+				"items": [
+					{
+						"id": 148,
+						"item": true
+					},
+					{
+						"id": 539,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2016_10.png"
+			}, {
+				"name": "Ноябрь 2016",
+				"items": [
+					{
+						"id": 592,
+						"item": true
+					},
+					{
+						"id": 153,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2016_11.png"
+			}, {
+				"name": "Декабрь 2016",
+				"items": [
+					{
+						"id": 595,
+						"item": true
+					},
+					{
+						"id": 163,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2016_12.png"
+			}
+		]
+	}, {
+		"name": "Предметы за 2017 год",
+		"month": [
+			{
+				"name": "Январь 2017",
+				"items": [
+					{
+						"id": 135,
+						"item": true
+					},
+					{
+						"id": 61,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_1.png"
+			}, {
+				"name": "Февраль 2017",
+				"items": [
+					{
+						"id": 577,
+						"item": true
+					},
+					{
+						"id": 67,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_2.png"
+			}, {
+				"name": "Март 2017",
+				"items": [
+					{
+						"id": 83,
+						"item": true
+					},
+					{
+						"id": 65,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_3.png"
+			}, {
+				"name": "Апрель 2017",
+				"items": [
+					{
+						"id": 84,
+						"item": true
+					},
+					{
+						"id": 86,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_4.png"
+			}, {
+				"name": "Май 2017",
+				"items": [
+					{
+						"id": 90,
+						"item": true
+					},
+					{
+						"id": 88,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_5.png"
+			}, {
+				"name": "Июнь 2017",
+				"items": [
+					{
+						"id": 102,
+						"item": true
+					},
+					{
+						"id": 100,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_6.png"
+			}, {
+				"name": "Июль 2017",
+				"items": [
+					{
+						"id": 105,
+						"item": true
+					},
+					{
+						"id": 107,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_7.png"
+			}, {
+				"name": "Август 2017",
+				"items": [
+					{
+						"id": 579,
+						"item": true
+					},
+					{
+						"id": 111,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_8.png"
+			}, {
+				"name": "Сентябрь 2017",
+				"items": [
+					{
+						"id": 582,
+						"item": true
+					},
+					{
+						"id": 117,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_9.png"
+			}, {
+				"name": "Октябрь 2017",
+				"items": [
+					{
+						"id": 122,
+						"item": true
+					},
+					{
+						"id": 583,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_10.png"
+			}, {
+				"name": "Ноябрь 2017",
+				"items": [
+					{
+						"id": 129,
+						"item": true
+					},
+					{
+						"id": 131,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_11.png"
+			}, {
+				"name": "Декабрь 2017",
+				"items": [
+					{
+						"id": 142,
+						"item": true
+					},
+					{
+						"id": 146,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2017_12.png"
+			}
+		]
+	}, {
+		"name": "Предметы за 2018 год",
+		"month": [
+			{
+				"name": "Январь 2018",
+				"items": [
+					{
+						"id": 584,
+						"item": true
+					},
+					{
+						"id": 143,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_1.png"
+			}, {
+				"name": "Февраль 2018",
+				"items": [
+					{
+						"id": 154,
+						"item": true
+					},
+					{
+						"id": 155,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_2.png"
+			}, {
+				"name": "Март 2018",
+				"items": [
+					{
+						"id": 157,
+						"item": true
+					},
+					{
+						"id": 159,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_3.png"
+			}, {
+				"name": "Апрель 2018",
+				"items": [
+					{
+						"id": 160,
+						"item": true
+					},
+					{
+						"id": 598,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_4.png"
+			}, {
+				"name": "Май 2018",
+				"items": [
+					{
+						"id": 62,
+						"item": true
+					},
+					{
+						"id": 59,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_5.png"
+			}, {
+				"name": "Июнь 2018",
+				"items": [
+					{
+						"id": 576,
+						"item": true
+					},
+					{
+						"id": 68,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_6.png"
+			}, {
+				"name": "Июль 2018",
+				"items": [
+					{
+						"id": 71,
+						"item": true
+					},
+					{
+						"id": 72,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_7.png"
+			}, {
+				"name": "Август 2018",
+				"items": [
+					{
+						"id": 580,
+						"item": true
+					},
+					{
+						"id": 73,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_8.png"
+			}, {
+				"name": "Сентябрь 2018",
+				"items": [
+					{
+						"id": 76,
+						"item": true
+					},
+					{
+						"id": 537,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_9.png"
+			}, {
+				"name": "Октябрь 2018",
+				"items": [
+					{
+						"id": 77,
+						"item": true
+					},
+					{
+						"id": 78,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_10.png"
+			}, {
+				"name": "Ноябрь 2018",
+				"items": [
+					{
+						"id": 80,
+						"item": true
+					},
+					{
+						"id": 79,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_11.png"
+			}, {
+				"name": "Декабрь 2018",
+				"items": [
+					{
+						"id": 561,
+						"item": true
+					},
+					{
+						"id": 87,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2018_12.png"
+			}
+		]
+	}, {
+		"name": "Предметы за 2019 год",
+		"month": [
+			{
+				"name": "Январь 2019",
+				"items": [
+					{
+						"id": 572,
+						"item": true
+					},
+					{
+						"id": 82,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_1.png"
+			}, {
+				"name": "Февраль 2019",
+				"items": [
+					{
+						"id": 12,
+						"item": true
+					},
+					{
+						"id": 92,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_2.png"
+			}, {
+				"name": "Март 2019",
+				"items": [
+					{
+						"id": 95,
+						"item": true
+					},
+					{
+						"id": 96,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_3.png"
+			}, {
+				"name": "Апрель 2019",
+				"items": [
+					{
+						"id": 104,
+						"item": true
+					},
+					{
+						"id": 507,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_4.png"
+			}, {
+				"name": "Май 2019",
+				"items": [
+					{
+						"id": 4,
+						"item": true
+					},
+					{
+						"id": 106,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_5.png"
+			}, {
+				"name": "Июнь 2019",
+				"items": [
+					{
+						"id": 99,
+						"item": true
+					},
+					{
+						"id": 109,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_6.png"
+			}, {
+				"name": "Июль 2019",
+				"items": [
+					{
+						"id": 601,
+						"item": true
+					},
+					{
+						"id": 112,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_7.png"
+			}, {
+				"name": "Август 2019",
+				"items": [
+					{
+						"id": 581,
+						"item": true
+					},
+					{
+						"id": 115,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_8.png"
+			}, {
+				"name": "Сентябрь 2019",
+				"items": [
+					{
+						"id": 123,
+						"item": true
+					},
+					{
+						"id": 120,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_9.png"
+			}, {
+				"name": "Октябрь 2019",
+				"items": [
+					{
+						"id": 126,
+						"item": true
+					},
+					{
+						"id": 585,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_10.png"
+			}, {
+				"name": "Ноябрь 2019",
+				"items": [
+					{
+						"id": 250,
+						"item": true
+					},
+					{
+						"id": 586,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_11.png"
+			}, {
+				"name": "Декабрь 2019",
+				"items": [
+					{
+						"id": 560,
+						"item": true
+					},
+					{
+						"id": 132,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2019_12.png"
+			}
+		]
+	}, {
+		"name": "Предметы за 2020 год",
+		"month": [
+			{
+				"name": "Январь 2020",
+				"items": [
+					{
+						"id": 150,
+						"item": true
+					}, {
+						"id": 89,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_1.png"
+			}, {
+				"name": "Февраль 2020",
+				"items": [
+					{
+						"id": 589,
+						"item": true
+					}, {
+						"id": 141,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_2.png"
+			}, {
+				"name": "Март 2020",
+				"items": [
+					{
+						"id": 140,
+						"item": true
+					}, {
+						"id": 74,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_3.png"
+			}, {
+				"name": "Апрель 2020",
+				"items": [
+					{
+						"id": 590,
+						"item": true
+					}, {
+						"id": 139,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_4.png"
+			}, {
+				"name": "Май 2020",
+				"items": [
+					{
+						"id": 147,
+						"item": true
+					}, {
+						"id": 114,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_5.png"
+			}, {
+				"name": "Июнь 2020",
+				"items": [
+					{
+						"id": 591,
+						"item": true
+					}, {
+						"id": 152,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_6.png"
+			}, {
+				"name": "Июль 2020",
+				"items": [
+					{
+						"id": 593,
+						"item": true
+					}, {
+						"id": 133,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_7.png"
+			}, {
+				"name": "Август 2020",
+				"items": [
+					{
+						"id": 594,
+						"item": true
+					}, {
+						"id": 156,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_8.png"
+			}, {
+				"name": "Сентябрь 2020",
+				"items": [
+					{
+						"id": 596,
+						"item": true
+					}, {
+						"id": 158,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_9.png"
+			}, {
+				"name": "Октябрь 2020",
+				"items": [
+					{
+						"id": 161,
+						"item": true
+					}, {
+						"id": 162,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_10.png"
+			}, {
+				"name": "Ноябрь 2020",
+				"items": [
+					{
+						"id": 48,
+						"item": true
+					}, {
+						"id": 47,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_11.png"
+			}, {
+				"name": "Декабрь 2020",
+				"items": [
+					{
+						"id": 600,
+						"item": true
+					}, {
+						"id": 51,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2020_12.png"
+			}
+		]
+	}, {
+		"name": "Предметы за 2021 год",
+		"month": [
+			{
+				"name": "Январь 2021",
+				"items": [
+					{
+						"id": 53,
+						"item": true
+					}, {
+						"id": 52,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_1.png"
+			}, {
+				"name": "Февраль 2021",
+				"items": [
+					{
+						"id": 56,
+						"item": true
+					}, {
+						"id": 58,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_2.png"
+			}, {
+				"name": "Март 2021",
+				"items": [
+					{
+						"id": 744,
+						"item": true
+					}, {
+						"id": 745,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_3.png"
+			}, {
+				"name": "Апрель 2021",
+				"items": [
+					{
+						"id": 752,
+						"item": true
+					}, {
+						"id": 753,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_4.png"
+			}, {
+				"name": "Май 2021",
+				"items": [
+					{
+						"id": 765,
+						"item": true
+					}, {
+						"id": 766,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_5.png"
+			}, {
+				"name": "Июнь 2021",
+				"items": [
+					{
+						"id": 767,
+						"item": true
+					}, {
+						"id": 768,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_6.png"
+			}, {
+				"name": "Июль 2021",
+				"items": [
+					{
+						"id": 770,
+						"item": true
+					}, {
+						"id": 771,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_7.png"
+			}, {
+				"name": "Август 2021",
+				"items": [
+					{
+						"id": 772,
+						"item": true
+					}, {
+						"id": 773,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_8.png"
+			}, {
+				"name": "Сентябрь 2021",
+				"items": [
+					{
+						"id": 790,
+						"item": true
+					}, {
+						"id": 791,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_9.png"
+			}, {
+				"name": "Октябрь 2021",
+				"items": [
+					{
+						"id": 796,
+						"item": true
+					}, {
+						"id": 797,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_10.png"
+			}, {
+				"name": "Ноябрь 2021",
+				"items": [
+					{
+						"id": 799,
+						"item": true
+					}, {
+						"id": 800,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_11.png"
+			}, {
+				"name": "Декабрь 2021",
+				"items": [
+					{
+						"id": 801,
+						"item": true
+					}, {
+						"id": 802,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2021_12.png"
+			}
+		]
+	}, {
+		"name": "Предметы за 2022 год",
+		"month": [
+			{
+				"name": "Январь 2022",
+				"items": [
+					{
+						"id": 803,
+						"item": true
+					}, {
+						"id": 804,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_1.png"
+			}, {
+				"name": "Февраль 2022",
+				"items": [
+					{
+						"id": 805,
+						"item": true
+					}, {
+						"id": 806,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_2.png"
+			}, {
+				"name": "Март 2022",
+				"items": [
+					{
+						"id": 807,
+						"item": true
+					}, {
+						"id": 808,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_3.png"
+			}, {
+				"name": "Апрель 2022",
+				"items": [
+					{
+						"id": 809,
+						"item": true
+					}, {
+						"id": 810,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_4.png"
+			}, {
+				"name": "Май 2022",
+				"items": [
+					{
+						"id": 811,
+						"item": true
+					}, {
+						"id": 812,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_5.png"
+			}, {
+				"name": "Июнь 2022",
+				"items": [
+					{
+						"id": 813,
+						"item": true
+					}, {
+						"id": 814,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_6.png"
+			}, {
+				"name": "Июль 2022",
+				"items": [
+					{
+						"id": 815,
+						"item": true
+					}, {
+						"id": 816,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_7.png"
+			}, {
+				"name": "Август 2022",
+				"items": [
+					{
+						"id": 817,
+						"item": true
+					}, {
+						"id": 818,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_8.png"
+			}, {
+				"name": "Сентябрь 2022",
+				"items": [
+					{
+						"id": 819,
+						"item": true
+					}, {
+						"id": 820,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_9.png"
+			}, {
+				"name": "Октябрь 2022",
+				"items": [
+					{
+						"id": 832,
+						"item": true
+					}, {
+						"id": 833,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_10.png"
+			}, {
+				"name": "Ноябрь 2022",
+				"items": [
+					{
+						"id": 830,
+						"item": true
+					}, {
+						"id": 847,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_11.png"
+			}, {
+				"name": "Декабрь 2022",
+				"items": [
+					{
+						"id": 14,
+						"item": true
+					}
+				],
+				"icon": "arena/season_2022_12.png"
+			}
+		]
+	}],
+	"league": [
+		{
+			"title": "Лига новичков",
+			"from": 0,
+			"to": 200,
+			"price": 10,
+			"icon": "arena/league_1.png"
+		}, {
+			"title": "Лига воинов I",
+			"from": 200,
+			"to": 800,
+			"price": 30,
+			"icon": "arena/league_2.png"
+		}, {
+			"title": "Лига воинов II",
+			"from": 800,
+			"to": 1100,
+			"price": 50,
+			"icon": "arena/league_3.png"
+		}, {
+			"title": "Лига мастеров",
+			"from": 1100,
+			"to": 1400,
+			"price": 90,
+			"icon": "arena/league_4.png"
+		}, {
+			"title": "Лига рыцарей",
+			"from": 1400,
+			"to": 1700,
+			"price": 150,
+			"icon": "arena/league_5.png"
+		}, {
+			"title": "Лига чемпионов",
+			"from": 1700,
+			"to": 2000,
+			"price": 250,
+			"icon": "arena/league_6.png"
+		}, {
+			"title": "Тёмная лига",
+			"from": 2000,
+			"to": 3000,
+			"price": 350,
+			"icon": "arena/league_7.png"
+		}, {
+			"title": "Кровавая лига",
+			"from": 3000,
+			"to": 5000,
+			"price": 500,
+			"icon": "arena/league_8.png"
+		}, {
+			"title": "Легендарная лига",
+			"from": 5000,
+			"to": 0,
+			"price": 650,
+			"icon": "arena/league_9.png"
+		}
+	],
+	"chest": [
+		{
+			"title": "Деревянный сундук",
+			"description": "Лига новичков",
+			"time": 900,
+			"skip": 1,
+			"items": [],
+			"icon": "arena/chest_1.png"
+		}, {
+			"title": "Серебряный сундук",
+			"description": "Лига войнов I",
+			"time": 10800,
+			"skip": 15,
+			"items": [
+				{
+					"id": 794,
+					"item": true
+				}, {
+					"id": 224,
+					"collection": true
+				}, {
+					"id": 119,
+					"collection": true
+				}, {
+					"id": 174,
+					"collection": true
+				}, {
+					"id": 63,
+					"collection": true
+				}, {
+					"id": 180,
+					"collection": true
+				}, {
+					"id": 190,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 275,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 598,
+					"scroll": true
+				}, {
+					"id": 576,
+					"scroll": true
+				}, {
+					"id": 580,
+					"scroll": true
+				}, {
+					"id": 584,
+					"scroll": true
+				}, {
+					"id": 548,
+					"scroll": true
+				}, {
+					"id": 588,
+					"scroll": true
+				}, {
+					"id": 122,
+					"scroll": true
+				}, {
+					"id": 129,
+					"scroll": true
+				}, {
+					"id": 142,
+					"scroll": true
+				}, {
+					"id": 76,
+					"scroll": true
+				}, {
+					"id": 93,
+					"scroll": true
+				}, {
+					"id": 91,
+					"scroll": true
+				}, {
+					"id": 175,
+					"scroll": true
+				}, {
+					"id": 69,
+					"scroll": true
+				}, {
+					"id": 75,
+					"scroll": true
+				}, {
+					"id": 77,
+					"scroll": true
+				}, {
+					"id": 143,
+					"scroll": true
+				}, {
+					"id": 219,
+					"scroll": true
+				}, {
+					"id": 246,
+					"scroll": true
+				}, {
+					"id": 155,
+					"scroll": true
+				}, {
+					"id": 13,
+					"scroll": true
+				}, {
+					"id": 22,
+					"scroll": true
+				}, {
+					"id": 154,
+					"scroll": true
+				}, {
+					"id": 71,
+					"scroll": true
+				}, {
+					"id": 73,
+					"scroll": true
+				}, {
+					"id": 68,
+					"scroll": true
+				}, {
+					"id": 74,
+					"scroll": true
+				}, {
+					"id": 64,
+					"scroll": true
+				}, {
+					"id": 62,
+					"scroll": true
+				}, {
+					"id": 72,
+					"scroll": true
+				}, {
+					"id": 87,
+					"scroll": true
+				}, {
+					"id": 89,
+					"scroll": true
+				}, {
+					"id": 116,
+					"scroll": true
+				}, {
+					"id": 131,
+					"scroll": true
+				}, {
+					"id": 365,
+					"scroll": true
+				}, {
+					"id": 113,
+					"scroll": true
+				}, {
+					"id": 149,
+					"scroll": true
+				}, {
+					"id": 121,
+					"scroll": true
+				}, {
+					"id": 537,
+					"scroll": true
+				}, {
+					"id": 536,
+					"scroll": true
+				}, {
+					"id": 92,
+					"scroll": true
+				}, {
+					"id": 94,
+					"scroll": true
+				}
+			],
+			"icon": "arena/chest_2.png"
+		}, {
+			"title": "Трофейный сундук",
+			"description": "Участник гильдии",
+			"time": 18000,
+			"skip": 25,
+			"items": [
+				{
+					"id": 785,
+					"item": true
+				}, {
+					"id": 208,
+					"item": true
+				}, {
+					"id": 253,
+					"item": true
+				}, {
+					"id": 300,
+					"collection": true
+				}, {
+					"id": 541,
+					"collection": true
+				}, {
+					"id": 269,
+					"collection": true
+				}, {
+					"id": 243,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 190,
+					"scroll": true
+				}
+			],
+			"icon": "arena/chest_5.png"
+		}, {
+			"title": "Пиратский сундук",
+			"description": "Взрывной Билл",
+			"time": 18000,
+			"skip": 25,
+			"items": [
+				{
+					"id": 669,
+					"scroll": true
+				}, {
+					"id": 322,
+					"scroll": true,
+					"collection": true
+				}, {
+					"id": 413,
+					"collection": true
+				}, {
+					"id": 362,
+					"scroll": true,
+					"collection": true
+				}, {
+					"id": 331,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 416,
+					"scroll": true
+				}, {
+					"id": 295,
+					"scroll": true
+				}, {
+					"id": 57,
+					"scroll": true
+				}, {
+					"id": 271,
+					"item": true
+				}
+			],
+			"icon": "arena/chest_6.png"
+		}, {
+			"title": "Золотой сундук",
+			"description": "Лига мастеров",
+			"time": 28800,
+			"skip": 40,
+			"items": [
+				{
+					"id": 792,
+					"item": true
+				}, {
+					"id": 298,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 570,
+					"collection": true
+				}, {
+					"id": 236,
+					"collection": true
+				}, {
+					"id": 249,
+					"collection": true
+				}, {
+					"id": 221,
+					"scroll": true,
+					"collection": true
+				}, {
+					"id": 241,
+					"collection": true
+				}, {
+					"id": 209,
+					"collection": true
+				}, {
+					"id": 605,
+					"collection": true
+				}, {
+					"id": 226,
+					"collection": true,
+					"personal": true
+				}, {
+					"id": 344,
+					"item": true
+				}, {
+					"id": 218,
+					"scroll": true
+				}, {
+					"id": 192,
+					"scroll": true
+				}, {
+					"id": 263,
+					"scroll": true,
+					"collection": true
+				}
+			],
+			"icon": "arena/chest_3.png"
+		}, {
+			"title": "Магический сундук",
+			"description": "Лига Чемпионов",
+			"time": 43200,
+			"skip": 60,
+			"items": [
+				{
+					"id": 793,
+					"item": true
+				}, {
+					"id": 637,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 648,
+					"item": true,
+					"scroll": true
+				}, {
+					"id": 643,
+					"collection": true
+				}, {
+					"id": 641,
+					"collection": true
+				}, {
+					"id": 210,
+					"collection": true
+				}, {
+					"id": 267,
+					"collection": true
+				}, {
+					"id": 670,
+					"collection": true
+				}, {
+					"id": 654,
+					"collection": true
+				}, {
+					"id": 510,
+					"scroll": true,
+					"collection": true
+				}, {
+					"id": 457,
+					"collection": true
+				}, {
+					"id": 646,
+					"collection": true
+				}, {
+					"id": 739,
+					"collection": true,
+					"personal": true,
+					"tooltip": ["Часть 5"]
+				}
+			],
+			"icon": "arena/chest_4.png"
+		}
+	]
+}

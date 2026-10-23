@@ -1,0 +1,186 @@
+/* --- Экран выбора рейда и режима --- */
+
+/* На ПК блок выбора высотой 440px, карточки по центру */
+.select {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+}
+
+:global([data-layout='desktop']) .select {
+	height: 440px;
+}
+
+.gap {
+	height: 8px;
+}
+
+/* Рейды — по три в ряд (CardGrid s), режимы — по четыре на ПК и по два на телефоне */
+.raids,
+.modes {
+	display: grid;
+	gap: 8px;
+}
+
+.raids {
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.modes {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+:global([data-layout='mobile']) .raids,
+:global([data-layout='mobile']) .modes {
+	padding: 0 8px;
+}
+
+:global([data-layout='mobile']) .modes {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.option {
+	min-width: 0;
+	padding: 12px;
+	border-radius: 10px;
+	cursor: pointer;
+}
+
+.cell {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.image,
+.shadow {
+	width: 100px;
+	height: 75px;
+	object-fit: contain;
+}
+
+.image {
+	position: relative;
+	z-index: 1;
+}
+
+/* Размытая копия картинки за выбранной карточкой */
+.shadow {
+	position: absolute;
+	top: 0;
+	opacity: 0;
+	filter: blur(30px);
+	transition: opacity 0.3s;
+}
+
+.checked .shadow {
+	opacity: 1;
+}
+
+/* После выбора остальные картинки серые */
+.isSelected .image {
+	filter: grayscale(1);
+}
+
+.isSelected .checked .image {
+	filter: grayscale(0);
+}
+
+.modeImage,
+.modeShadow {
+	height: 50px;
+}
+
+.title,
+.modeTitle {
+	position: relative;
+	z-index: 1;
+	width: min-content;
+	text-align: center;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.title {
+	font-size: 20px;
+	line-height: 24px;
+}
+
+.modeTitle {
+	margin-top: 8px;
+	font-size: 17px;
+	line-height: 22px;
+}
+
+:global([data-layout='mobile']) .cell {
+	margin-bottom: 0;
+}
+
+.reward {
+	position: relative;
+	z-index: 1;
+	margin-top: 8px;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text_secondary);
+}
+
+:global([data-layout='mobile']) .reward {
+	font-size: 16px;
+}
+
+/* --- Низ: выбранный рейд и кнопка «Начать рейд» --- */
+.start {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 22px 0;
+}
+
+.choice {
+	margin-bottom: 12px;
+	font-size: 16px;
+	line-height: 20px;
+	font-weight: 600;
+	color: var(--text_primary);
+}
+
+.choiceEmpty {
+	font-weight: 400;
+	color: var(--text_secondary);
+}
+
+/* В старом приложении отступ 2px добавлялся к высоте кнопки: 28 + 4 */
+.startButton.startButton {
+	min-height: 32px;
+	padding: 0 16px;
+}
+
+:global([data-layout='mobile']) .startButton.startButton {
+	min-height: 34px;
+}
+
+.startButton + .startButton {
+	margin-top: 8px;
+}
+
+/* Счётчик попыток: кнопка не уже 80px */
+.limit {
+	min-width: 80px;
+}
+
+.limit span {
+	font-weight: 400;
+}
+
+/* «Нет наград» под пустой наградой рейда */
+.empty {
+	margin: 12px 0;
+	padding: 0 16px;
+	text-align: center;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}

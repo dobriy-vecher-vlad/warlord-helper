@@ -1,0 +1,56 @@
+/* Общие стили страниц ботов */
+
+.gap {
+	height: 8px;
+}
+
+/* Ползунок с подписью справа в одну строку 36px (DescriptionCardWiki forSlider) */
+.sliderCard {
+	display: flex;
+	align-items: center;
+	height: 36px;
+	padding: 0 12px;
+}
+
+/* Ширины как в старой вёрстке: ползунок calc(100% + 160px) плюс поля 2×12px (у VKUI 4 они были снаружи), подпись во всю строку — обе сжимаются */
+.slider {
+	flex-shrink: 1;
+	width: calc(100% + 184px);
+	min-width: 0;
+}
+
+/* Бегунок 26px, как в VKUI 4 (у VKUI 8 — 24px) */
+.slider :global(.vkuiSliderThumb__host) {
+	width: 26px;
+	height: 26px;
+}
+
+.sliderLabel {
+	flex-shrink: 1;
+	width: calc(100% - 47px);
+	padding: 0 12px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text_primary);
+}
+
+/* Телефон: подпись над ползунком, ползунок во всю ширину карточки */
+:global([data-layout='mobile']) .sliderCard {
+	flex-direction: column-reverse;
+	align-items: stretch;
+	height: auto;
+	padding: 0 20px;
+}
+
+:global([data-layout='mobile']) .slider {
+	width: auto;
+}
+
+:global([data-layout='mobile']) .sliderLabel {
+	width: auto;
+	padding: 0 0 4px;
+	font-size: 16px;
+}

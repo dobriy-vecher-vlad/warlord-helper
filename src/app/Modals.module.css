@@ -1,0 +1,17 @@
+/* Затемнение под окнами: цвет и время появления/ухода как у штатного слоя VKUI ModalOverlay (0,2 с и 0,1 с) */
+.overlay {
+	position: fixed;
+	inset: 0;
+	z-index: var(--vkui--z_index_modal);
+	background-color: var(--vkui--color_overlay_primary);
+	opacity: 0;
+	pointer-events: none;
+	transition: opacity 0.1s linear;
+	-webkit-tap-highlight-color: transparent;
+}
+
+.visible {
+	opacity: 1;
+	pointer-events: auto;
+	transition-duration: 0.2s;
+}

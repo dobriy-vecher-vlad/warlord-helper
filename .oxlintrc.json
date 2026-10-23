@@ -1,0 +1,49 @@
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+	"plugins": [
+		"typescript",
+		"react"
+	],
+	"categories": {
+		"correctness": "error"
+	},
+	"env": {
+		"browser": true,
+		"es2022": true
+	},
+	"rules": {
+		"react/rules-of-hooks": "error",
+		"react/exhaustive-deps": "warn",
+		"react/react-in-jsx-scope": "off",
+		"typescript/no-explicit-any": "warn",
+		"no-console": [
+			"warn",
+			{
+				"allow": [
+					"error"
+				]
+			}
+		],
+		"react/refs": "warn",
+		"react/set-state-in-effect": "warn",
+		"react/static-components": "warn",
+		"react/immutability": "warn"
+	},
+	"ignorePatterns": [
+		"build",
+		"node_modules",
+		"src/api/xml2js.js"
+	],
+	"overrides": [
+		{
+			"files": [
+				"**/*.test.ts",
+				"**/*.test.tsx"
+			],
+			"rules": {
+				"react/globals": "off",
+				"typescript/no-explicit-any": "off"
+			}
+		}
+	]
+}

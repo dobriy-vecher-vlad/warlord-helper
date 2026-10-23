@@ -15,10 +15,15 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.YANDEX_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ru-central1
         run: |
+          # Файлы сборки с хэшем в имени сравниваются по размеру: то же имя — то же содержимое.
+          # index.html имя не меняет, а размер при смене хэшей остаётся прежним, поэтому он грузится всегда и последним.
           aws s3 sync ./build/ s3://${{ secrets.YANDEX_BUCKET_NAME }}/build/ \
             --endpoint-url=https://storage.yandexcloud.net \
             --delete \
-            --size-only
+            --size-only \
+            --exclude "index.html"
+          aws s3 cp ./build/index.html s3://${{ secrets.YANDEX_BUCKET_NAME }}/build/index.html \
+            --endpoint-url=https://storage.yandexcloud.net
       - name: Sync media folder
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.YANDEX_ACCESS_KEY_ID }}

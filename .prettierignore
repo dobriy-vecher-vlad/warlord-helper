@@ -1,0 +1,6 @@
+build
+node_modules
+package-lock.json
+src/data
+src/api/xml2js.js
+src/api/xml2js.d.ts

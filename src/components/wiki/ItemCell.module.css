@@ -1,0 +1,166 @@
+.cell {
+	--item_background: #f4f4f4;
+	--item_text_main: #070707;
+	--item_text_secondary: #7c8187;
+	--item_shadow: #e4e4e4;
+	display: block;
+	position: relative;
+	border-radius: 12px;
+	overflow: hidden;
+	background: var(--item_background);
+	cursor: pointer;
+	text-align: left;
+}
+
+:global(.vkui--vkIOS--dark) .cell {
+	--item_background: #232323;
+	--item_text_main: #e6e5eb;
+	--item_text_secondary: #b2b3b7;
+	--item_shadow: #323232;
+}
+
+.cell::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	box-shadow: inset 0 0 0 var(--thin-border) var(--item_shadow);
+	pointer-events: none;
+}
+
+.full {
+	cursor: default;
+}
+
+.main {
+	display: flex;
+	align-items: flex-start;
+	padding: 13px;
+}
+
+.avatar {
+	flex-shrink: 0;
+	width: 75px;
+	height: 75px;
+	margin-right: 13px;
+	border-radius: 10px;
+	overflow: hidden;
+}
+
+.avatar img {
+	display: block;
+	width: 85px;
+	height: 90px;
+	margin: -6px 0 0 -5px;
+	object-view-box: none;
+}
+
+.body {
+	flex: 1;
+	min-width: 0;
+}
+
+.title {
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 700;
+	color: var(--item_text_main);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.stats {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	margin-top: 9px;
+	line-height: 20px;
+}
+
+/* Подписи DMG/HP выровнены по правому краю колонки шириной 40px */
+.stats > span:nth-child(odd) {
+	width: 40px;
+	margin-right: 7px;
+	text-align: right;
+	font-size: 14px;
+	font-weight: 600;
+	color: var(--item_text_secondary);
+}
+
+.stats > span:nth-child(even) {
+	width: calc(100% - 47px);
+	font-size: 16px;
+	font-weight: 700;
+	color: var(--item_text_main);
+}
+
+.price {
+	display: flex;
+	flex-shrink: 0;
+	margin-left: 4px;
+	font-size: 16px;
+	line-height: 24px;
+	font-weight: 700;
+	color: var(--text_primary);
+}
+
+.price > span {
+	width: 24px;
+	height: 24px;
+	margin-left: 7px;
+	background: no-repeat center / cover;
+}
+
+.tooltip {
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	padding: 13px;
+	pointer-events: none;
+}
+
+/* Без подсказки иконки вида награды накладываются на правый нижний угол карточки */
+.tooltip:not(.tooltipFull) {
+	margin-top: -50px;
+}
+
+.tooltipFull {
+	position: relative;
+}
+
+.tooltipFull::before {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 13px;
+	right: 13px;
+	height: var(--thin-border);
+	background: var(--item_shadow);
+}
+
+.tooltipIcon {
+	flex-shrink: 0;
+	margin-right: 7px;
+	color: var(--item_text_secondary);
+}
+
+.tooltipText {
+	flex: 1;
+	min-width: 0;
+	font-size: 16px;
+	line-height: 20px;
+	font-weight: 600;
+	color: var(--item_text_secondary);
+}
+
+.types {
+	display: flex;
+	gap: 13px;
+	color: var(--dynamic_blue);
+}
+
+/* Телефон: после картинки отступ больше (обычная плотность VKUI 4) */
+:global([data-layout='mobile']) .avatar {
+	margin-right: 25px;
+}

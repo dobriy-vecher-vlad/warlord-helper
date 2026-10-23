@@ -1,0 +1,1 @@
+import{$ as e,R as t}from"./vkui-BgS5Ign5.js";function n(){let{viewWidth:n}=t();return n>=e.SMALL_TABLET}export{n as t};

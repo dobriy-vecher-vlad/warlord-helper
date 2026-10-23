@@ -1,0 +1,131 @@
+[{
+	"id": 1,
+	"title": "Алхимик",
+	"description": "Любой сундук",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m1",
+		"price": 25
+	},
+	"fragments": [1, 2, 3, 4, 5]
+}, {
+	"id": 2,
+	"title": "Ведьмин отвар",
+	"description": "Любой сундук",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m3",
+		"price": 25
+	},
+	"fragments": [10, 9, 8, 7, 6]
+}, {
+	"id": 3,
+	"title": "Дорожная еда",
+	"description": "Босс Паучище",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m3",
+		"price": 25
+	},
+	"fragments": [14, 13, 12, 11, 15]
+}, {
+	"id": 4,
+	"title": "Коллекционер",
+	"description": "Босс Разбойник",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "i2",
+		"price": 1
+	},
+	"fragments": [19, 20, 18, 17, 16]
+}, {
+	"id": 5,
+	"title": "Кузнец",
+	"description": "Босс Гоблин",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "exp",
+		"price": 35
+	},
+	"fragments": [25, 24, 23, 22, 21]
+}, {
+	"id": 6,
+	"title": "Мистические знаки",
+	"description": "Босс Грог",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m1",
+		"price": 35
+	},
+	"fragments": [30, 29, 28, 27, 26]
+}, {
+	"id": 7,
+	"title": "Набор волшебника",
+	"description": "Босс Горный Тролль",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "i1",
+		"price": 1
+	},
+	"fragments": [35, 34, 33, 32, 31]
+}, {
+	"id": 8,
+	"title": "Потерянное письмо",
+	"description": "Босс Скелет Воин",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m3",
+		"price": 50
+	},
+	"fragments": [60, 59, 58, 57, 56]
+}, {
+	"id": 9,
+	"title": "Потрепанный воин",
+	"description": "Босс Тарон",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "i2",
+		"price": 1
+	},
+	"fragments": [55, 54, 53, 52, 51]
+}, {
+	"id": 10,
+	"title": "Путешественникн",
+	"description": "Босс Пещерный Тролль",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m3",
+		"price": 50
+	},
+	"fragments": [50, 49, 48, 47, 46]
+}, {
+	"id": 11,
+	"title": "Ритуальный обряд",
+	"description": "Босс Орк Воин",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "i3",
+		"price": 1
+	},
+	"fragments": [40, 39, 38, 37, 36]
+}, {
+	"id": 12,
+	"title": "Сломанное оружие",
+	"description": "Босс Гроккар",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m1",
+		"price": 50
+	},
+	"fragments": [45, 44, 43, 42, 41]
+}, {
+	"id": 270,
+	"title": "Тайник Флетчера",
+	"description": "Босс Флетчер",
+	"icon": "items/0.png",
+	"reward": {
+		"currency": "m1",
+		"price": 250
+	},
+	"fragments": [1346, 1347, 1348, 1349, 1350]
+}]

@@ -1,0 +1,142 @@
+.tile {
+	display: block;
+	width: 100%;
+	min-width: 0;
+	border-radius: 10px;
+	cursor: pointer;
+	user-select: none;
+}
+
+.image {
+	position: relative;
+	padding: 4px;
+}
+
+.frame {
+	display: block;
+	border-radius: 10px;
+}
+
+.background {
+	display: block;
+	width: 100%;
+	aspect-ratio: 1;
+	border-radius: 10px;
+}
+
+.image img {
+	display: block;
+	width: 100%;
+	aspect-ratio: 1;
+	object-fit: cover;
+	border-radius: 10px;
+}
+
+.preload {
+	position: absolute;
+	inset: 0;
+	margin: auto;
+	color: var(--icon_secondary);
+}
+
+.badge {
+	position: absolute;
+	left: 0;
+	z-index: 1;
+	border-radius: 6px;
+	padding: 0 4px;
+	font-size: 12px;
+	font-weight: 600;
+	line-height: 21px;
+	letter-spacing: 0.5px;
+	/* В старом приложении плашки переопределяли цвета счётчика: синий и белый в обеих темах */
+	--counter_primary_text: #ffffff;
+	--counter_primary_background: #3f8ae0;
+	background: var(--counter_primary_background);
+	color: var(--counter_primary_text);
+}
+
+/* Подпись: отступ 4px, наезжает на картинку на 2px (как HorizontalCell в VKUI 4) */
+.text {
+	margin-top: -2px;
+	padding: 4px;
+}
+
+.title,
+.subtitle {
+	font-size: 13px;
+	line-height: 16px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.title {
+	color: var(--text_primary);
+}
+
+.subtitle {
+	margin-top: 2px;
+	color: var(--text_secondary);
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.grid.wide {
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.scroll {
+	/* Лента выходит на внутренние поля карточки, как CardScroll в старом приложении */
+	margin: 0 -8px;
+	container-type: inline-size;
+}
+
+.scrollInner {
+	display: flex;
+	gap: 8px;
+	padding: 0 8px;
+}
+
+/* Ширина плитки: 20.8% ленты на десктопе, как в старом CardScroll */
+.scrollInner > * {
+	flex: 0 0 calc(100cqw * 0.208);
+}
+
+:global([data-layout='mobile']) .grid {
+	padding: 0 8px;
+}
+
+:global([data-layout='mobile']) .scroll {
+	margin: 0;
+}
+
+:global([data-layout='mobile']) .scrollInner > * {
+	flex-basis: calc((100cqw + 16px) * 0.28);
+}
+
+/* Размер спиннера как у VKUI 4 (regular) */
+.preload svg {
+	width: 33px;
+	height: 33px;
+}
+
+/* Телефон: название плитки крупнее, спиннер меньше (обычная плотность VKUI 4) */
+:global([data-layout='mobile']) .title {
+	font-size: 14px;
+	line-height: 18px;
+}
+
+:global([data-layout='mobile']) .preload svg {
+	width: 24px;
+	height: 24px;
+}
+
+/* Телефон: под лентой отступ 8px, как у CardScroll в VKUI 4 */
+:global([data-layout='mobile']) .scroll {
+	padding-bottom: 8px;
+}

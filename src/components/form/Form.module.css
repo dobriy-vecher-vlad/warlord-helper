@@ -1,0 +1,134 @@
+/* Элементы форм — штатные компоненты VKUI; ниже только подгонка размеров под VKUI 4 (на ПК плотность compact, на телефоне regular) */
+/*
+ * Кнопка VKUI 8 приведена к VKUI 4: цвет вторичной кнопки, шрифты по размерам, текст на 1px выше центра,
+ * неактивные зелёная и красная — прозрачность 0,4 (остальные — 0,64, это уже у VKUI).
+ */
+.button.button {
+	--vkui--color_background_secondary_alpha: var(--button_secondary_background);
+	border-radius: 10px;
+}
+
+.faint.faint {
+	--vkui--opacity_disable: 0.4;
+}
+
+.tertiary.tertiary {
+	color: var(--button_tertiary_foreground);
+}
+
+/* Справа от текста (счётчик) поле 16px, как в VKUI 4 */
+.button.button :global(.vkuiButton__after) {
+	padding-right: 16px;
+}
+
+.button.button :global(.vkuiButton__content) {
+	position: relative;
+	top: -1px;
+}
+
+.button.size_s :global(.vkuiButton__content) {
+	top: 0;
+}
+
+.button.size_l :global(.vkuiButton__content) {
+	font-size: 15px;
+	line-height: 20px;
+}
+
+.button.size_m :global(.vkuiButton__content),
+.button.size_s :global(.vkuiButton__content) {
+	font-size: 13px;
+	line-height: 16px;
+}
+
+:global([data-layout='mobile']) .button.size_l :global(.vkuiButton__content) {
+	font-size: 17px;
+	line-height: 22px;
+}
+
+:global([data-layout='mobile']) .button.size_m :global(.vkuiButton__content) {
+	font-size: 16px;
+	line-height: 20px;
+}
+
+:global([data-layout='mobile']) .button.size_s :global(.vkuiButton__content) {
+	font-size: 14px;
+	line-height: 18px;
+}
+
+.horizontal {
+	align-items: flex-start;
+}
+
+/* Кнопка рядом с полем: отступ 8px слева, как в старом приложении */
+.aside {
+	flex-shrink: 0;
+	margin-left: 8px;
+}
+
+.sliderField {
+	min-width: 0;
+}
+
+/* Два ползунка по две колонки (CardGrid size="m"); на телефоне с полями 8px */
+.sliderGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .sliderGrid {
+	padding: 0 8px;
+}
+
+/* Строка с иконкой (SimpleCell): подгонка под VKUI 4 — высота 48px, иконка и текст на 8px дальше, заголовок 15/500, значение справа 14/18 */
+.cell.cell {
+	--vkui--font_weight_base3: 500;
+}
+
+.cell.cell :global(.vkuiSimpleCell__middle) {
+	padding: 4px 0;
+}
+
+.cell.cell :global(.vkuiSimpleCell__before) {
+	margin-right: 8px;
+}
+
+.cell.cell {
+	min-height: 48px;
+}
+
+.cell.cell :global(.vkuiSimpleCell__after) {
+	padding-left: 2px;
+}
+
+.cell.cell :global(.vkuiSimpleCell__indicator) {
+	padding-left: 4px;
+	font-size: 14px;
+	line-height: 18px;
+	--vkui--font_weight_base3: 400;
+	color: var(--text_secondary);
+}
+
+:global([data-layout='mobile']) .cell.cell {
+	--vkui--font_weight_base3: 400;
+	/* Строка во всю ширину экрана: подсветка без скруглений */
+	border-radius: 0;
+}
+
+/* Переключатель (Radio): строка 36px (44px на телефоне), значок 18px (22px), подпись в 14px от него, 15px (16px) */
+.radio.radio {
+	box-sizing: border-box;
+	min-height: 36px;
+	margin: 0 -12px;
+	padding: 0 12px;
+}
+
+.radio.radio :global(.vkuiSelectionControlLabel__host) {
+	margin: 0 0 0 14px;
+	padding: 0;
+}
+
+:global([data-layout='mobile']) .radio.radio {
+	min-height: 44px;
+}

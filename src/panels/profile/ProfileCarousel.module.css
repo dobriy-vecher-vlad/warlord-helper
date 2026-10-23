@@ -1,0 +1,113 @@
+/* Карусель профилей: позиция в слайдах (--p) и доля слайда аватарки (--w, %) задают сдвиг обеих полос */
+.carousel {
+	position: relative;
+	container-type: inline-size;
+	touch-action: pan-y;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* На ПК карусель на всю ширину карточки, мимо её полей 8px: слайды обрезаются по краям карточки */
+:global([data-layout='desktop']) .carousel {
+	margin: 0 -8px;
+	overflow: clip;
+}
+
+.avatars {
+	position: relative;
+	padding: 2px 0;
+}
+
+.names {
+	min-height: 73px;
+}
+
+.layer {
+	display: flex;
+	align-items: stretch;
+	backface-visibility: hidden;
+	transition: transform 0.3s ease;
+}
+
+.dragging .layer {
+	transition: none;
+}
+
+/* Тянуть можно, когда слайдов больше одного: курсор «схватить» на аватарках и на подписи, в том числе у вложенных элементов */
+.draggable .avatarLayer,
+.draggable .names,
+.draggable .names * {
+	cursor: grab;
+}
+
+/* Пока карусель тянут, курсор «схвачено» везде: у вложенных элементов (аватарки, ссылки) свой курсор его перебивал */
+.dragging,
+.dragging * {
+	cursor: grabbing !important;
+}
+
+.avatarLayer {
+	/* слайд по центру: полусумма окна минус половина слайда, минус пройденные слайды */
+	transform: translate3d(calc((50 - var(--w) * (var(--p) + 0.5)) * 1cqw), 0, 0);
+}
+
+.nameLayer {
+	transform: translate3d(calc(var(--p) * -100cqw), 0, 0);
+}
+
+.avatarCell,
+.nameCell {
+	display: flex;
+	flex: none;
+}
+
+.avatarCell {
+	width: calc(var(--w) * 1cqw);
+}
+
+.nameCell {
+	width: 100cqw;
+}
+
+.avatarCell > *,
+.nameCell > * {
+	width: 100%;
+	min-height: 100%;
+}
+
+/* Стрелки как у галереи VKUI: появляются при наведении на карусель */
+.arrow {
+	position: absolute;
+	top: 0;
+	z-index: 2;
+	opacity: 0;
+}
+
+.arrowStart {
+	left: 0;
+	padding-right: 16px;
+}
+
+.arrowEnd {
+	right: 0;
+	padding-left: 16px;
+}
+
+.carousel:hover .arrow {
+	opacity: var(--vkui--opacity_disable);
+}
+
+.carousel .arrow:hover {
+	opacity: 1;
+}
+
+/* Круглая кнопка 30×30, как в старом приложении (у VKUI 8 размер m — 40px); специфичность выше, чтобы порядок стилей не влиял */
+.arrow.arrow :global(.vkuiScrollArrow__icon) {
+	flex: none;
+	box-sizing: border-box;
+	width: 30px;
+	min-width: 30px;
+	height: 30px;
+	min-height: 30px;
+	border-radius: 50%;
+}

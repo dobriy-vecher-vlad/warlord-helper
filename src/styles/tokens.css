@@ -1,0 +1,158 @@
+/*
+ * Цвета и размеры старого приложения. Значения — точные значения VKUI 4 (bright_light / space_gray),
+ * снятые со старой версии: токены VKUI 8 с похожими именами местами отличаются, поэтому на них не ссылаемся.
+ * VKUI 8 вешает класс темы на <html>, поэтому тёмная тема — :root.vkui--vkIOS--dark.
+ */
+:root {
+	--text_primary: #000000;
+	--text_secondary: #818c99;
+	--text_link: #2d81e0;
+	--accent: #2688eb;
+	--destructive: #e64646;
+	--dynamic_blue: #2688eb;
+	--dynamic_green: #4bb34b;
+	--dynamic_orange: #ffa000;
+	--dynamic_red: #ff3347;
+	--input_border: #ededee;
+	--text_subhead: #6d7885;
+	--text_tertiary: #99a2ad;
+	--field_background: #f2f3f5;
+	--field_border: rgba(0, 0, 0, 0.12);
+	--field_valid_border: #4bb34b;
+	--field_error_border: #e64646;
+	--field_error_background: #faebeb;
+	--button_primary_background: #2d81e0;
+	--button_primary_foreground: #ffffff;
+	--button_secondary_background: rgba(0, 28, 61, 0.05);
+	--button_secondary_foreground: #2688eb;
+	--button_tertiary_foreground: #2d81e0;
+	--button_commerce_background: #4bb34b;
+	--button_commerce_foreground: #ffffff;
+	--modal_card_background: #ffffff;
+	--background_hover: rgba(0, 0, 0, 0.04);
+	--background_highlighted: rgba(0, 0, 0, 0.08);
+	--background_content: #ffffff;
+	--background_page: #ebedf0;
+	--content_tint_background: #f5f5f5;
+	--background_light: #f9f9f9;
+	--content_placeholder_text: #818c99;
+	--header_background: #ffffff;
+	--header_tint: #2688eb;
+	--header_text_secondary: #818c99;
+	--separator_common: #d7d8d9;
+	--icon_secondary: #99a2ad;
+	--icon_tertiary: #b8c1cc;
+	--counter_primary_background: #2688eb;
+	--counter_primary_text: #ffffff;
+	--counter_prominent_background: #ff3347;
+	--counter_prominent_text: #ffffff;
+	--counter_secondary_background: #aeb7c2;
+	--counter_secondary_text: #ffffff;
+	--image_border: rgba(0, 0, 0, 0.08);
+	--image_placeholder: rgba(80, 80, 80, 0.075);
+	--tabbar_background: #ffffff;
+	--tabbar_active: #2975cc;
+
+	--systemBlue: rgb(0, 122, 255);
+	--systemBrown: rgb(162, 132, 94);
+	--systemCyan: rgb(50, 173, 230);
+	--systemGreen: rgb(52, 199, 89);
+	--systemIndigo: rgb(88, 86, 214);
+	--systemMint: rgb(0, 199, 190);
+	--systemOrange: rgb(255, 149, 0);
+	--systemPink: rgb(255, 45, 185);
+	--systemPurple: rgb(175, 82, 222);
+	--systemRed: rgb(255, 59, 48);
+	--systemTeal: rgb(48, 176, 199);
+	--systemYellow: rgb(255, 204, 0);
+
+	--thin-border: 1px;
+}
+
+:root.vkui--vkIOS--dark {
+	--text_primary: #e1e3e6;
+	--text_secondary: #76787a;
+	--text_link: #529ef4;
+	--accent: #529ef4;
+	--destructive: #ff5c5c;
+	--dynamic_blue: #2688eb;
+	--dynamic_green: #4bb34b;
+	--dynamic_orange: #ffa000;
+	--dynamic_red: #ff3347;
+	--input_border: #222222;
+	--text_subhead: #909499;
+	--text_tertiary: #5d5f61;
+	--field_background: #232324;
+	--field_border: rgba(255, 255, 255, 0.12);
+	--field_valid_border: #4bb34b;
+	--field_error_border: #ff5c5c;
+	--field_error_background: #522e2e;
+	--button_primary_background: #e1e3e6;
+	--button_primary_foreground: #19191a;
+	--button_secondary_background: #454647;
+	--button_secondary_foreground: #e1e3e6;
+	--button_tertiary_foreground: #e1e3e6;
+	--button_commerce_background: #4bb34b;
+	--button_commerce_foreground: #ffffff;
+	--modal_card_background: #232324;
+	--background_hover: rgba(255, 255, 255, 0.04);
+	--background_highlighted: rgba(255, 255, 255, 0.08);
+	--background_content: #19191a;
+	--background_page: #0a0a0a;
+	--content_tint_background: #232324;
+	--background_light: #232324;
+	--content_placeholder_text: #aaaeb3;
+	--header_background: #19191a;
+	--header_tint: #e1e3e6;
+	--header_text_secondary: rgba(255, 255, 255, 0.6);
+	--separator_common: #222222;
+	--icon_secondary: #76787a;
+	--icon_tertiary: #5d5f61;
+	--counter_primary_background: #ffffff;
+	--counter_primary_text: #19191a;
+	--counter_prominent_background: #ff3347;
+	--counter_prominent_text: #ffffff;
+	--counter_secondary_background: #76787a;
+	--counter_secondary_text: #ffffff;
+	--image_border: rgba(255, 255, 255, 0.08);
+	--tabbar_background: #1a1a1a;
+	--tabbar_active: #ffffff;
+
+	--systemBlue: rgb(10, 132, 255);
+	--systemBrown: rgb(172, 142, 104);
+	--systemCyan: rgb(100, 210, 255);
+	--systemGreen: rgb(48, 209, 88);
+	--systemIndigo: rgb(114, 104, 255);
+	--systemMint: rgb(102, 212, 207);
+	--systemOrange: rgb(255, 159, 10);
+	--systemPink: rgb(255, 55, 165);
+	--systemPurple: rgb(191, 90, 242);
+	--systemRed: rgb(255, 69, 58);
+	--systemTeal: rgb(64, 200, 224);
+	--systemYellow: rgb(255, 214, 10);
+}
+
+/* Разделители: на десктопе старое приложение переопределяло цвет (тёмная тема — та же #222222) */
+html[data-layout='desktop'].vkui--vkIOS--light {
+	--separator_common: #ededee;
+}
+
+@media (min-resolution: 2dppx) {
+	:root {
+		--thin-border: 0.5px;
+	}
+}
+@media (min-resolution: 3dppx) {
+	:root {
+		--thin-border: 0.33px;
+	}
+}
+
+/* Затемнение и фон окон — как в старом приложении. Токены темы VKUI объявляет и на <html>, и на AppRoot,
+   поэтому переопределение ставится на все элементы с классом темы (класс повторён ради специфичности). */
+.vkui--vkIOS--light.vkui--vkIOS--light,
+.vkui--vkIOS--dark.vkui--vkIOS--dark {
+	--vkui--color_overlay_primary: rgba(0, 0, 0, 0.8);
+	/* Фон окон — как фон контента (в тёмной теме #19191a, а не светлее, как в VKUI 8) */
+	--vkui--color_background_modal: var(--background_content);
+}

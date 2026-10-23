@@ -1,0 +1,37 @@
+/* Камни инкрустации: кружки 32px внахлёст на 2px, у следующих — вырез под предыдущий (UsersStack m в VKUI 4) */
+.stones {
+	display: flex;
+}
+
+.stone {
+	position: relative;
+	flex-shrink: 0;
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	overflow: hidden;
+	background: rgba(80, 80, 80, 0.075);
+}
+
+.stone + .stone {
+	margin-left: -2px;
+	mask: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(%23clip0)"><path d="M2.13430019,23.9892466 C3.32858917,21.5820026 4,18.8694095 4,16 C4,13.1305905 3.32858917,10.4179974 2.13430019,8.0107534 C4.89924175,3.22241289 10.0733034,-2.30926389e-14 16,-2.30926389e-14 C24.836556,-2.30926389e-14 32,7.163444 32,16 C32,24.836556 24.836556,32 16,32 C10.0733034,32 4.89924175,28.7775871 2.13430019,23.9892466 L2.13430019,23.9892466 Z" fill="black"/></g><defs><clipPath id="clip0"><rect width="32" height="32" fill="white"/></clipPath></defs></svg>');
+	-webkit-mask: url('data:image/svg+xml,<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(%23clip0)"><path d="M2.13430019,23.9892466 C3.32858917,21.5820026 4,18.8694095 4,16 C4,13.1305905 3.32858917,10.4179974 2.13430019,8.0107534 C4.89924175,3.22241289 10.0733034,-2.30926389e-14 16,-2.30926389e-14 C24.836556,-2.30926389e-14 32,7.163444 32,16 C32,24.836556 24.836556,32 16,32 C10.0733034,32 4.89924175,28.7775871 2.13430019,23.9892466 L2.13430019,23.9892466 Z" fill="black"/></g><defs><clipPath id="clip0"><rect width="32" height="32" fill="white"/></clipPath></defs></svg>');
+}
+
+/* Картинка камня больше кружка на 6px: прозрачные края обрезаются */
+.stone img {
+	position: absolute;
+	left: -3px;
+	top: -3px;
+	width: 38px;
+	height: 38px;
+}
+
+.stone::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	box-shadow: inset 0 0 0 var(--thin-border) var(--image_border);
+}

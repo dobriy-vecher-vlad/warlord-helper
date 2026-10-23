@@ -1,0 +1,18 @@
+/* Поле выбора предмета внизу страницы; на телефоне с полями 8px */
+.select {
+	min-width: 0;
+}
+
+:global([data-layout='mobile']) .select {
+	padding: 0 8px;
+}
+
+.dmg {
+	font-weight: 500;
+	color: var(--dynamic_red);
+}
+
+.hp {
+	font-weight: 500;
+	color: var(--dynamic_green);
+}

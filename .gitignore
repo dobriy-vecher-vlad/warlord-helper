@@ -1,19 +1,9 @@
-# Logs
-logs
+node_modules
 *.log
-npm-debug.log*
-*.lock
+.vite
 
-# Dependency directories
-package-lock.json
-/node_modules
+# Служебный кэш TypeScript
+tsconfig.tsbuildinfo
 
-# Optional npm cache directory
-.npm
-
-# Prod Bundle
-# /build
-build.zip
-
-.vscode
-.idea
+# Собранное приложение (build/) в репозитории хранится: его выкладывает workflow, сборки в CI нет.
+# package-lock.json тоже отслеживается: он нужен для воспроизводимой установки.

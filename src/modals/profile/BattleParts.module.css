@@ -1,0 +1,301 @@
+/* Окна приглашения, боя и награды: общие части. Блоки по смыслу, без линий между ними */
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+	padding: 12px;
+}
+
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+/* Ячейка босса имеет свои поля по бокам (8px, на телефоне 12px): внешние убираем, чтобы значок встал вровень с остальным */
+/* Высота — по значку 48px: минимальную высоту строки (64px) и поля значка снимаем */
+.boss {
+	margin: -8px -8px;
+}
+
+.bossCell.bossCell {
+	min-height: 0;
+}
+
+:global([data-layout='mobile']) .boss {
+	margin: -7px -12px -6px;
+}
+
+.pair {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.stat {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	padding: 12px;
+	border-radius: 10px;
+	background: var(--content_tint_background);
+}
+
+.statValue {
+	font-size: 15px;
+	line-height: 18px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.statLabel {
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}
+
+/* Таймер в углу карточки: не добавляет строк и не растягивает соседа */
+.corner {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	font-size: 13px;
+	line-height: 18px;
+	font-variant-numeric: tabular-nums;
+	color: var(--text_secondary);
+}
+
+.bar {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+
+.caption {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: 8px;
+	font-size: 14px;
+	line-height: 18px;
+	color: var(--text_secondary);
+}
+
+.caption b {
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.actions {
+	display: flex;
+}
+
+/* Описание босса в одну строку, остаток уходит в многоточие */
+.oneLine {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* Участники боя: список с прокруткой, ранг, аватар, имя и урон */
+.players {
+	display: flex;
+	flex-direction: column;
+	max-height: 224px;
+	margin: 0 -4px;
+	overflow-y: auto;
+}
+
+.playersAll {
+	max-height: none;
+}
+
+.player {
+	/* В бою может быть до 300 участников: строки вне экрана не рисуются */
+	content-visibility: auto;
+	contain-intrinsic-size: auto 44px;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 6px 4px;
+	border-radius: 10px;
+}
+
+.me {
+	background: var(--content_tint_background);
+}
+
+.rank {
+	flex-shrink: 0;
+	width: 20px;
+	font-size: 13px;
+	line-height: 16px;
+	text-align: center;
+	color: var(--text_secondary);
+}
+
+.playerName {
+	flex: 1;
+	min-width: 0;
+	overflow: hidden;
+	font-size: 15px;
+	line-height: 20px;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	color: var(--text_primary);
+}
+
+.damage {
+	flex-shrink: 0;
+	font-size: 14px;
+	line-height: 18px;
+	font-variant-numeric: tabular-nums;
+	color: var(--text_secondary);
+}
+
+.empty {
+	padding: 8px 0;
+	font-size: 14px;
+	line-height: 18px;
+	text-align: center;
+	color: var(--text_secondary);
+}
+
+/* Ошибка и подсказки под кнопками */
+.hint {
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}
+
+.danger {
+	color: var(--text_negative);
+}
+
+/* ×1, ×3, ×9 и max в один ряд */
+.hits {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 8px;
+}
+
+/* Кнопки ударов в одном ряду: боковые поля внутри кнопки уменьшены, чтобы пять надписей помещались и на узком окне */
+.hitButton.hitButton {
+	--vkui--size_button_base_small_padding_horizontal--regular: 4px;
+	--vkui--size_button_minimum_width--regular: 0px;
+}
+
+/* С кнопкой Kill (белый список): пять равных кнопок */
+.hitsKill {
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+/* Навык и расходники — один список: одинаковые промежутки между строками */
+.list {
+	gap: 8px;
+}
+
+/* Поле предела расхода тянется на всю ширину (числовое поле по умолчанию узкое) */
+.limitField {
+	width: 100%;
+	min-width: 0;
+}
+
+/* Переключатель поменьше: размеры компактного вида VKUI (свойства Switch задаёт его класс, поэтому селектор удвоен) */
+.switchSmall.switchSmall {
+	--vkui_internal--Switch__track_width: 32px;
+	--vkui_internal--Switch__track_height: 20px;
+	--vkui_internal--Switch__handle_width: 16.5px;
+	--vkui_internal--Switch__handle_widthNoUnit--checked: 16;
+	--vkui_internal--Switch__handle_widthNoUnit--not-checked: 10;
+	--vkui_internal--Switch__handle_height: 16.5px;
+	--vkui_internal--Switch__handle_heightNoUnit: 16.5;
+}
+
+.supplyAfter {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding-right: 8px;
+}
+
+.supplyOwned {
+	font-size: 14px;
+	line-height: 18px;
+	font-variant-numeric: tabular-nums;
+	color: var(--text_secondary);
+}
+
+/* Навык в списке выбора: название и подпись в одну строку */
+.skillOption {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* Закреплённый низ окна боя: лог над кнопками ударов */
+.footerBody {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 8px 12px 12px;
+}
+
+/* Лог с теми же полями, что у окна */
+.logBox {
+	position: relative;
+	margin: 0 -12px;
+}
+
+/*
+ * Высота лога в закреплённом низу: без кнопки «Позвать друзей» 244px, с ней 204px (кнопка занимает 40px) — на компьютере.
+ * На телефоне кнопки «Рассчитать убийство» и «Обновить» идут двумя строками (+48px), поэтому лог ниже на столько же: 196px и 156px.
+ */
+.logBox > div:first-child > div:first-child {
+	height: 244px;
+}
+
+.logBoxShort > div:first-child > div:first-child {
+	height: 204px;
+}
+
+:global([data-layout='mobile']) .logBox > div:first-child > div:first-child {
+	height: 196px;
+}
+
+:global([data-layout='mobile']) .logBoxShort > div:first-child > div:first-child {
+	height: 156px;
+}
+
+/* Нажимаемая полоска: подсветка при наведении на всю ячейку, поля выровнены с остальным содержимым */
+.barLink {
+	margin: -6px -8px;
+	padding: 6px 8px;
+	border-radius: 10px;
+}
+
+/* Рассчитать убийство и Обновить в один ряд, ровно над четырьмя кнопками ударов; на телефоне — двумя строками на всю ширину */
+.pairButtons {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .pairButtons {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+/* Разделитель между блоками боя и настройками: во всю ширину окна */
+.divider {
+	margin: -4px -12px;
+}
+
+/* Пустое место под метку SOLO (ширина нативного чипа с текстом SOLO) */
+.soloSlot {
+	display: block;
+	width: 55px;
+	height: 1px;
+}

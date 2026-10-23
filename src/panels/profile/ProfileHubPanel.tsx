@@ -1,0 +1,210 @@
+import { useEffect, useState, useSyncExternalStore } from 'react';
+import { Group, Panel, PullToRefresh, Spacing } from '@vkontakte/vkui';
+import { Icon28DonateCircleFillYellow, Icon56FaceIdOutline } from '@vkontakte/icons';
+import { findServer } from '../../api/servers';
+import { useIsDesktop } from '../../app/layout';
+import { AppHeader, CopyButton, HeaderTextButton } from '../../components/AppHeader';
+import { Divider } from '../../components/Divider';
+import { Skeleton } from '../../components/Skeleton';
+import { Button } from '../../components/form/Form';
+import { NavCell } from '../../components/wiki/NavCell';
+import Collections from '../../data/collections.json';
+import { numberForm, numberSpaces, type Forms } from '../../lib/format';
+import { ADMIN_VK_ID, CAMERA_PHOTO } from '../../profile/constants';
+import { hasPlayers } from '../../profile/invites/realms';
+import { refreshProfiles, selectProfile } from '../../profile/profileActions';
+import { openSettings, useSession, type ProfileView } from '../../profile/session';
+import { getModalStack, openModal, subscribeModals } from '../../store/modal';
+import { openPanel } from '../../store/nav';
+import styles from './ProfileHubPanel.module.css';
+import { ProfileCarousel } from './ProfileCarousel';
+
+/** Аватар профиля в галерее: выбранный крупно с обводкой, остальные уменьшены. */
+function ProfileAvatar({ profile, selected }: { profile: ProfileView; selected: boolean }) {
+	const server = findServer(profile.server ?? 1);
+	return (
+		<div className={`${styles.slide} ${selected ? styles.selected : ''}`}>
+			<span className={`${styles.avatar} ImageBorder`}>
+				<img src={profile.photo_200 || CAMERA_PHOTO} alt="" />
+				<span className={styles.badge} style={{ backgroundImage: `url(${server?.logo})` }} />
+			</span>
+		</div>
+	);
+}
+
+/** Пустой слот: заглушка вместо аватара. */
+function EmptyAvatar({ selected }: { selected: boolean }) {
+	return (
+		<div className={`${styles.slide} ${selected ? styles.selected : ''}`}>
+			<span className={`${styles.avatar} ${styles.empty}`}>
+				<Icon56FaceIdOutline />
+			</span>
+		</div>
+	);
+}
+
+/** Имя, ссылка и сервер под аватаром. */
+function ProfileName({ profile, selected }: { profile: ProfileView; selected: boolean }) {
+	const server = findServer(profile.server ?? 1);
+	return (
+		<div className={`${styles.slide} ${styles.nameSlide} ${selected ? styles.selected : ''}`}>
+			<div className={styles.name}>{profile.first_name ? `${profile.first_name}\n${profile.last_name}` : `Player\n${profile.id}`}</div>
+			<a className={styles.link} href={`https://vk.com/id${profile.id}`} target="_blank" rel="noreferrer">
+				@id{profile.id}
+			</a>
+			<div className={styles.server}>
+				{server?.name}, {server?.company}
+			</div>
+		</div>
+	);
+}
+
+function EmptyName() {
+	return (
+		<div className={`${styles.slide} ${styles.nameSlide}`}>
+			<div className={styles.name}>Профиль</div>
+			<span className={styles.free}>Свободный слот</span>
+		</div>
+	);
+}
+
+/** Сколько всего предметов в каталоге. Каталог большой и грузится отдельным файлом, а не вместе с приложением; пока его нет — null. */
+function useCatalogSize(): number | null {
+	const [size, setSize] = useState<number | null>(null);
+	useEffect(() => {
+		let alive = true;
+		void import('../../lib/items').then((module) => alive && setSize(module.ITEMS.length));
+		return () => {
+			alive = false;
+		};
+	}, []);
+	return size;
+}
+
+/** «Мой профиль»: галерея профилей, настройки и разделы профиля. */
+export function ProfileHubPanel({ id }: { id: string }) {
+	const isDesktop = useIsDesktop();
+	const isDonut = useSession((s) => s.isDonut);
+	const profiles = useSession((s) => s.profiles);
+	const profilesFull = useSession((s) => s.profilesFull);
+	const index = useSession((s) => s.index);
+	const fetching = useSession((s) => s.fetching);
+	const game = useSession((s) => s.game);
+	const items = useSession((s) => s.items);
+	const server = useSession((s) => s.profiles[s.index]?.server);
+	const donutCount = useSession((s) => s.donutUsers?.response?.count ?? 0);
+	const draftId = useSession((s) => s.draft.id);
+	const catalogSize = useCatalogSize();
+	const donutIcon = !isDonut ? <Icon28DonateCircleFillYellow width={24} height={24} /> : undefined;
+
+	const header = (
+		<AppHeader
+			center
+			title="Мой профиль"
+			before={<HeaderTextButton onClick={() => openModal('settingsOrder')}>Изменить</HeaderTextButton>}
+			after={isDesktop ? <CopyButton view="profile" /> : undefined}
+		/>
+	);
+
+	// Без подписки в галерее только основной профиль
+	const slides = isDonut
+		? profiles.map((profile, x) => ({ profile, full: profilesFull[x] ?? profile, x }))
+		: [{ profile: profiles[0], full: profilesFull[0] ?? profiles[0], x: 0 }];
+	// Слот по центру карусели. Пустой слот открывает окно добавления; если его закрыли без добавления, карусель возвращается к выбранному профилю
+	const [shown, setShown] = useState(index);
+	const adding = useSyncExternalStore(subscribeModals, getModalStack).some((entry) => entry.data.mode === 'add');
+	useEffect(() => setShown(index), [index]);
+	useEffect(() => {
+		if (!adding && !profiles[shown]?.id) setShown(index);
+	}, [adding]);
+	const onSelect = (next: number) => {
+		setShown(next);
+		if (isDonut && next !== index) void selectProfile(next);
+	};
+	const collected = Collections.items.filter((item) => items.includes(item)).length;
+	/** Счётчик справа; без подписки вместо него значок VK Donut. */
+	const indicatorProps = (count: number | string, total: number, forms: Forms) => (isDonut ? { count, countLabel: numberForm(total, forms) } : { count: donutIcon });
+
+	return (
+		<Panel id={id}>
+			{!isDesktop && header}
+			<Group mode="plain" className="AppGroup HubGroup">
+				{isDesktop && header}
+				<PullToRefresh className={styles.refresh} slotProps={{ controls: { zIndex: 0 } }} onRefresh={() => void refreshProfiles()} isFetching={fetching}>
+					<Spacing size={6} />
+					<ProfileCarousel
+						count={slides.length}
+						value={isDonut ? shown : 0}
+						onSelect={onSelect}
+						avatarWidth={isDesktop ? 25 : 35}
+						avatar={(x) => {
+							const { profile, full } = slides[x]!;
+							return profile?.id ? <ProfileAvatar profile={full!} selected={x === shown} /> : <EmptyAvatar selected={x === shown} />;
+						}}
+						name={(x) => {
+							const { profile, full } = slides[x]!;
+							return profile?.id ? <ProfileName profile={full!} selected={x === shown} /> : <EmptyName />;
+						}}
+					/>
+					<Spacing size={12} />
+					<Button stretched size="m" mode="tertiary" onClick={() => openSettings()}>
+						Настройки профиля
+					</Button>
+					<Divider size={12} />
+					<NavCell profile title="Рейды" subtitle="Автоматизация" image="labels/4.png" count={donutIcon} onClick={() => openPanel('6')} />
+					<NavCell
+						profile
+						title="Арена"
+						subtitle="Автоматизация"
+						image="labels/30.png"
+						{...indicatorProps(numberSpaces(Number(game?._ap ?? 0)), Number(game?._ap ?? 0), ['кубок', 'кубка', 'кубков'])}
+						onClick={() => openPanel('7')}
+					/>
+					<NavCell profile title="Ресурсы" subtitle="Автоматизация" image="labels/14.png" count={donutIcon} onClick={() => openPanel('9')} />
+					<NavCell profile title="Кузница" subtitle="Автоматизация" image="labels/20.png" count={donutIcon} onClick={() => openPanel('10')} />
+					{hasPlayers(server ?? 1) && <NavCell profile title="Боссы" subtitle="Автоматизация" image="labels/29.png" count={donutIcon} onClick={() => openPanel('11')} />}
+					<Divider size={12} />
+					<NavCell
+						profile
+						title="Магазин"
+						subtitle="Ассортимент предметов"
+						image="labels/12.png"
+						{...(catalogSize === null && isDonut
+							? { count: <Skeleton width={48} height={16} />, countLabel: <Skeleton width={56} height={14} /> }
+							: indicatorProps(`${items.length} / ${catalogSize}`, catalogSize ?? 0, ['предмет', 'предмета', 'предметов']))}
+						onClick={() => openPanel('1')}
+					/>
+					<NavCell
+						profile
+						title="Коллекции"
+						subtitle="Ассортимент коллекций"
+						image="labels/20.png"
+						{...indicatorProps(`${collected} / ${Collections.items.length}`, Collections.items.length, ['коллекция', 'коллекции', 'коллекций'])}
+						onClick={() => openPanel('2')}
+					/>
+					<NavCell
+						profile
+						title="Инкрустация"
+						subtitle="Предметы и камни"
+						image="labels/31.png"
+						{...indicatorProps(items.length, items.length, ['предмет', 'предмета', 'предметов'])}
+						onClick={() => openPanel('3')}
+					/>
+					{(server === 1 || server === 2) && (
+						<NavCell profile title="Друзья" subtitle="Друзья и характеристики" image="labels/23.png" count={donutIcon} onClick={() => openPanel('5')} />
+					)}
+					{Number(draftId) === ADMIN_VK_ID && (
+						<NavCell
+							profile
+							title="Доны"
+							subtitle="Список донов"
+							image="labels/28.png"
+							{...indicatorProps(donutCount, donutCount, ['дон', 'дона', 'донов'])}
+							onClick={() => openPanel('4')}
+						/>
+					)}
+				</PullToRefresh>
+			</Group>
+		</Panel>
+	);
+}

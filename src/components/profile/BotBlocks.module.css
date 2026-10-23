@@ -1,0 +1,338 @@
+/* Размеры сняты со старых страниц ботов (VKUI 4: CardGrid, SimpleCell, Radio, Checkbox, Placeholder) */
+
+/* --- Картинка со скруглением и рамкой (Avatar mode="app") --- */
+.thumb {
+	position: relative;
+	display: block;
+	flex-shrink: 0;
+	overflow: hidden;
+	border-radius: 8px;
+}
+
+.thumb img {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.thumbItem img {
+	left: -3px;
+	top: -3px;
+	width: calc(100% + 6px);
+	height: calc(100% + 6px);
+}
+
+.thumb::after {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	box-shadow: inset 0 0 0 var(--thin-border) var(--image_border);
+}
+
+/* --- Сетки карточек: CardGrid s (три в ряд) и m (две в ряд) --- */
+.grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.grid2 {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+:global([data-layout='mobile']) .grid,
+:global([data-layout='mobile']) .grid2 {
+	padding: 0 8px;
+}
+
+/* --- Карточка показателя: 52px, картинка 32px --- */
+.info {
+	display: flex;
+	align-items: center;
+	min-width: 0;
+	min-height: 52px;
+	padding: 0 8px;
+	box-sizing: border-box;
+	border-radius: 10px;
+}
+
+.infoImage {
+	margin: 10px 16px 10px 4px;
+}
+
+.infoMain {
+	flex: 1;
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 5px 0;
+}
+
+.infoTitle,
+.infoSubtitle {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.infoTitle {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.infoSubtitle {
+	margin-top: 3px;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}
+
+/* Телефон (обычная плотность VKUI 4): шире отступы, название обычным шрифтом 16px */
+:global([data-layout='mobile']) .info {
+	padding: 0 12px;
+}
+
+:global([data-layout='mobile']) .infoImage {
+	margin: 10px 12px 10px 0;
+}
+
+:global([data-layout='mobile']) .infoTitle {
+	font-size: 16px;
+	font-weight: 400;
+}
+
+:global([data-layout='mobile']) .infoSubtitle {
+	margin-top: 2px;
+}
+
+.infoSkeleton {
+	display: flex;
+	align-items: center;
+	min-height: 52px;
+	padding: 0 8px;
+}
+
+/* --- Переключатель с подписью (Radio / Checkbox VKUI): подгонка под VKUI 4 --- */
+.option.option {
+	--vkui--opacity_disable: 0.64;
+	box-sizing: border-box;
+	min-width: 0;
+	min-height: 36px;
+	padding: 0 12px;
+}
+
+/* Подпись в 13px от значка, по центру строки, без вертикальных полей; подпись и описание в одну строку */
+.option.option :global(.vkuiSelectionControlLabel__host) {
+	align-self: center;
+	min-width: 0;
+	margin: 0 0 0 13px;
+	padding: 0;
+}
+
+/* Подпись лежит во flex-ряду titleLayout: многоточие работает только на самом элементе подписи */
+.option.option :global(.vkuiSelectionControlLabel__title) {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+.option.option :global(.vkuiSelectionControlLabel__description) {
+	margin-top: -1px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+/* Значок флажка 20px; размер задан в style самим компонентом (значок переключателя — общее правило в shell.css) */
+.option.option :global(.vkuiCheckboxInput__host) svg {
+	width: 20px !important;
+	height: 20px !important;
+}
+
+:global([data-layout='mobile']) .option.option :global(.vkuiSelectionControlLabel__host) {
+	margin-left: 14px;
+}
+
+/* --- Лог действий: 200px, записи по центру через 18px --- */
+/* Лог с крестиком очистки: крестик не прокручивается вместе с записями */
+.logWrap {
+	position: relative;
+}
+
+.logClear {
+	position: absolute;
+	top: 4px;
+	right: 12px;
+	z-index: 1;
+	border-radius: 8px;
+	color: var(--text_secondary);
+}
+
+.log {
+	/* Тонкая полоса прокрутки, как в остальных прокручиваемых блоках */
+	composes: scroll from './ScrollBox.module.css';
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 200px;
+	margin-left: 8px;
+	overflow-y: auto;
+}
+
+.log > * + * {
+	margin-top: 18px;
+}
+
+:global([data-layout='mobile']) .log {
+	margin: 0 8px;
+}
+
+/* Заглушка: записи по левому краю, без прокрутки */
+.log.logSkeleton {
+	align-items: flex-start;
+	overflow: hidden;
+}
+
+.logEmpty {
+	flex: 1;
+	align-self: stretch;
+	overflow: hidden;
+}
+
+/* Та же заглушка пустого лога (шрифт как у остальных логов), но компактнее: иконка поменьше и меньше полей, текст в одну строку */
+.logEmpty.logEmptyCompact {
+	padding: 8px 12px;
+}
+
+.logText {
+	font-size: 12px;
+	line-height: 20px;
+	text-align: center;
+	text-transform: lowercase;
+	color: var(--text_secondary);
+}
+
+.red {
+	color: var(--dynamic_red);
+}
+
+.green {
+	color: var(--dynamic_green);
+}
+
+.blue {
+	color: var(--dynamic_blue);
+}
+
+.logMessage {
+	display: flex;
+	user-select: none;
+}
+
+.logRoot {
+	align-self: stretch;
+}
+
+.logImage {
+	margin-right: 12px;
+}
+
+.logImage img {
+	image-rendering: -webkit-optimize-contrast;
+}
+
+.logMain {
+	min-width: 0;
+}
+
+.logTitle {
+	display: flex;
+	font-size: 12px;
+	line-height: 18px;
+	font-weight: 500;
+	color: var(--text_primary);
+}
+
+.logTitle > span + span {
+	margin-left: 8px;
+	font-weight: 400;
+	color: var(--text_secondary);
+}
+
+.logChildren {
+	display: flex;
+	flex-wrap: wrap;
+	font-size: 12px;
+	line-height: 18px;
+	white-space: pre;
+	color: var(--text_primary);
+}
+
+.logChildren > .logMessage {
+	margin-top: 8px;
+	margin-right: 12px;
+}
+
+/* --- Разделитель во всю ширину карточки и ряды кнопок --- */
+.separator {
+	position: relative;
+	height: 16px;
+	margin: 0 -7px;
+}
+
+.separator::after {
+	content: '';
+	position: absolute;
+	left: 0;
+	right: 0;
+	top: 50%;
+	height: var(--thin-border);
+	background: var(--separator_common);
+}
+
+:global([data-layout='mobile']) .separator {
+	margin: 0;
+}
+
+.row {
+	display: flex;
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .row {
+	margin: 0 8px;
+}
+
+.gap {
+	height: 8px;
+}
+
+/*
+ * Кнопки под логом размера S (лоадер 16px, как на стартовом экране рейдов) по высоте такие же, как M:
+ * у S 28px (30px на телефоне), у M 32px (36px); шрифт на ПК у обоих размеров одинаковый, на телефоне — см. ниже
+ */
+.footerButton.footerButton {
+	min-height: var(--vkui--size_button_medium_height--compact);
+}
+
+:global([data-layout='mobile']) .footerButton.footerButton {
+	min-height: var(--vkui--size_button_medium_height--regular);
+}
+
+/* Телефон: шрифт как у M (у S 14/18); тройной класс, чтобы перебить подгонку шрифта размера S в Form.module.css */
+:global([data-layout='mobile']) .footerButton.footerButton.footerButton :global(.vkuiButton__content) {
+	font-size: 16px;
+	line-height: 20px;
+}

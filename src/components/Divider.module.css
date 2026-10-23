@@ -1,0 +1,5 @@
+.divider {
+	--inset: 12px;
+	/* В старом приложении у Spacing с разделителем был отступ снизу 1px */
+	margin-bottom: 1px;
+}

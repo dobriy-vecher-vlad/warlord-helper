@@ -1,0 +1,6 @@
+/* Обводка Avatar как в VKUI 4: токены старого приложения вместо 1px и стандартного цвета VKUI 8 */
+.photo {
+	overflow: hidden;
+	--vkui--color_image_border_alpha: var(--image_border);
+	--vkui--size_border--regular: var(--thin-border);
+}

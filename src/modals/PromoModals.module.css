@@ -1,0 +1,135 @@
+/* Окна акции и подписки: размеры сняты со старого приложения (ModalCard VKUI 4, iOS) */
+.card :global(.vkuiModalCard__container),
+.card :global(.vkuiModalCardBase__container) {
+	padding: 0;
+	border-radius: 18px;
+	background: var(--background_content);
+}
+
+/* Обычный блочный поток: вертикальные отступы схлопываются, как в старой разметке */
+.body {
+	display: flow-root;
+}
+
+/* Крестик на месте старого: на 4px левее и ниже, чем в VKUI 8 */
+.card :global(.vkuiModalCardBase__dismiss) {
+	transform: translate(-4px, 4px);
+}
+
+.title {
+	margin: 32px 16px;
+	font-size: 20px;
+	line-height: 24px;
+	font-weight: 500;
+	text-align: center;
+	color: var(--text_primary);
+}
+
+.text {
+	margin: 16px;
+	font-size: 16px;
+	line-height: 20px;
+	color: var(--text_primary);
+}
+
+.subtitle {
+	margin: 16px 16px 8px;
+	font-size: 17px;
+	line-height: 22px;
+	font-weight: 500;
+	text-align: center;
+	color: var(--text_primary);
+}
+
+.features {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	margin: 8px 8px 16px;
+}
+
+/* У «Подписки» отступ под заголовком 32px (16px списка схлопываются с ним) */
+.titleDonut + .features {
+	margin-top: 16px;
+}
+
+.feature {
+	display: flex;
+	align-items: center;
+	padding: 8px;
+	min-height: 34px;
+	border-radius: 10px;
+}
+
+.featureIcon {
+	display: flex;
+	flex-shrink: 0;
+	padding-right: 12px;
+	color: var(--accent);
+}
+
+.featureText {
+	flex: 1;
+	min-width: 0;
+	margin-top: 2px;
+	font-size: 14px;
+	line-height: 17px;
+	color: var(--text_primary);
+}
+
+.featureAfter {
+	display: flex;
+	flex-shrink: 0;
+	padding-left: 12px;
+}
+
+/* Строка из одних иконок; лишние 12px справа — от скрытого пустого блока в старой разметке */
+.icons {
+	color: var(--accent);
+	justify-content: center;
+	gap: 12px;
+	padding-right: 20px;
+}
+
+.badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	height: 19px;
+	min-width: 18px;
+	padding: 0 5px 1px;
+	border-radius: 9px;
+	font-size: 12px;
+	line-height: 14px;
+	color: #fff;
+}
+
+.prominent {
+	background: var(--counter_prominent_background);
+}
+
+.primary {
+	background: var(--accent);
+}
+
+.button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: calc(100% - 32px);
+	min-height: 48px;
+	margin: 16px;
+	padding: 0 16px;
+	border: 0;
+	border-radius: 10px;
+	background: var(--button_primary_background);
+	font: inherit;
+	font-size: 17px;
+	line-height: 22px;
+	font-weight: 500;
+	color: var(--button_primary_foreground);
+	text-decoration: none;
+	cursor: pointer;
+}

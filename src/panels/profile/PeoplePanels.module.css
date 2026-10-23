@@ -1,0 +1,19 @@
+/* Заголовок таблицы под шапкой и отступ 8px до разделителя */
+.head {
+	padding-bottom: 8px;
+}
+
+.avatarSpace {
+	height: 32px;
+}
+
+/* Низ: отступ 10px над листанием (8px даёт сам блок) и 2px под ним */
+.bottom {
+	padding: 2px 0;
+}
+
+.pagerSkeleton {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}

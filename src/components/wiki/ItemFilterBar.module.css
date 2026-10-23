@@ -1,0 +1,45 @@
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .grid {
+	padding: 0 8px;
+}
+
+/* Карточка-переключатель (Cell selectable): поля 8px (12px на телефоне), строка 49/48px, значок выбора 24px, заголовок 15/500 */
+.option.option :global(.vkuiCell__content) {
+	padding: 0 8px;
+	/* Подсветка при нажатии — внутри карточки: на телефоне Tappable VKUI 8 снимает скругление, берём его у карточки */
+	border-radius: inherit;
+}
+
+.option.option :global(.vkuiSimpleCell__middle) {
+	padding: 5px 0 6px;
+}
+
+.option.option {
+	/* Заголовок 500 (токен VKUI), мобильный — 400 */
+	--vkui--font_weight_base3: 500;
+	/* На телефоне Tappable VKUI 8 снимает скругление, а карточка не на всю ширину — возвращаем 10px */
+	border-radius: 10px;
+}
+
+/* У значков размер задан в style самим компонентом */
+.option.option :global(.vkuiCellCheckbox__icon) svg {
+	width: 24px !important;
+	height: 24px !important;
+}
+
+:global([data-layout='mobile']) .option.option :global(.vkuiCell__content) {
+	padding: 0 12px;
+}
+
+:global([data-layout='mobile']) .option.option :global(.vkuiSimpleCell__middle) {
+	padding: 5px 0;
+}
+
+:global([data-layout='mobile']) .option.option {
+	--vkui--font_weight_base3: 400;
+}

@@ -1,0 +1,155 @@
+/* --- Сводки на градиенте (Gradient mode="tint" VKUI 4) --- */
+.gradient {
+	--gradient: 250, 250, 250;
+	/* В старом: отступ 8px и заход градиента на 7px вверх — итого 1px под вкладками */
+	margin: 1px -7px 0;
+	/* Ширина карточек считается от полосы сводок */
+	container-type: inline-size;
+	background: linear-gradient(
+		rgba(var(--gradient), 0) 0%,
+		rgba(var(--gradient), 0.035) 13%,
+		rgba(var(--gradient), 0.15) 27%,
+		rgba(var(--gradient), 0.79) 68%,
+		rgba(var(--gradient), 0.95) 84%,
+		rgb(249, 249, 249) 100%
+	);
+	overflow: hidden;
+}
+
+:global(.vkui--vkIOS--dark) .gradient {
+	--gradient: 35, 35, 36;
+	background: linear-gradient(
+		rgba(var(--gradient), 0) 0%,
+		rgba(var(--gradient), 0.035) 13%,
+		rgba(var(--gradient), 0.15) 27%,
+		rgba(var(--gradient), 0.79) 68%,
+		rgba(var(--gradient), 0.95) 84%,
+		rgb(var(--gradient)) 100%
+	);
+}
+
+:global([data-layout='mobile']) .gradient {
+	margin: 0;
+}
+
+.statsScroll {
+	margin: 0 -8px;
+}
+
+.statsIn {
+	display: flex;
+	padding: 8px 16px;
+}
+
+.stat {
+	position: relative;
+	flex-shrink: 0;
+	display: flex;
+	flex-direction: column;
+	/* Треть ширины CardScroll (полоса + 16px) минус 16px, как у beautifulCard */
+	width: calc((100cqw + 16px) / 3 - 16px);
+	height: 70px;
+	margin-right: 8px;
+	padding: 16px;
+	box-sizing: border-box;
+	border-radius: 16px;
+	background: var(--background_content);
+	overflow: hidden;
+}
+
+.statValue {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.statLabel {
+	margin-top: 2px;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_subhead);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* Значок 28px в круге с подложкой его цвета (прозрачность 7,5%), выходит за угол карточки */
+.statIcon {
+	position: absolute;
+	right: -10px;
+	bottom: -10px;
+	display: flex;
+	padding: 12px;
+	border-radius: 50%;
+	overflow: hidden;
+	color: var(--fill);
+}
+
+/* Значок всегда 28px, как в старом (там размер задавался правилом, значки 20px растягивались); размер задан в style самим значком */
+.statIcon.statIcon > svg {
+	width: 28px !important;
+	height: 28px !important;
+}
+
+.statIcon::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	background-color: var(--fill);
+	opacity: 0.075;
+}
+
+:global([data-layout='mobile']) .statValue {
+	font-size: 16px;
+}
+
+/* Телефон: подпись 14/18, карточка на 2px выше (72px) */
+:global([data-layout='mobile']) .statLabel {
+	font-size: 14px;
+	line-height: 18px;
+}
+
+:global([data-layout='mobile']) .stat {
+	height: 72px;
+}
+
+/* Сводки без градиента: серые карточки (как beautifulCard вне Gradient) */
+.plain {
+	/* В старом обёртка с отступом −7px со всех сторон */
+	margin: -7px;
+	container-type: inline-size;
+}
+
+.plain .stat,
+.statGrid .stat {
+	background: var(--content_tint_background);
+}
+
+:global([data-layout='mobile']) .plain {
+	margin: 0;
+}
+
+/* Телефон: полоса серых сводок начинается в 4px от края (отступ CardScroll 12px) */
+:global([data-layout='mobile']) .plain .statsIn {
+	padding: 8px 12px;
+}
+
+/* По две в ряд: ширина (100% − 8px) / 2 */
+.statGrid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+.statGrid .stat {
+	width: auto;
+	margin-right: 0;
+}
+
+:global([data-layout='mobile']) .statGrid {
+	padding: 0 8px;
+}

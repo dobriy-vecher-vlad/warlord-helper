@@ -1,0 +1,26 @@
+/* Как в старом приложении: иконка 16px с отступом 5px, опущена на 2px относительно строки */
+.icon {
+	position: relative;
+	display: inline-flex;
+	width: 16px;
+	height: 16px;
+	margin-left: 5px;
+	margin-bottom: -2px;
+	background: no-repeat center / cover;
+}
+
+.preload {
+	position: absolute;
+	display: inline-flex;
+	width: 16px;
+	height: 16px;
+	margin-left: 5px;
+	padding-top: 2px;
+	transform: scale(0.65);
+	color: var(--icon_secondary);
+}
+
+:global([data-layout='mobile']) .preload {
+	padding-top: 4px;
+	transform: scale(0.6);
+}

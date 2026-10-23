@@ -1,0 +1,29 @@
+/* Окно «Создание противника»: поля 12px, карточки по две в ряд с отступом 12px сверху и по бокам (Div + CardGrid) */
+.body {
+	padding: 12px;
+}
+
+.grid {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+	padding: 12px 12px 0;
+}
+
+.card {
+	border-radius: 10px;
+	background: var(--content_tint_background);
+}
+
+/* Подпись над полем начинается в 9px от края карточки (в VKUI 8 — 14px) */
+.card :global(.vkuiFormItem__withPadding) {
+	padding-top: 9px;
+}
+
+.card :global(.vkuiFormItem__top) {
+	padding-top: 0;
+}
+
+.actions {
+	padding: 12px;
+}

@@ -1,0 +1,82 @@
+/* Содержимое окон настроек: на ПК — поля 12px (Div VKUI 4), на телефоне строки на всю ширину */
+.body {
+	padding: 12px;
+}
+
+.bodyMobile {
+	padding-top: 12px;
+}
+
+.actions {
+	padding-top: 12px;
+}
+
+.actionsMobile {
+	padding: 12px;
+}
+
+.statusWrap {
+	padding: 0;
+}
+
+:global([data-layout='mobile']) .statusWrap {
+	padding: 0 12px;
+}
+
+.exists {
+	color: var(--dynamic_red);
+}
+
+.danger {
+	color: var(--dynamic_red);
+}
+
+.secondary {
+	color: var(--text_secondary);
+}
+
+/* Группа переключателей (FormItem VKUI 4) */
+.formItem {
+	padding: 12px;
+}
+
+.formTop {
+	margin-top: -3px;
+	padding-bottom: 6px;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_subhead);
+}
+
+.formBottom {
+	padding-top: 6px;
+	font-size: 13px;
+	line-height: 16px;
+}
+
+.valid {
+	color: var(--field_valid_border);
+}
+
+.error {
+	color: var(--destructive);
+}
+
+/* «Редактирование» */
+.orderBody {
+	/* Ячейки на всю ширину окна: красная кнопка удаления выезжает от его края */
+	padding: 12px 0 0;
+}
+
+.skeleton {
+	height: 59px;
+	background: var(--content_tint_background);
+}
+
+.footer {
+	padding: 12px;
+	text-align: center;
+	font-size: 13px;
+	line-height: 16px;
+	color: var(--text_secondary);
+}

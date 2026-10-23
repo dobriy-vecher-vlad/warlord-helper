@@ -1,0 +1,56 @@
+/* Низ страницы: кнопки */
+.footer {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .footer {
+	padding: 0 8px;
+}
+
+/* Создать и Обновить в один ряд */
+.buttons {
+	display: flex;
+	gap: 8px;
+}
+
+/* Пустое состояние и скелетон занимают одно место: страница не прыгает по высоте, когда список загрузился и оказался пустым (минимальная высота 316px) */
+.emptyBox {
+	box-sizing: border-box;
+	min-height: 316px;
+}
+
+/* ПК: строки скелетона обрезаются по высоте заглушки; телефон: скелетон растёт на всё место, как заглушка */
+.skeletonBox {
+	height: 316px;
+	overflow: hidden;
+}
+
+:global([data-layout='mobile']) .skeletonBox {
+	height: auto;
+	flex: 1;
+}
+
+/* Скелетон повторяет строку списка: значок и две строки текста с теми же полями, что у ячейки (8px, на телефоне 12px) */
+.skeletonRow {
+	display: flex;
+	align-items: center;
+	gap: 16px;
+	box-sizing: border-box;
+	min-height: 64px;
+	padding: 8px;
+}
+
+.skeletonText {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	gap: 8px;
+}
+
+:global([data-layout='mobile']) .skeletonRow {
+	gap: 12px;
+	min-height: 61px;
+	padding: 7px 12px 6px;
+}
