@@ -62,9 +62,13 @@ export function backModal() {
 	modals.set((state) => next(state.stack, state.stack.slice(0, -1)));
 }
 
-/** Закрыть окно `id`, если оно сейчас верхнее: запрос из окна мог закончиться уже после того, как человек закрыл его и открыл другое. */
+/**
+ * Закрыть окно `id`, если оно сейчас верхнее: запрос из окна мог закончиться уже после того, как человек закрыл его и открыл другое.
+ * Закрывает само приложение (запрос завершён), поэтому подтверждение не спрашивается: страж окна к этому моменту ещё не снят.
+ */
 export function backModalIf(id: ModalId) {
-	if (modals.get().stack.at(-1)?.id === id) backModal();
+	if (modals.get().stack.at(-1)?.id !== id) return;
+	modals.set((state) => next(state.stack, state.stack.slice(0, -1)));
 }
 
 export function closeModal() {

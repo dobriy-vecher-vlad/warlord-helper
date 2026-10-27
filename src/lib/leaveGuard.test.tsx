@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { LEAVE_TEXT, confirmLeave, useLeaveGuard } from './leaveGuard';
-import { backModal, closeModal, getModalStack, openModal } from '../store/modal';
+import { backModal, backModalIf, closeModal, getModalStack, openModal } from '../store/modal';
 import { getNav, initNav, openPanel } from '../store/nav';
 import { flush, installBrowserStubs, render } from '../test/harness';
 
@@ -68,5 +68,14 @@ describe('защита от ухода во время работы', () => {
 		expect(getModalStack()).toHaveLength(0);
 		expect(ask).toHaveBeenCalledTimes(2);
 		await flush();
+	});
+
+	it('окно закрывается без вопроса, когда его закрывает само приложение (backModalIf), даже если страж ещё не снят', async () => {
+		await render(<Probe active modal="create" />);
+		openModal('create', {}, 3);
+		const ask = vi.spyOn(window, 'confirm');
+		backModalIf('create');
+		expect(ask).not.toHaveBeenCalled();
+		expect(getModalStack()).toHaveLength(0);
 	});
 });
