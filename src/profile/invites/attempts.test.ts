@@ -135,4 +135,31 @@ describe('AttemptsQueue', () => {
 		queue.request(601);
 		expect(fetchBoss).toHaveBeenCalledTimes(1);
 	});
+
+	it('на паузе запросы не уходят, после неё очередь продолжается без повторных вопросов', async () => {
+		vi.mocked(fetchBoss).mockImplementation(async (_bot, item) => ({ hp: 1, maxHp: 1, left: item.id - 600, next: 0 }));
+		const got: number[] = [];
+		const queue = new AttemptsQueue(bot, npcs, (id) => got.push(id));
+		queue.pause();
+		queue.request(601);
+		queue.request(602);
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(fetchBoss).not.toHaveBeenCalled();
+		queue.resume();
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(got).toEqual([601, 602]);
+		expect(fetchBoss).toHaveBeenCalledTimes(2);
+	});
+
+	it('если за паузу ответы забыли (бой создан), видимые боссы спрашиваются заново', async () => {
+		vi.mocked(fetchBoss).mockImplementation(async (_bot, item) => ({ hp: 1, maxHp: 1, left: item.id - 600, next: 0 }));
+		const queue = new AttemptsQueue(bot, npcs, () => undefined);
+		queue.request(601);
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		queue.pause();
+		clearAttempts();
+		queue.resume();
+		await new Promise((resolve) => setTimeout(resolve, 10));
+		expect(fetchBoss).toHaveBeenCalledTimes(2);
+	});
 });

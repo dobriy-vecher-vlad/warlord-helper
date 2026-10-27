@@ -7,6 +7,8 @@ import styles from './NavCell.module.css';
 interface NavCellProps {
 	title: ReactNode;
 	subtitle?: ReactNode;
+	/** Содержимое в самом начале строки, перед картинкой (например, звезда избранного) */
+	before?: ReactNode;
 	/** Иконка, путь внутри media/images/ */
 	image?: string;
 	/** Своя иконка вместо картинки */
@@ -30,7 +32,22 @@ interface NavCellProps {
 }
 
 /** Строка перехода в подраздел с картинкой, счётчиком и стрелкой. */
-export function NavCell({ title, subtitle, image, icon, count, countLabel, badge, after, chevron = true, selected = false, profile = false, onClick, className }: NavCellProps) {
+export function NavCell({
+	title,
+	subtitle,
+	before,
+	image,
+	icon,
+	count,
+	countLabel,
+	badge,
+	after,
+	chevron = true,
+	selected = false,
+	profile = false,
+	onClick,
+	className,
+}: NavCellProps) {
 	return (
 		<Tappable
 			className={`${styles.cell} ${profile ? styles.profile : ''} ${!image && icon ? styles.compact : ''} ${onClick ? '' : styles.static} ${className ?? ''}`}
@@ -38,6 +55,7 @@ export function NavCell({ title, subtitle, image, icon, count, countLabel, badge
 			hasHover={!!onClick}
 			hasActive={!!onClick}
 		>
+			{before}
 			{image ? <BorderedImage src={image} className={styles.image} /> : icon && <span className={styles.icon}>{icon}</span>}
 			<span className={styles.body}>
 				<span className={styles.title}>{title}</span>

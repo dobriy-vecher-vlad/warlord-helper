@@ -4,6 +4,7 @@ import { notify } from '../../app/notify';
 import { BotLog, FooterButton, Thumb, useBotLog } from '../../components/profile/BotBlocks';
 import { Divider } from '../../components/Divider';
 import { getTime, numberSpaces } from '../../lib/format';
+import { useLeaveGuard } from '../../lib/leaveGuard';
 import { callFriends } from '../../profile/invites/accept';
 import { BATTLE_SECONDS, SKILLS, canKillAlone, roundsToKill, simulate, solveKill, survivableRounds, type Battle, type Setup } from '../../profile/invites/battle';
 import { endIfFinished, syncBattle, useBattleSync } from '../../profile/invites/battleFlow';
@@ -114,6 +115,8 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 	const [calling, setCalling] = useState(false);
 	const [refreshing, setRefreshing] = useState(false);
 	const [note, setNote] = useState<{ text: string; danger: boolean } | null>(null);
+	// Удары и приглашение друзей идут запросами к игре: пока они идут, закрытие окна и вкладки просят подтверждения
+	useLeaveGuard(busy || calling, 'battle');
 	useBattleSync(open);
 
 	// Навык и расходники помнятся для каждого профиля и босса: читаются при входе в бой, сохраняются при изменении
@@ -153,7 +156,7 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 	// (даже если этот удар убьёт персонажа); Kill — все удары до смерти босса. У погибшего персонажа сервер удары не принимает
 	// (ошибка 1012), поэтому все кнопки ударов заблокированы. Сколько ударов убивает босса, считается один раз на оба расчёта
 	const killRounds = useMemo(() => roundsToKill(session.battle, session.fighter, setup), [session, setup]);
-	const safe = useMemo(() => simulate(session.battle, session.fighter, setup, survivableRounds(session.battle, session.fighter, setup, killRounds)), [session, setup, killRounds]);
+	const maxRounds = useMemo(() => survivableRounds(session.battle, session.fighter, setup, killRounds), [session, setup, killRounds]);
 	const full = useMemo(() => simulate(session.battle, session.fighter, setup, killRounds), [session, setup, killRounds]);
 	const killAllowed = useKillAllowed();
 
@@ -254,12 +257,12 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 						×{count}
 					</FooterButton>
 				))}
-				<FooterButton className={styles.hitButton} stretched mode="primary" disabled={busy || dead} onClick={() => void attack(Math.max(1, safe.rounds))}>
+				<FooterButton className={styles.hitButton} stretched mode="primary" disabled={busy || dead} onClick={() => void attack(Math.max(1, maxRounds))}>
 					Max
 				</FooterButton>
 				{killAllowed && (
 					// Kill бьёт до смерти босса, не глядя на здоровье персонажа (пока он жив)
-					<FooterButton className={styles.hitButton} stretched mode="primary" disabled={busy || dead || !(full.rounds || full.skillHits)} onClick={() => void attack(full.rounds)}>
+					<FooterButton className={styles.hitButton} stretched mode="primary" disabled={busy || dead || !(full.rounds || full.skillHits)} onClick={() => void attack(killRounds)}>
 						Kill
 					</FooterButton>
 				)}
@@ -275,16 +278,16 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 				</section>
 
 				<section className={styles.section}>
-					<Bar label="Здоровье босса" value={`${numberSpaces(Math.max(battle.hp, 0))} / ${numberSpaces(battle.maxHp)}`} percent={(Math.max(battle.hp, 0) / battle.maxHp) * 100} />
+					<Bar label="Здоровье босса" value={`${numberSpaces(Math.max(battle.hp, 0))} из ${numberSpaces(battle.maxHp)}`} percent={(Math.max(battle.hp, 0) / battle.maxHp) * 100} />
 					<Bar
 						label="Игроков в бою"
-						value={`${battle.participants.length} / ${MAX_PLAYERS}`}
+						value={`${battle.participants.length} из ${MAX_PLAYERS}`}
 						percent={(battle.participants.length / MAX_PLAYERS) * 100}
 						onClick={() => openModal('participants', {}, 'participants')}
 					/>
 					<TimeBar open={open} battle={battle} />
 					{maxHp > 0 && (
-						<Bar label="Здоровье персонажа" value={`${numberSpaces(Math.max(battle.myHp, 0))} / ${numberSpaces(maxHp)}`} percent={(Math.max(battle.myHp, 0) / maxHp) * 100} />
+						<Bar label="Здоровье персонажа" value={`${numberSpaces(Math.max(battle.myHp, 0))} из ${numberSpaces(maxHp)}`} percent={(Math.max(battle.myHp, 0) / maxHp) * 100} />
 					)}
 				</section>
 

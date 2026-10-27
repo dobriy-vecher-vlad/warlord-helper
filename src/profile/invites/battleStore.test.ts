@@ -93,6 +93,13 @@ describe('battleFromProfile', () => {
 		expect(battleFromProfile(parseResponse('<data><u id="7"/><fight eid="0"/></data>') as Parameters<typeof battleFromProfile>[0])).toBeNull();
 	});
 
+	it('побеждённый босс, чью награду ещё не забрали, остаётся текущим боем', () => {
+		const profile = parseResponse(
+			'<data><u id="7" name="Я" aid="8" dmgi="1000" s1="0" s2="0" s3="9" s4="0" item1="1" item2="2" item3="3"/><fight mhp="100" hp="0" dmg="5" myhp="40" myr="7" eid="69" fid="78" res="3"/></data>',
+		) as Parameters<typeof battleFromProfile>[0];
+		expect(battleFromProfile(profile)).toMatchObject({ battle: { fightId: 78, won: true } });
+	});
+
 	it('бой, который уже закончился, из запоздавшего профиля текущим не становится', () => {
 		const profile = parseResponse(
 			'<data><u id="7" name="Я" aid="8" dmgi="1000" s1="0" s2="0" s3="9" s4="0" item1="1" item2="2" item3="3"/><fight mhp="100" hp="60" dmg="5" myhp="40" myr="7" eid="69" fid="77" res="2"/></data>',

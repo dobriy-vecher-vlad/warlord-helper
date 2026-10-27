@@ -1,13 +1,12 @@
-import { parseQuery } from '../../lib/hash';
 import { isEmbedded } from '../../lib/platform';
 import { setSession, useSession } from '../session';
-import { callApi } from '../vk';
+import { callApi, getBridge, type VKUser } from '../vk';
 
-/** VK id того, кто запустил приложение (параметр запуска `vk_user_id`): он не меняется при выборе другого профиля. */
-export const launcherId = () => Number(parseQuery().vk_user_id);
-
-/** Кнопка Kill (убить босса целиком) доступна тем, кто есть в белом списке: проверяется запустивший приложение, а не выбранный профиль. */
-export const useKillAllowed = () => useSession((state) => state.bossesWhitelist.includes(launcherId()));
+/**
+ * Кнопка Kill (убить босса целиком) доступна тем, кто есть в белом списке. Проверяется тот, кто открыл приложение, а не выбранный
+ * профиль: его id приходит от VK Bridge (`VKWebAppGetUserInfo`), а не из адреса страницы, который можно подменить.
+ */
+export const useKillAllowed = () => useSession((state) => state.launcherId > 0 && state.bossesWhitelist.includes(state.launcherId));
 
 let loaded = false;
 let loading: Promise<void> | null = null;
@@ -19,12 +18,12 @@ let loading: Promise<void> | null = null;
  */
 export function loadBossesWhitelist(): Promise<void> {
 	if (loaded || !isEmbedded()) return Promise.resolve();
-	loading ??= callApi<{ items: number[] }>('execute.getProfileBossesWhitelist')
-		.then((result) => {
+	loading ??= Promise.all([callApi<{ items: number[] }>('execute.getProfileBossesWhitelist'), getBridge<VKUser>('VKWebAppGetUserInfo')])
+		.then(([result, user]) => {
 			const items = result?.response?.items;
 			if (!Array.isArray(items)) return;
 			loaded = true;
-			setSession({ bossesWhitelist: items.map(Number).filter(Number.isFinite) });
+			setSession({ bossesWhitelist: items.map(Number).filter(Number.isFinite), launcherId: Number(user?.id) || 0 });
 		})
 		.catch(() => undefined)
 		.finally(() => {

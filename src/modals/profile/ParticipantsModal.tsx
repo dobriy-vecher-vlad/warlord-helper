@@ -35,9 +35,9 @@ export function ParticipantsModal({ open, entry }: { open: boolean; entry: Modal
 		<ClassicModal id="participants" open={open} onClose={backModal} title="Участники" before={<ModalBack onClick={backModal} />}>
 			<div className={styles.body}>
 				{battle && (
-					<Bar label="Здоровье босса" value={`${numberSpaces(Math.max(battle.hp, 0))} / ${numberSpaces(battle.maxHp)}`} percent={(Math.max(battle.hp, 0) / battle.maxHp) * 100} />
+					<Bar label="Здоровье босса" value={`${numberSpaces(Math.max(battle.hp, 0))} из ${numberSpaces(battle.maxHp)}`} percent={(Math.max(battle.hp, 0) / battle.maxHp) * 100} />
 				)}
-				<Bar label="Игроков в бою" value={`${rows.length} / ${MAX_PLAYERS}`} percent={(rows.length / MAX_PLAYERS) * 100} />
+				<Bar label="Игроков в бою" value={`${rows.length} из ${MAX_PLAYERS}`} percent={(rows.length / MAX_PLAYERS) * 100} />
 				<PlayerList rows={rows} meId={meId} all />
 			</div>
 		</ClassicModal>

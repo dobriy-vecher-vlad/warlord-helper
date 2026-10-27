@@ -280,6 +280,10 @@
 	color: var(--text_primary);
 }
 
+.logNote {
+	flex-basis: 100%;
+}
+
 .logChildren > .logMessage {
 	margin-top: 8px;
 	margin-right: 12px;

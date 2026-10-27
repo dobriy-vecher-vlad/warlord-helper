@@ -30,7 +30,7 @@ export function Bar({ label, value, percent, onClick }: { label: string; value?:
 				<span>{label}</span>
 				<b>{value ?? <Skeleton height={16} width={90} />}</b>
 			</div>
-			<Progress value={Math.min(100, Math.max(0, percent))} />
+			<Progress value={Number.isFinite(percent) ? Math.min(100, Math.max(0, percent)) : 0} />
 		</>
 	);
 	return onClick ? (

@@ -1,12 +1,13 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useLeaveGuard } from '../../lib/leaveGuard';
 import { FormStatus } from '../../components/form/Form';
 import { FooterButton } from '../../components/profile/BotBlocks';
-import { getTime, numberSpaces } from '../../lib/format';
+import { ATTEMPTS_FROM, getTime, numberForm, numberSpaces } from '../../lib/format';
 import { canKillAlone } from '../../profile/invites/battle';
 import { acceptInvite, fetchInviteFight, requestInvitesRefresh, showBattle, useInvitesContext } from '../../profile/invites/battleStore';
 import type { InviteBoss } from '../../profile/invites/bosses';
 import type { Invite } from '../../profile/invites/invites';
-import { backModal, type ModalEntry } from '../../store/modal';
+import { backModal, backModalIf, type ModalEntry } from '../../store/modal';
 import { ClassicModal } from '../ClassicModal';
 import { Bar, BossCell, Stat, partStyles as styles } from './BattleParts';
 import { useFightStats } from './useBossStats';
@@ -35,8 +36,12 @@ export function InviteModal({ open, entry }: { open: boolean; entry: ModalEntry 
 	const inBattle = !!useInvitesContext()?.current;
 	// Ход действия относится к тому окну (данным), в котором начат: у заново открытого окна своего хода нет
 	const [action, setAction] = useState<{ for: unknown; busy: boolean; error: string | null }>({ for: null, busy: false, error: null });
+	// Нажатие, пока прежнее ещё выполняется, второго входа в бой не начинает
+	const running = useRef(false);
 	const own = action.for === data;
 	const busy = own && action.busy;
+	// Пока идёт вход в бой, закрытие окна и вкладки просят подтверждения: энергия уже может быть списана
+	useLeaveGuard(busy, 'invite');
 	const error = own ? action.error : null;
 
 	if (!data || !invite) return null;
@@ -48,13 +53,19 @@ export function InviteModal({ open, entry }: { open: boolean; entry: ModalEntry 
 	const alone = player && boss ? canKillAlone(boss, player.fighter, player.maxHp) : null;
 
 	const accept = async () => {
+		if (running.current) return;
+		running.current = true;
 		setAction({ for: data, busy: true, error: null });
-		const outcome = await acceptInvite(invite, cost);
-		if (!outcome.ok) return setAction({ for: data, busy: false, error: outcome.message });
-		setAction({ for: data, busy: false, error: null });
-		requestInvitesRefresh();
-		backModal();
-		showBattle(outcome);
+		try {
+			const outcome = await acceptInvite(invite, cost);
+			if (!outcome.ok) return setAction({ for: data, busy: false, error: outcome.message });
+			setAction({ for: data, busy: false, error: null });
+			requestInvitesRefresh();
+			backModalIf('invite');
+			showBattle(outcome);
+		} finally {
+			running.current = false;
+		}
 	};
 
 	return (
@@ -67,16 +78,16 @@ export function InviteModal({ open, entry }: { open: boolean; entry: ModalEntry 
 				<section className={styles.section}>
 					<Bar
 						label="Здоровье"
-						value={info === undefined ? undefined : info ? `${numberSpaces(hp)} / ${numberSpaces(info.maxHp)}` : 'Бой закончился'}
+						value={info === undefined ? undefined : info ? `${numberSpaces(hp)} из ${numberSpaces(info.maxHp)}` : 'Бой закончился'}
 						percent={info ? (hp / info.maxHp) * 100 : 0}
 					/>
-					<Bar label="Игроков в бою" value={`${invite.players} / ${MAX_PLAYERS}`} percent={(invite.players / MAX_PLAYERS) * 100} />
+					<Bar label="Игроков в бою" value={`${invite.players} из ${MAX_PLAYERS}`} percent={(invite.players / MAX_PLAYERS) * 100} />
 				</section>
 
 				<section className={styles.section}>
 					<div className={styles.pair}>
-						<Stat label="Попытки" value={info && boss ? `${info.left} / ${boss.tries}` : '…'} corner={wait ? getTime(wait) : undefined} />
-						<Stat label="Энергия" value={`${cost} / ${player === null ? '…' : numberSpaces(player.energy)}`} />
+						<Stat label={numberForm(boss?.tries ?? 0, ATTEMPTS_FROM)} value={info && boss ? `${info.left} из ${boss.tries}` : '…'} corner={wait ? getTime(wait) : undefined} />
+						<Stat label="энергии" value={`${cost} из ${player === null ? '…' : numberSpaces(player.energy)}`} />
 					</div>
 				</section>
 

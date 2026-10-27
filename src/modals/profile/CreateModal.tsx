@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import { useLeaveGuard } from '../../lib/leaveGuard';
 import { FormStatus } from '../../components/form/Form';
 import { FooterButton } from '../../components/profile/BotBlocks';
-import { getTime, numberSpaces } from '../../lib/format';
+import { ATTEMPTS_FROM, getTime, numberForm, numberSpaces } from '../../lib/format';
 import { canKillAlone } from '../../profile/invites/battle';
 import { createBattle, requestInvitesRefresh, showBattle, useInvitesContext } from '../../profile/invites/battleStore';
 import type { InviteBoss } from '../../profile/invites/bosses';
-import { backModal, type ModalEntry } from '../../store/modal';
-import { openPanel } from '../../store/nav';
+import { backModal, backModalIf, type ModalEntry } from '../../store/modal';
 import { ClassicModal } from '../ClassicModal';
 import { BossCell, Stat, partStyles as styles } from './BattleParts';
 import { useBossStats } from './useBossStats';
@@ -16,7 +16,7 @@ export interface CreateModalData {
 	boss: InviteBoss;
 }
 
-/** Окно создания своего боя: босс, попытки и энергия, кнопка «Создать». После создания открывается страница приглашений и окно боя. */
+/** Окно создания своего боя: босс, попытки и энергия, кнопка «Создать». После создания открывается окно боя поверх страницы выбора. */
 export function CreateModal({ open, entry }: { open: boolean; entry: ModalEntry | null }) {
 	const data = entry?.data as unknown as CreateModalData | undefined;
 	const { info, player, wait } = useBossStats(open, data?.boss.id);
@@ -25,8 +25,12 @@ export function CreateModal({ open, entry }: { open: boolean; entry: ModalEntry 
 	const inBattle = !!context?.current;
 	// Ход действия относится к тому окну (данным), в котором начат: у заново открытого окна своего хода нет
 	const [action, setAction] = useState<{ for: unknown; busy: boolean; error: string | null }>({ for: null, busy: false, error: null });
+	// Нажатие, пока прежнее ещё выполняется, второго входа в бой не начинает
+	const running = useRef(false);
 	const own = action.for === data;
 	const busy = own && action.busy;
+	// Пока бой создаётся, закрытие окна и вкладки просят подтверждения: энергия уже может быть списана
+	useLeaveGuard(busy, 'create');
 	const error = own ? action.error : null;
 
 	if (!data) return null;
@@ -39,14 +43,20 @@ export function CreateModal({ open, entry }: { open: boolean; entry: ModalEntry 
 	const tooLow = !!player && player.level < need;
 
 	const create = async () => {
+		if (running.current) return;
+		running.current = true;
 		setAction({ for: data, busy: true, error: null });
-		const result = await createBattle(boss.id, boss.energy);
-		if (!result.ok) return setAction({ for: data, busy: false, error: result.message });
-		setAction({ for: data, busy: false, error: null });
-		requestInvitesRefresh();
-		backModal();
-		openPanel('11');
-		showBattle(result);
+		try {
+			const result = await createBattle(boss.id, boss.energy);
+			if (!result.ok) return setAction({ for: data, busy: false, error: result.message });
+			setAction({ for: data, busy: false, error: null });
+			requestInvitesRefresh();
+			// Страница выбора остаётся на месте (список и прокрутка не сбрасываются), бой открывается поверх неё
+			backModalIf('create');
+			showBattle(result);
+		} finally {
+			running.current = false;
+		}
 	};
 
 	return (
@@ -58,8 +68,8 @@ export function CreateModal({ open, entry }: { open: boolean; entry: ModalEntry 
 
 				<section className={styles.section}>
 					<div className={styles.pair}>
-						<Stat label="Попытки" value={info ? `${info.left} / ${boss.tries}` : '…'} corner={wait ? getTime(wait) : undefined} />
-						<Stat label="Энергия" value={`${boss.energy} / ${player === null ? '…' : numberSpaces(player.energy)}`} />
+						<Stat label={numberForm(boss.tries, ATTEMPTS_FROM)} value={info ? `${info.left} из ${boss.tries}` : '…'} corner={wait ? getTime(wait) : undefined} />
+						<Stat label="энергии" value={`${boss.energy} из ${player === null ? '…' : numberSpaces(player.energy)}`} />
 					</div>
 				</section>
 

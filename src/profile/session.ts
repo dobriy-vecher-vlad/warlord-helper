@@ -50,6 +50,8 @@ export interface SessionState {
 	donutUsers: VKResponse<{ items: VKUser[]; count?: number }> | null;
 	/** VK id тех, кому доступна кнопка Kill в бою (execute.getProfileBossesWhitelist); пусто — список не получен */
 	bossesWhitelist: readonly number[];
+	/** VK id того, кто открыл приложение (ответ VK Bridge, а не адрес): по нему проверяется белый список Kill; 0 — не известен */
+	launcherId: number;
 	profiles: ProfileSlot[];
 	profilesFull: ProfileView[];
 	index: number;
@@ -76,6 +78,7 @@ const session = createStore<SessionState>({
 	isDonut: false,
 	donutUsers: null,
 	bossesWhitelist: [],
+	launcherId: 0,
 	profiles: [],
 	profilesFull: [],
 	index: 0,

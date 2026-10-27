@@ -101,7 +101,7 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		if (!profile || !flags.mounted) return null;
 		const arena = await getGame(bot.server, { i: 9, t: 1 }, bot.auth);
 		if (!arena?.my_rating) {
-			openPanel(null);
+			openPanel(null, { force: true });
 			notify({ text: 'Ошибка при получении данных арены', icon: 'error' });
 			return null;
 		}

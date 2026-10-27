@@ -49,6 +49,9 @@ export function useFightStats(open: boolean, key: string | number | undefined, l
 			alive = false;
 			window.clearInterval(timer);
 			document.removeEventListener('visibilitychange', refresh);
+			// Окно закрыто или показывает другое: прежние попытки и энергия не должны мелькать при следующем открытии
+			setLoaded(null);
+			setPlayer(null);
 		};
 	}, [open, key]);
 

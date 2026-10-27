@@ -13,6 +13,9 @@ export function numberForm(number: number, titles: readonly string[]): string {
 	return titles[number % 100 > 4 && number % 100 < 20 ? 2 : cases[number % 10 < 5 ? number % 10 : 5]!] ?? '';
 }
 
+/** «Попытки» после «из»: «1 из 1 попытки», «1 из 3 попыток», «4 из 21 попытки». */
+export const ATTEMPTS_FROM: Forms = ['попытки', 'попыток', 'попыток'];
+
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** Секунды -> «чч:мм:сс». Отрицательные и нецелые значения считаются нулём. */

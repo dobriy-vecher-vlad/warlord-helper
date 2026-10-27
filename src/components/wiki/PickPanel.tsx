@@ -1,9 +1,82 @@
-import { useDeferredValue, useEffect, useMemo, useRef, useState, type ComponentProps, type ReactNode } from 'react';
-import { Header, Search, filterFnForSelect } from '@vkontakte/vkui';
+import { useDeferredValue, useEffect, useMemo, useRef, useState, type ComponentProps, type PointerEvent, type ReactNode } from 'react';
+import { Button, Header, Search, filterFnForSelect } from '@vkontakte/vkui';
 import { EmptyCell } from './Description';
 import { NavCell } from './NavCell';
+import { ReorderHandle } from './ReorderHandle';
 import { WikiPanel } from './WikiPanel';
 import styles from './PickPanel.module.css';
+
+/** Действие справа от заголовка группы («Изменить», «Очистить»). */
+export interface GroupAction {
+	label: string;
+	onClick: () => void;
+}
+
+/** Группа в режиме изменения порядка: строки перетаскиваются (`from` и `to` — места в показанных строках группы). */
+export interface Reorder {
+	group: string;
+	onReorder: (from: number, to: number) => void;
+}
+
+/**
+ * Перетаскивание строк блока за ручку: строка идёт за указателем, соседи сдвигаются на её высоту, на месте отпускания порядок
+ * меняется (`onReorder`). Сами узлы двигаются через transform, порядок в DOM меняет перерисовка после `onReorder`.
+ */
+function useRowDrag(onReorder: (from: number, to: number) => void) {
+	const container = useRef<HTMLDivElement>(null);
+	const finish = useRef(onReorder);
+	useEffect(() => {
+		finish.current = onReorder;
+	});
+	/** Снять слушатели текущего перетаскивания (страница закрылась, пока строку тянули) */
+	const abort = useRef<(() => void) | null>(null);
+	useEffect(() => () => abort.current?.(), []);
+	const start = (place: number, event: PointerEvent<HTMLElement>) => {
+		const rows = [...(container.current?.children ?? [])] as HTMLElement[];
+		const node = rows[place];
+		if (!node) return;
+		event.preventDefault();
+		const boxes = rows.map((row) => row.getBoundingClientRect());
+		const height = boxes[place]!.height;
+		const startY = event.clientY;
+		let target = place;
+		node.classList.add(styles.dragged!);
+		const move = (next: globalThis.PointerEvent) => {
+			// Строка не выходит за края блока
+			const shift = Math.min(Math.max(next.clientY - startY, boxes[0]!.top - boxes[place]!.top), boxes[rows.length - 1]!.bottom - boxes[place]!.bottom);
+			node.style.transform = `translateY(${shift}px)`;
+			const middle = boxes[place]!.top + height / 2 + shift;
+			target = Math.max(0, boxes.findIndex((box) => middle < box.bottom) === -1 ? rows.length - 1 : boxes.findIndex((box) => middle < box.bottom));
+			rows.forEach((row, index) => {
+				if (index === place) return;
+				const moved = place < target && index > place && index <= target ? -height : place > target && index < place && index >= target ? height : 0;
+				row.style.transition = 'transform 0.15s';
+				row.style.transform = moved ? `translateY(${moved}px)` : '';
+			});
+		};
+		/** Убрать слушатели и сдвиги строк */
+		const release = () => {
+			abort.current = null;
+			window.removeEventListener('pointermove', move);
+			window.removeEventListener('pointerup', end);
+			window.removeEventListener('pointercancel', end);
+			node.classList.remove(styles.dragged!);
+			rows.forEach((row) => {
+				row.style.transform = '';
+				row.style.transition = '';
+			});
+		};
+		function end() {
+			release();
+			if (target !== place) finish.current(place, target);
+		}
+		abort.current = release;
+		window.addEventListener('pointermove', move);
+		window.addEventListener('pointerup', end);
+		window.addEventListener('pointercancel', end);
+	};
+	return { container, start };
+}
 
 /** Шапка страницы выбора (то, что возвращает sectionBase). */
 type PanelHead = Pick<ComponentProps<typeof WikiPanel>, 'id' | 'parent' | 'title' | 'description' | 'avatar'>;
@@ -26,6 +99,10 @@ interface PickPanelProps<T> {
 		title: string;
 		subtitle?: string;
 		image?: string;
+		/** В начале строки, перед картинкой */
+		before?: ReactNode;
+		/** Метка справа, перед числом */
+		badge?: ReactNode;
 		after?: ReactNode;
 		count?: ReactNode;
 		countLabel?: ReactNode;
@@ -33,6 +110,12 @@ interface PickPanelProps<T> {
 	};
 	isSelected: (item: T) => boolean;
 	onPick: (item: T) => void;
+	/** Постоянный ключ элемента: строка остаётся тем же узлом, когда список выше неё меняется (иначе узлы переиспользуются по номеру) */
+	itemKey?: (item: T) => string | number;
+	/** Действие справа от заголовка группы; `searching` — идёт поиск (списки отфильтрованы) */
+	groupActions?: (title: string, searching: boolean) => readonly GroupAction[];
+	/** Режим изменения порядка группы: её строки перетаскиваются, как в Cell из VKUI. Во время поиска не действует */
+	reorder?: Reorder | null;
 	/** Название элемента для поиска; без него поля поиска нет. Функция должна быть стабильной (вне компонента) */
 	searchBy?: (item: T) => string;
 	/** Текст пустого списка */
@@ -100,37 +183,94 @@ export function VisibleRow({ onVisible, onHidden, children }: { onVisible: () =>
  * Страница выбора для калькулятора (SelectMimicry ведёт сюда): элементы по группам, поиск по названию,
  * отметка выбранного. Нажатие вызывает `onPick`; возврат в калькулятор — на стороне вызывающего.
  */
-export function PickPanel<T>({ head, back, groups, view, isSelected, onPick, searchBy, empty = 'Ничего не найдено', onVisible, onHidden }: PickPanelProps<T>) {
+export function PickPanel<T>({
+	head,
+	back,
+	groups,
+	view,
+	isSelected,
+	onPick,
+	searchBy,
+	itemKey,
+	groupActions,
+	reorder,
+	empty = 'Ничего не найдено',
+	onVisible,
+	onHidden,
+}: PickPanelProps<T>) {
 	const [query, setQuery] = useState('');
 	const deferred = useDeferredValue(query);
 	const rows = useMemo(() => pickRows(groups, deferred, searchBy), [groups, deferred, searchBy]);
 
-	const render = (row: PickRow<T>, index: number) => {
+	const searching = !!deferred;
+	const drag = useRowDrag((from, to) => reorder?.onReorder(from, to));
+	let group = '';
+	const render = (row: PickRow<T>, index: number, place?: number) => {
 		if ('group' in row) {
+			group = row.group;
+			const actions = groupActions?.(row.group, searching) ?? [];
 			return (
-				<Header key={`group-${index}`} size="s">
+				<Header
+					key={`group-${index}`}
+					size="s"
+					className={styles.header}
+					after={
+						actions.length > 0 && (
+							<span className={styles.headerActions}>
+								{actions.map((action) => (
+									<Button key={action.label} mode="secondary" size="s" className={styles.headerButton} onClick={action.onClick}>
+										{action.label}
+									</Button>
+								))}
+							</span>
+						)
+					}
+				>
 					{row.group}
 				</Header>
 			);
 		}
 		const { disabled, ...props } = view(row.item);
+		const key = itemKey ? `${group}|${itemKey(row.item)}` : index;
 		const cell = (
 			<NavCell
-				key={index}
+				key={key}
 				className={`${styles.row} ${disabled ? styles.disabled : ''}`}
 				chevron={false}
 				selected={isSelected(row.item)}
 				{...props}
-				onClick={disabled ? undefined : () => onPick(row.item)}
+				before={place === undefined ? props.before : <ReorderHandle onStart={(event) => drag.start(place, event)} />}
+				// В режиме изменения порядка строка босса не открывается
+				onClick={disabled || place !== undefined ? undefined : () => onPick(row.item)}
 			/>
 		);
 		return onVisible && !disabled ? (
-			<VisibleRow key={index} onVisible={() => onVisible(row.item)} onHidden={onHidden ? () => onHidden(row.item) : undefined}>
+			<VisibleRow key={key} onVisible={() => onVisible(row.item)} onHidden={onHidden ? () => onHidden(row.item) : undefined}>
 				{cell}
 			</VisibleRow>
 		) : (
 			cell
 		);
+	};
+
+	/** Строки по порядку; строки группы, чей порядок меняется, лежат в одном блоке (перетаскивание двигает соседей внутри него) */
+	const renderRows = () => {
+		const nodes: ReactNode[] = [];
+		for (let index = 0; index < rows.length;) {
+			const row = rows[index]!;
+			if ('group' in row || !reorder || searching || group !== reorder.group) {
+				nodes.push(render(row, index++));
+				continue;
+			}
+			const block: ReactNode[] = [];
+			for (; index < rows.length && !('group' in rows[index]!); index++) block.push(<div key={block.length}>{render(rows[index]!, index, block.length)}</div>);
+			nodes.push(
+				<div key={`drag-${group}`} ref={drag.container}>
+					{block}
+				</div>,
+			);
+		}
+		return nodes;
 	};
 
 	return (
@@ -139,7 +279,7 @@ export function PickPanel<T>({ head, back, groups, view, isSelected, onPick, sea
 			back={back}
 			top={searchBy && <Search noPadding after={null} className={styles.search} value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск по названию" />}
 		>
-			{rows.length ? rows.map(render) : <EmptyCell>{empty}</EmptyCell>}
+			{rows.length ? renderRows() : <EmptyCell>{empty}</EmptyCell>}
 		</WikiPanel>
 	);
 }

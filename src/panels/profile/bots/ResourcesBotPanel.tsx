@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useLeaveGuard } from '../../../lib/leaveGuard';
 import { Checkbox, HorizontalScroll, Input, PullToRefresh } from '@vkontakte/vkui';
 import { Icon24ExternalLinkOutline } from '@vkontakte/icons';
 import { getGame, type GameAuth } from '../../../api/game';
@@ -92,7 +93,7 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 			if (!profile.auth) {
 				if (profile.main) {
 					openSettings({ text: 'Для продолжения работы необходимо указать пароль авторизации' });
-					openPanel(null);
+					openPanel(null, { force: true });
 				} else {
 					logText(`На аккаунте ${profile.login} не указан пароль авторизации`);
 					setLoading(false);
@@ -116,7 +117,7 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 				if (profile.main) {
 					notify({ text: 'Пароль авторизации игры неисправен, введите новый', icon: 'error' });
 					openSettings({ text: 'Пароль авторизации игры неисправен, введите новый', error: errorText(dataProfile) });
-					openPanel(null);
+					openPanel(null, { force: true });
 				} else {
 					logText(`Пароль авторизации игры неисправен на аккаунте ${profile.login}`);
 					setLoading(false);
@@ -178,6 +179,21 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 		[logText, logMessage],
 	);
 
+	// Сбор ресурсов меняет данные игры: пока он идёт, закрытие вкладки и уход со страницы просят подтверждения (простое обновление не считается)
+	const [acting, setActing] = useState(false);
+	useLeaveGuard(acting);
+	const act = useCallback(
+		async (mode: Mode, action = '') => {
+			setActing(true);
+			try {
+				await run(mode, action);
+			} finally {
+				if (st.current.mounted) setActing(false);
+			}
+		},
+		[run],
+	);
+
 	useEffect(() => {
 		const s = st.current;
 		s.mounted = true;
@@ -205,12 +221,12 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 	const off = (key: CardKey) => times[key] == null;
 	// У неактивной кнопки и в недоступной карточке загрузка не показывается (как в старом приложении)
 	const collect = (card: CardKey, mode: Mode, title = 'Собрать', disabled = false, action = 'collect') => (
-		<Button size="s" mode="commerce" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void run(mode, action)}>
+		<Button size="s" mode="commerce" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void act(mode, action)}>
 			{title}
 		</Button>
 	);
 	const secondary = (card: CardKey, mode: Mode, action: string, title: string, disabled = false) => (
-		<Button size="s" mode="secondary" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void run(mode, action)}>
+		<Button size="s" mode="secondary" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void act(mode, action)}>
 			{title}
 		</Button>
 	);
@@ -391,13 +407,13 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 					log={log.entries}
 					onClear={log.clear}
 					actions={[
-						{ title: 'Собрать всё', mode: 'commerce', onClick: () => then(run('all'), 'все ресурсы собраны'), disabled: loading, loading },
+						{ title: 'Собрать всё', mode: 'commerce', onClick: () => then(act('all'), 'все ресурсы собраны'), disabled: loading, loading },
 						...(profiles.length > 1
 							? [
 									{
 										title: 'Собрать со всех',
 										mode: 'secondary' as const,
-										onClick: () => then(run('all-in-all'), 'все ресурсы со всех профилей собраны'),
+										onClick: () => then(act('all-in-all'), 'все ресурсы со всех профилей собраны'),
 										disabled: loading,
 										loading,
 										after: (

@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { consumePendingModal, getNav, initNav, openPanel, openStory, showNotFound } from './nav';
+import { consumePendingModal, getNav, initNav, openPanel, openStory, setRouteRules, showNotFound } from './nav';
 
 describe('nav', () => {
 	beforeEach(() => initNav({}));
@@ -53,5 +53,22 @@ describe('nav', () => {
 		expect(getNav().pendingModal).toBeNull();
 		openPanel('2');
 		expect(getNav().panel).toBe('2');
+	});
+
+	it('закрытый подпиской подраздел по ссылке не открывается, открывается главная панель раздела', () => {
+		const asked: string[] = [];
+		setRouteRules({
+			available: () => true,
+			allowed: (story, panel) => {
+				asked.push(`${story}/${panel}`);
+				return panel !== '4';
+			},
+		});
+		initNav({ view: 'map', panel: '4', modal: '21' });
+		expect(getNav()).toEqual({ story: 'map', panel: null, pendingModal: null, notFound: false });
+		expect(asked).toEqual(['map/4']);
+		initNav({ view: 'map', panel: '1' });
+		expect(getNav().panel).toBe('1');
+		setRouteRules({ available: (story) => story !== 'profile' && story !== 'rating', allowed: () => true });
 	});
 });

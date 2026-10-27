@@ -24,7 +24,7 @@ export const preloadAnalysisModals = () => void loadAnalysis().catch(() => undef
 const loadBattle = () => import('../modals/profile/BattleModals').then((module) => ({ default: module.BattleModals }));
 const BattleModals = lazy(loadBattle);
 export const preloadBattleModals = () => void loadBattle().catch(() => undefined);
-const BATTLE_IDS = ['invite', 'battle', 'participants', 'create', 'battleResult'];
+const BATTLE_IDS = ['invite', 'battle', 'participants', 'create', 'battleResult', 'killAll'];
 
 /** Данные окна сохраняются, пока оно закрывается, чтобы содержимое не пропадало во время анимации. */
 function useLastEntry(id: ModalEntry['id']) {
@@ -82,7 +82,7 @@ function ProfileModals() {
 			<AlertModal open={alert.open} entry={alert.entry} />
 			{battleWanted.current && (
 				<Suspense fallback={null}>
-					<BattleModals invite={invite} create={create} participants={participants} result={result} battleOpen={active?.id === 'battle'} />
+					<BattleModals invite={invite} create={create} participants={participants} result={result} killAllOpen={active?.id === 'killAll'} battleOpen={active?.id === 'battle'} />
 				</Suspense>
 			)}
 		</>

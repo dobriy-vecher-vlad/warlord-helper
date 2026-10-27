@@ -140,6 +140,22 @@ describe('roundsToKill', () => {
 	});
 });
 
+describe('добивание навыком', () => {
+	// Невидимый удар в начале раунда добивает босса: этот раунд обычного удара не содержит, но удары для убийства нужны
+	const skilled = me({ skills: { 1: 0, 2: 0, 3: 2, 4: 0 } });
+	const setup: Setup = { ...off, skill: 3 };
+
+	it('число ударов для убийства и Max убивают босса, где бы его ни добил навык', () => {
+		for (let hp = 500; hp <= 30_000; hp += 137) {
+			const state = battle({ hp, myHp: 1_000_000, bossDmg: 1 });
+			const kill = roundsToKill(state, skilled, setup);
+			expect(simulate(state, skilled, setup, kill).killed).toBe(true);
+			expect(simulate(state, skilled, setup, kill - 1).killed).toBe(false);
+			expect(simulate(state, skilled, setup, survivableRounds(state, skilled, setup, kill)).killed).toBe(true);
+		}
+	});
+});
+
 describe('survivableRounds', () => {
 	it('столько ударов, сколько выдержит персонаж, но не больше нужного для убийства', () => {
 		// 10 000 здоровья, босс бьёт на 100: 99 ударов оставляют 100 здоровья, сотый убивает
@@ -208,5 +224,14 @@ describe('canKillAlone', () => {
 		const boss = { hp: 120_000, dmg: 100 };
 		expect(canKillAlone(boss, without, 10_000)).toBe(false);
 		expect(canKillAlone(boss, withSkill, 10_000)).toBe(true);
+	});
+});
+
+describe('canKillAlone: только бесплатное', () => {
+	it('учитывается один навык — «Невидимый удар»; остальные навыки в расчёт не входят', () => {
+		const boss = { hp: 120_000, dmg: 100 };
+		const other = me({ skills: { 1: 1000, 2: 1000, 3: 0, 4: 1000 } });
+		expect(canKillAlone(boss, other, 10_000)).toBe(false);
+		expect(canKillAlone(boss, me({ skills: { 1: 0, 2: 0, 3: 1000, 4: 0 } }), 10_000)).toBe(true);
 	});
 });

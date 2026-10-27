@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLeaveGuard } from '../../lib/leaveGuard';
 
 /**
  * Признаки состояния бота. Читаются из длинных циклов, которые держат старую копию состояния React,
@@ -37,6 +38,8 @@ export function useBotRunner({ onPause, onStopped }: BotRunnerOptions) {
 	const [running, setRunning] = useState(false);
 	const [starting, setStarting] = useState(false);
 	const [pausing, setPausing] = useState(false);
+	// Уход со страницы остановил бы бота: закрытие вкладки и переход просят подтверждения
+	useLeaveGuard(running || starting);
 	const callbacks = useRef({ onPause, onStopped });
 	useEffect(() => {
 		callbacks.current = { onPause, onStopped };

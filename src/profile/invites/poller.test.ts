@@ -63,6 +63,34 @@ describe('InvitesPoller', () => {
 		poller.stop();
 	});
 
+	it('пока поверх страницы окно, опрос по таймеру стоит; после закрытия обновляется, если минута прошла', async () => {
+		const { poller } = make();
+		poller.start();
+		await vi.advanceTimersByTimeAsync(0);
+		expect(fetchInvites).toHaveBeenCalledTimes(1);
+		poller.pause();
+		await vi.advanceTimersByTimeAsync(POLL_MS * 3);
+		expect(fetchInvites).toHaveBeenCalledTimes(1);
+		poller.resume();
+		await vi.advanceTimersByTimeAsync(0);
+		expect(fetchInvites).toHaveBeenCalledTimes(2);
+		poller.stop();
+	});
+
+	it('окно закрыто раньше, чем прошла минута: опрос ждёт остаток минуты', async () => {
+		const { poller } = make();
+		poller.start();
+		await vi.advanceTimersByTimeAsync(0);
+		poller.pause();
+		await vi.advanceTimersByTimeAsync(20_000);
+		poller.resume();
+		await vi.advanceTimersByTimeAsync(0);
+		expect(fetchInvites).toHaveBeenCalledTimes(1);
+		await vi.advanceTimersByTimeAsync(POLL_MS - 20_000);
+		expect(fetchInvites).toHaveBeenCalledTimes(2);
+		poller.stop();
+	});
+
 	it('повторяется раз в минуту; после остановки опрос не идёт', async () => {
 		const { poller } = make();
 		poller.start();

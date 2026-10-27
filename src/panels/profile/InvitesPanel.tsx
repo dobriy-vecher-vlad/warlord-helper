@@ -113,7 +113,7 @@ function InvitesList({ id }: { id: string }) {
 					<NavCell
 						image={bosses?.get(battle.npc)?.icon ?? 'bosses/icons/0.png'}
 						title={bosses?.get(battle.npc)?.name ?? `Босс №${battle.npc}`}
-						subtitle={`Текущий бой · ${compactNumber(Math.max(battle.hp, 0))} / ${compactNumber(battle.maxHp)}`}
+						subtitle={`Текущий бой · ${compactNumber(Math.max(battle.hp, 0))} из ${compactNumber(battle.maxHp)}`}
 						badge={<SoloSlot solo={!!current && !!me && canKillAlone({ hp: battle.maxHp, dmg: battle.bossDmg }, current.fighter, me.maxHp)} reserve={false} />}
 						count={numberSpaces(battle.participants.length)}
 						countLabel="в бою"
@@ -139,7 +139,9 @@ function InvitesList({ id }: { id: string }) {
 					Сейчас никто не зовёт в бой
 				</Placeholder>
 			) : (
-				<ScrollBox height={battle ? 300 : 372}>{list.nodes}</ScrollBox>
+				<div className={styles.emptyBox}>
+					<ScrollBox height={battle ? 300 : 372}>{list.nodes}</ScrollBox>
+				</div>
 			)}
 		</WikiPanel>
 	);

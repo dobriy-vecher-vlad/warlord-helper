@@ -64,6 +64,9 @@ export class InvitesPoller {
 	private context: Context | null = null;
 	private timer = 0;
 	private waiting = false;
+	/** Поверх страницы открыто окно: опрос по таймеру не идёт, пока оно не закроется */
+	private paused = false;
+	private lastPoll = 0;
 
 	constructor(
 		private readonly owner: string | null,
@@ -84,15 +87,37 @@ export class InvitesPoller {
 
 	/** Вкладка снова видна: опрос, ждавший этого, возобновляется. */
 	private onVisible = () => {
-		if (!document.hidden && this.waiting) {
+		if (!document.hidden && !this.paused && this.waiting) {
 			this.waiting = false;
 			void this.poll();
 		}
 	};
 
+	/**
+	 * Фокус ушёл со страницы (открыто окно): опрос по таймеру останавливается. Ручное обновление и просьбы страницы
+	 * (конец боя, вход в бой) работают как обычно.
+	 */
+	pause() {
+		if (this.paused) return;
+		this.paused = true;
+		window.clearTimeout(this.timer);
+		this.waiting = true;
+	}
+
+	/** Окно закрыто: если с последнего опроса прошла минута, список обновляется сразу, иначе опрос ждёт остаток минуты. */
+	resume() {
+		if (!this.paused) return;
+		this.paused = false;
+		if (!this.alive || this.busy || document.hidden || !this.waiting) return;
+		this.waiting = false;
+		const left = POLL_MS - (Date.now() - this.lastPoll);
+		if (left <= 0) void this.poll();
+		else this.timer = window.setTimeout(() => void this.poll(), left);
+	}
+
 	private schedule() {
-		if (document.hidden) {
-			// Вкладка скрыта: опрос возобновится, когда она станет видимой
+		if (document.hidden || this.paused) {
+			// Вкладка скрыта или поверх страницы окно: опрос возобновится, когда фокус вернётся
 			this.waiting = true;
 			return;
 		}
@@ -157,6 +182,7 @@ export class InvitesPoller {
 			if (this.alive) this.events.state((current) => ({ ...current, owner: this.owner, failed: true }));
 		} finally {
 			this.busy = false;
+			this.lastPoll = Date.now();
 			if (this.alive) {
 				this.events.loading(false);
 				if (this.pending) {

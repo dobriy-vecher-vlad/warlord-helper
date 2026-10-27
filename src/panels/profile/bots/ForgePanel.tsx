@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLeaveGuard } from '../../../lib/leaveGuard';
 import { Icon12ArrowUp, Icon16Up, Icon56FragmentsOutline } from '@vkontakte/icons';
 import type { ProfileResponse } from '../../../api/gameTypes';
 import { getGame } from '../../../api/game';
@@ -137,6 +138,9 @@ export function ForgePanel({ id }: { id: string }) {
 	const [loading, setLoading] = useState(true);
 	const [tab, setTab] = useState('m1');
 	const [active, setActive] = useState<number | null>(null);
+	// Улучшение тратит ресурсы игры: пока оно идёт, закрытие вкладки и уход со страницы просят подтверждения
+	const [upgrading, setUpgrading] = useState(false);
+	useLeaveGuard(upgrading);
 
 	/** Профиль с сервера; null — бот не запустился (нет пароля или он неверный). */
 	const reload = useCallback(async () => {
@@ -166,6 +170,7 @@ export function ForgePanel({ id }: { id: string }) {
 	const upgrade = async (data: ForgeItem) => {
 		if (!bot.current) return;
 		setLoading(true);
+		setUpgrading(true);
 		const result = await getGame(bot.current.server, { i: 26, t1: data.item.id }, bot.current.auth);
 		if (result?.a?._res) {
 			if (result.msg === 'Недостаточно ресурсов.') notify({ text: 'Недостаточно ресурсов для улучшения предмета', icon: 'error' });
@@ -176,6 +181,7 @@ export function ForgePanel({ id }: { id: string }) {
 			notify({ text: result?.msg ?? (typeof result === 'string' ? result : 'Неизвестная ошибка при улучшении предмета'), icon: 'error' });
 		}
 		await reload();
+		setUpgrading(false);
 		setActive(data.item.id);
 	};
 

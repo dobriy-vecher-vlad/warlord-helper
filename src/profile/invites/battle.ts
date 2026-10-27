@@ -213,8 +213,14 @@ export function simulate(battle: Battle, me: Fighter, setup: Setup, rounds: numb
 	return { rounds: done, hand, fire, lightning, skillHits, skill: setup.skill, potions, dealt, taken, healed, bossHp: hp, myHp, killed: hp <= 0, dies: myHp <= 0 };
 }
 
-/** Сколько ударов нужно, чтобы добить босса при этих настройках. */
-export const roundsToKill = (battle: Battle, me: Fighter, setup: Setup) => simulate(battle, me, setup, MAX_ROUNDS).rounds;
+/**
+ * Сколько ударов нужно, чтобы добить босса при этих настройках. Если босса добивает навык в начале раунда, этот раунд в
+ * `rounds` расчёта не входит (обычного удара в нём нет), поэтому ударов с таким числом раундов не хватает на один: он добавляется.
+ */
+export function roundsToKill(battle: Battle, me: Fighter, setup: Setup) {
+	const plan = simulate(battle, me, setup, MAX_ROUNDS);
+	return plan.killed && !simulate(battle, me, setup, plan.rounds).killed ? plan.rounds + 1 : plan.rounds;
+}
 
 /**
  * Сколько ударов можно сделать, не погибнув (с включёнными зельями), но не больше, чем нужно, чтобы добить босса.
@@ -302,16 +308,22 @@ export function attackKey(plan: Plan): Record<string, number> {
 /** Готовые ответы «убьёт в одиночку»: расчёт тяжёлый (перебор навыков), а метка рисуется в каждой строке списка при каждой перерисовке. */
 const aloneCache = new Map<string, boolean>();
 
+/** Навык, которым персонаж убивает в одиночку: «Невидимый удар» — самый выгодный (босс в ответ не бьёт). */
+export const SOLO_SKILL = 3;
+
+/** Персонаж для расчёта «в одиночку»: только обычные удары и «Невидимый удар», всё платное (свитки, зелья) и прочие навыки убраны. */
+export const soloFighter = (me: Fighter): Fighter => ({ ...me, skills: { 1: 0, 2: 0, 3: me.skills[SOLO_SKILL], 4: 0 }, lightning: 0, fire: 0, potions: 0 });
+
 /**
- * Хватит ли персонажу сил убить босса в одиночку: расчёт с навыками, но без свитков и зелий. `hp` — сколько здоровья у босса
- * сейчас, `myHp` — здоровье персонажа, `rage` — его ярость (по умолчанию 10, как при входе в бой).
+ * Хватит ли персонажу сил убить босса в одиночку: расчёт только с бесплатным (обычные удары и «Невидимый удар»), без свитков и зелий.
+ * `hp` — сколько здоровья у босса сейчас, `myHp` — здоровье персонажа, `rage` — его ярость (по умолчанию 10, как при входе в бой).
  */
 export function canKillAlone(boss: { hp: number; dmg: number }, me: Fighter, myHp: number, rage = START_RAGE): boolean {
-	const key = [boss.hp, boss.dmg, me.dmg, me.skills[1], me.skills[2], me.skills[3], myHp, rage].join(':');
+	const key = [boss.hp, boss.dmg, me.dmg, me.skills[SOLO_SKILL], myHp, rage].join(':');
 	const cached = aloneCache.get(key);
 	if (cached !== undefined) return cached;
 	const state: Battle = { fightId: 0, npc: 0, hp: boss.hp, maxHp: boss.hp, bossDmg: boss.dmg, myHp, rage, elapsed: 0, receivedAt: 0, won: false, lost: false, participants: [] };
-	const result = solveKill(state, { ...me, lightning: 0, fire: 0, potions: 0 }).feasible;
+	const result = solveKill(state, soloFighter(me)).feasible;
 	if (aloneCache.size > 2000) aloneCache.clear();
 	aloneCache.set(key, result);
 	return result;

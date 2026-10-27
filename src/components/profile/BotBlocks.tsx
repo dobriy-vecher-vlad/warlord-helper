@@ -87,7 +87,8 @@ export function Option({ type, checked, disabled, onChange, description, childre
 /* ---------- Лог действий ---------- */
 
 export type LogEntry = { id: number } & (
-	{ type: 'text'; message: string; color?: 'red' | 'green' | 'blue' } | { type: 'message'; avatar: string; title: string; time: string; message: string | RewardLine[] }
+	| { type: 'text'; message: string; color?: 'red' | 'green' | 'blue' }
+	| { type: 'message'; avatar: string; title: string; time: string; message: string | RewardLine[]; note?: string }
 );
 
 /** Номер записи: по нему React узнаёт запись, когда старые записи отбрасываются. */
@@ -98,8 +99,8 @@ export function useBotLog() {
 	const [entries, setEntries] = useState<LogEntry[]>([]);
 	const text = useCallback((message: string, color?: 'red' | 'green' | 'blue') => setEntries((list) => appendLog(list, { id: ++logId, type: 'text', message, color })), []);
 	const message = useCallback(
-		(avatar: string, title: string, body: string | RewardLine[]) =>
-			setEntries((list) => appendLog(list, { id: ++logId, type: 'message', avatar, title, time: logTime(), message: body })),
+		(avatar: string, title: string, body: string | RewardLine[], note?: string) =>
+			setEntries((list) => appendLog(list, { id: ++logId, type: 'message', avatar, title, time: logTime(), message: body, note })),
 		[],
 	);
 	const clear = useCallback(() => setEntries([]), []);
@@ -149,6 +150,7 @@ export function BotLog({ entries, compact = false, onClear }: { entries: readonl
 										<span>{entry.time}</span>
 									</div>
 									<div className={styles.logChildren}>
+										{entry.note && <div className={styles.logNote}>{entry.note}</div>}
 										{Array.isArray(entry.message)
 											? entry.message.map((line, x) => (
 													<div key={x} className={styles.logMessage}>

@@ -1,7 +1,8 @@
 import { useState } from 'react';
+import { useLeaveGuard } from '../../lib/leaveGuard';
 import { FormStatus } from '../../components/form/Form';
 import { FooterButton } from '../../components/profile/BotBlocks';
-import { getTime, numberSpaces } from '../../lib/format';
+import { ATTEMPTS_FROM, getTime, numberForm, numberSpaces } from '../../lib/format';
 import { CardGrid, DescriptionCard } from '../../components/wiki/Description';
 import type { RewardLine } from '../../profile/bots/reward';
 import { createBattle, showBattle, useInvitesContext } from '../../profile/invites/battleStore';
@@ -33,6 +34,8 @@ export function BattleResultModal({ open, entry }: { open: boolean; entry: Modal
 	const { info, player, wait } = useBossStats(open, data?.npc);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	// Пока создаётся повторный бой, закрытие окна и вкладки просят подтверждения
+	useLeaveGuard(busy, 'battleResult');
 	if (!data) return null;
 	const boss = bosses?.get(data.npc) ?? null;
 	// Создать бой можно только с общими и одиночными боссами (тип 1); с рейдовыми, боссами гильдии, так нельзя
@@ -61,8 +64,8 @@ export function BattleResultModal({ open, entry }: { open: boolean; entry: Modal
 				</section>
 				<section className={styles.section}>
 					<div className={styles.pair}>
-						<Stat label="Попытки" value={info && boss ? `${info.left} / ${boss.tries}` : '…'} corner={wait ? getTime(wait) : undefined} />
-						<Stat label="Энергия" value={`${boss?.energy ?? 0} / ${player === null ? '…' : numberSpaces(player.energy)}`} />
+						<Stat label={numberForm(boss?.tries ?? 0, ATTEMPTS_FROM)} value={info && boss ? `${info.left} из ${boss.tries}` : '…'} corner={wait ? getTime(wait) : undefined} />
+						<Stat label="энергии" value={`${boss?.energy ?? 0} из ${player === null ? '…' : numberSpaces(player.energy)}`} />
 					</div>
 				</section>
 				<section className={styles.section}>

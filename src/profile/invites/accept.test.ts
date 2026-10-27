@@ -59,11 +59,23 @@ describe('enterFight', () => {
 	});
 
 	it('не хватает энергии или уровня — в бой не входит', async () => {
-		vi.mocked(getGame).mockResolvedValueOnce({ u: { ...player, _en: '4' } });
+		// Отказ по энергии подтверждается вторым запросом профиля
+		vi.mocked(getGame)
+			.mockResolvedValueOnce({ u: { ...player, _en: '4' } })
+			.mockResolvedValueOnce({ u: { ...player, _en: '4' } });
 		expect(await enterFight(bot, invite, npc, 5)).toEqual({ ok: false, message: 'Не хватает энергии' });
 		vi.mocked(getGame).mockResolvedValueOnce({ u: { ...player, _lvl: '10' } });
 		expect(await enterFight(bot, invite, npc, 5)).toEqual({ ok: false, message: 'Нужен 30 уровень' });
-		expect(getGame).toHaveBeenCalledTimes(2);
+		expect(getGame).toHaveBeenCalledTimes(3);
+	});
+
+	it('устаревшее значение энергии в первом ответе не отказывает во входе', async () => {
+		vi.mocked(getGame)
+			.mockResolvedValueOnce({ u: { ...player, _en: '4' } })
+			.mockResolvedValueOnce({ u: { ...player, _en: '50' } })
+			.mockResolvedValueOnce(info)
+			.mockResolvedValueOnce(joined);
+		expect((await enterFight(bot, invite, npc, 5)).ok).toBe(true);
 	});
 
 	it('устаревшее приглашение: сервер присылает другой номер боя, в бой не входим', async () => {

@@ -1,0 +1,56 @@
+/* Список боя: подсветка босса, на котором сейчас бот, и убитые до лимита */
+.row {
+	cursor: default;
+}
+
+.active.active {
+	background: var(--background_highlighted);
+}
+
+.done {
+	opacity: 0.55;
+}
+
+/* Карточки под шапкой: закреплены, не прокручиваются */
+.cards {
+	padding: 12px;
+}
+
+/* Прокручивается только список; поля такие, чтобы значки встали вровень с карточками (12px от края) */
+.listBody {
+	padding: 4px;
+}
+
+:global([data-layout='mobile']) .listBody {
+	padding: 4px 0;
+}
+
+/* Ряд кнопок «убить» и «убить всех» всегда в две колонки */
+.pair {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px;
+}
+
+/* Низ окна: лог на всю ширину окна, ниже, чем у боя (три ряда кнопок) */
+.logBox {
+	position: relative;
+	margin: 0 -12px;
+}
+
+.logBox > div:first-child > div:first-child {
+	height: 160px;
+}
+
+:global([data-layout='mobile']) .logBox > div:first-child > div:first-child {
+	height: 130px;
+}
+
+/* Заглушка строки: те же поля, что у ячейки (8px, на телефоне 12px) */
+.skeletonRow {
+	padding: 8px;
+}
+
+:global([data-layout='mobile']) .skeletonRow {
+	padding: 7px 12px 6px;
+}

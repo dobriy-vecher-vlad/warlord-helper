@@ -23,7 +23,7 @@ const bot = { server: 1, auth: { login: 1, password: 'k' } };
 const boss = data.find((item) => item.id === 69)!;
 const npc = { id: 69, region: 13, place: 2, type: 1, level: 30, tries: 5 };
 const fighter = { dmg: 143719, skills: { 1: 0, 2: 5, 3: 153, 4: 400 } as const, lightning: 5, fire: 5, potions: 5 };
-const player = { level: 67, energy: 51, fighter, maxHp: 791_370 };
+const player = { level: 67, energy: 51, maxRegion: 0, fighter, maxHp: 791_370 };
 const me = { id: 7, name: 'Я', avatar: 8 };
 const battle = {
 	fightId: 500,
@@ -63,7 +63,7 @@ describe('окно приглашения', () => {
 		const text = document.body.textContent ?? '';
 		expect(text).toContain(boss.name);
 		expect(text).toContain(boss.description);
-		expect(text).toContain('4 / 5');
+		expect(text).toContain('4 из 5');
 		expect(button('Принять')?.disabled).toBe(false);
 	});
 
@@ -141,21 +141,22 @@ describe('окно боя', () => {
 		expect(button('Обновить')?.disabled).toBe(false);
 	});
 
-	it('Kill только у тех, кто в белом списке (по запустившему приложение, не по профилю); у погибшего она заблокирована', async () => {
+	it('Kill только у тех, кто в белом списке (по запустившему приложение по ответу VK Bridge, не по адресу и не по профилю); у погибшего она заблокирована', async () => {
+		// Подмена id в адресе ничего не даёт
 		window.history.replaceState(null, '', '/?vk_user_id=153968505');
-		setSession({ bossesWhitelist: [] });
+		setSession({ bossesWhitelist: [153968505], launcherId: 0 });
 		startBattle(bot, { ...battle, myHp: 0, lost: true }, fighter, me, null);
 		await view();
 		await flush();
 		expect(button('Kill')).toBeUndefined();
-		setSession({ bossesWhitelist: [111, 153968505] });
+		setSession({ bossesWhitelist: [111, 153968505], launcherId: 153968505 });
 		await flush();
 		expect(button('Kill')?.disabled).toBe(true);
-		window.history.replaceState(null, '', '/?vk_user_id=222');
-		setSession({ bossesWhitelist: [111] });
+		setSession({ bossesWhitelist: [111], launcherId: 153968505 });
 		await flush();
 		expect(button('Kill')).toBeUndefined();
 		window.history.replaceState(null, '', '/');
+		setSession({ bossesWhitelist: [], launcherId: 0 });
 	});
 });
 

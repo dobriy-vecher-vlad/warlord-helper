@@ -66,6 +66,8 @@ export interface Player {
 	/** Уровень персонажа */
 	level: number;
 	energy: number;
+	/** Сколько районов открыто (`locm`): босс доступен, если номер его района меньше */
+	maxRegion: number;
 	fighter: Fighter;
 	/** Здоровье в начале боя: (выносливость + выносливость от предметов) × 15 */
 	maxHp: number;
@@ -75,6 +77,7 @@ export interface Player {
 export const playerOf = (user: Attrs): Player => ({
 	level: Number(user._lvl) || 0,
 	energy: Number(user._en),
+	maxRegion: Number(user._locm) || 0,
 	fighter: parseFighter(user),
 	maxHp: (Number(user._end) + Number(user._endi)) * 15,
 });
@@ -108,22 +111,35 @@ export async function fetchBoss(bot: BotAuth, npc: Npc, priority: number = PRIOR
 	return { hp: Number(info.u._hp), maxHp: Number(info.u._mhp), left: Number(info.u._avail), next: Number(info.u._nrgn) || 0 };
 }
 
-/** Проверки персонажа и вход в бой запросом `i: 11`; `check` — проверка самого боя до входа (текст отказа или null). */
-async function start(bot: BotAuth, npc: Npc, cost: number, check: () => Promise<string | null>, body: Record<string, number>): Promise<EnterResult> {
-	const player: Attrs | undefined = (await getGame(bot.server, {}, bot.auth, 1, false, PRIORITY.action))?.u;
-	if (!player) return fail('Не удалось получить данные персонажа');
-	if (Number(player._lvl) < npc.level) return fail(`Нужен ${npc.level} уровень`);
-	if (Number(player._en) < cost) return fail('Не хватает энергии');
-
-	const refusal = await check();
-	if (refusal) return fail(refusal);
-
+/** Вход в бой запросом `i: 11`; если сервер не прислал бой, один повтор через 3 секунды. null — войти не удалось. */
+async function openFight(bot: BotAuth, body: Record<string, number>): Promise<Battle | null> {
 	let game = await getGame(bot.server, body, bot.auth, 1, false, PRIORITY.action);
 	if (!game?.fight) {
 		await wait(3000);
 		game = await getGame(bot.server, body, bot.auth, 1, false, PRIORITY.action);
 	}
-	const battle = parseBattle(game);
+	return parseBattle(game);
+}
+
+/** Создать свой бой без проверок персонажа и босса: их вызывающий уже сделал (проход «убить всех» обновляет данные перед каждым боем). */
+export const createFightUnchecked = (bot: BotAuth, npc: Npc) => openFight(bot, { i: 11, t: npc.id, t2: npc.type, t3: 0, t4: 0, t5: 0, fid: 0 });
+
+/** Проверки персонажа и вход в бой запросом `i: 11`; `check` — проверка самого боя до входа (текст отказа или null). */
+async function start(bot: BotAuth, npc: Npc, cost: number, check: () => Promise<string | null>, body: Record<string, number>): Promise<EnterResult> {
+	let player: Attrs | undefined = (await getGame(bot.server, {}, bot.auth, 1, false, PRIORITY.action))?.u;
+	if (!player) return fail('Не удалось получить данные персонажа');
+	if (Number(player._lvl) < npc.level) return fail(`Нужен ${npc.level} уровень`);
+	// Отказ по энергии не по одному ответу: профиль мог прийти с устаревшим значением, поэтому он запрашивается ещё раз
+	if (Number(player._en) < cost) {
+		player = (await getGame(bot.server, {}, bot.auth, 1, false, PRIORITY.action))?.u;
+		if (!player) return fail('Не удалось получить данные персонажа');
+		if (Number(player._en) < cost) return fail('Не хватает энергии');
+	}
+
+	const refusal = await check();
+	if (refusal) return fail(refusal);
+
+	const battle = await openFight(bot, body);
 	if (!battle) return fail('Не удалось войти в бой');
 	return { ok: true, battle, fighter: parseFighter(player), me: { id: Number(player._id), name: player._name ?? '', avatar: Number(player._aid) || 0 } };
 }

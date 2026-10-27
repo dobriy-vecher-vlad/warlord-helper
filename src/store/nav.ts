@@ -1,4 +1,5 @@
 import { parseHash } from '../lib/hash';
+import { confirmLeave } from '../lib/leaveGuard';
 import { HUB_STORIES } from '../stories/registry';
 import { createStore, useStore } from './createStore';
 import { resetItemFilter } from './itemFilter';
@@ -72,15 +73,25 @@ export function revalidateNav() {
 
 const isStory = (value: string | undefined): value is StoryId => !!value && (STORIES as readonly string[]).includes(value);
 
-/** Открыть раздел. Недоступный раздел (рейтинг с плитки на главной вне ВК) — страница 404. */
-export function openStory(story: StoryId) {
+/** Параметры перехода: `force` — переход делает само приложение (не человек), подтверждение не спрашивается. */
+interface NavOptions {
+	force?: boolean;
+}
+
+/**
+ * Открыть раздел. Недоступный раздел (рейтинг с плитки на главной вне ВК) — страница 404. Пока работает бот или идёт действие,
+ * которое уход прервёт, переход просит подтверждения браузера.
+ */
+export function openStory(story: StoryId, { force = false }: NavOptions = {}) {
+	if (!force && !confirmLeave()) return;
 	resetItemFilter();
 	nav.set({ story, panel: null, pendingModal: null, notFound: !ROUTES[story] || !rules.available(story, null) });
 }
 
 /** Перейти в подраздел текущего раздела (или на его главную панель, если panel = null). */
-export function openPanel(panel: string | null) {
+export function openPanel(panel: string | null, { force = false }: NavOptions = {}) {
 	const { story } = nav.get();
+	if (!force && !confirmLeave()) return;
 	if (story && panel && !rules.allowed(story, panel)) return;
 	resetItemFilter();
 	nav.set({ panel, pendingModal: null, notFound: false });
@@ -112,6 +123,11 @@ export function initNav(params = parseHash()) {
 	const panel = params.panel && params.panel !== story ? params.panel : null;
 	if (!story || !panels || (panel !== null && !panels.includes(panel)) || !rules.available(story, panel)) {
 		nav.set({ story: story ?? 'home', panel: null, pendingModal: null, notFound: true });
+		return;
+	}
+	// Закрытый подпиской подраздел по ссылке не открывается: остаётся главная панель раздела (правило само покажет причину)
+	if (panel !== null && !rules.allowed(story, panel)) {
+		nav.set({ story, panel: null, pendingModal: null, notFound: false });
 		return;
 	}
 	nav.set({ story, panel, pendingModal: panel && params.modal ? params.modal : null, notFound: false });

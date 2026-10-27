@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useAnyModal } from '../../store/modal';
 import { useRefreshRequest, useSelectedOwner } from './battleStore';
 import { InvitesPoller, emptyInvites, type InvitesState } from './poller';
 
@@ -24,6 +25,13 @@ export function useInvites() {
 			poller.current = null;
 		};
 	}, [owner]);
+
+	// Пока поверх страницы открыто окно, список по таймеру не обновляется (запросы игре общие и ограничены по частоте)
+	const covered = useAnyModal();
+	useEffect(() => {
+		if (covered) poller.current?.pause();
+		else poller.current?.resume();
+	}, [covered, owner]);
 
 	// Принудительное обновление извне
 	const request = useRefreshRequest();

@@ -8,12 +8,12 @@ const groups: BossGroupLike<{ id: number }>[] = [
 	{ title: 'Рейдовые', items: [entry(6)] },
 ];
 const npcs = new Map([
-	[1, { type: 1, level: 1 }],
-	[2, { type: 1, level: 1 }],
-	[3, { type: 1, level: 1 }],
-	[4, { type: 4, level: 1 }],
-	[5, { type: 1, level: 1 }],
-	[6, { type: 3, level: 1 }],
+	[1, { type: 1, level: 1, region: 30 }],
+	[2, { type: 1, level: 1, region: 10 }],
+	[3, { type: 1, level: 1, region: 10 }],
+	[4, { type: 4, level: 1, region: 30 }],
+	[5, { type: 1, level: 1, region: 99 }],
+	[6, { type: 3, level: 1, region: 10 }],
 ]);
 const regions = new Map([
 	[1, 30],
@@ -23,12 +23,11 @@ const regions = new Map([
 	[6, 10],
 ]);
 const locations = new Map<number, RegionAccess>([
-	[30, { level: 40, requires: null }],
-	[10, { level: 5, requires: null }],
-	[99, { level: 90, requires: 700 }],
+	[30, { level: 40 }],
+	[10, { level: 5 }],
+	[99, { level: 90 }],
 ]);
-const names = new Map([[700, 'Хозяин пещеры']]);
-const base: BossListData = { npcs, locations, regions, player: null, kills: null, names };
+const base: BossListData = { npcs, locations, regions, player: null };
 const ids = (result: BossGroupLike<Lockable<{ id: number }>>[]) => result.map((group) => group.items.map((item) => item.id));
 const locks = (result: BossGroupLike<Lockable<{ id: number }>>[]) => Object.fromEntries(result.flatMap((group) => group.items.map((item) => [item.id, item.lock])));
 
@@ -49,48 +48,36 @@ describe('selectBosses', () => {
 			[9, 38],
 		]);
 		const flat = new Map<number, RegionAccess>([
-			[38, { level: 30, requires: null }],
-			[39, { level: 30, requires: null }],
+			[38, { level: 30 }],
+			[39, { level: 30 }],
 		]);
-		const typed = new Map([473, 474, 9].map((id) => [id, { type: 1, level: 1 }]));
+		const typed = new Map([473, 474, 9].map((id) => [id, { type: 1, level: 1, region: 1 }]));
 		expect(ids(selectBosses(same, { ...base, npcs: typed, locations: flat, regions: map }))[0]).toEqual([474, 9, 473]);
 	});
 
-	it('закрытые локацией боссы остаются в списке с причиной: уровень района, а не босса', () => {
-		const result = selectBosses(groups, { ...base, player: { level: 10 }, kills: new Map([[700, 1]]) });
-		expect(ids(result)).toEqual([[2, 3, 1], [5]]);
-		expect(locks(result)).toEqual({ 1: 'Нужен 40 уровень', 2: null, 3: null, 5: 'Нужен 90 уровень' });
+	it('район, в котором ещё не были, закрыт: номер района должен быть меньше числа открытых', () => {
+		const result = selectBosses(groups, { ...base, player: { level: 99, maxRegion: 31 } });
+		expect(locks(result)).toEqual({ 1: null, 2: null, 3: null, 5: 'Район не открыт: побывайте в нём на карте' });
+		expect(locks(selectBosses(groups, { ...base, player: { level: 99, maxRegion: 30 } }))[1]).toBe('Район не открыт: побывайте в нём на карте');
 	});
 
-	it('локация, которая требует убить босса, закрыта, пока он не убит', () => {
-		const high = { ...base, player: { level: 99 } };
-		expect(locks(selectBosses(groups, { ...high, kills: new Map() }))).toMatchObject({ 5: 'Сначала убейте босса «Хозяин пещеры»', 1: null });
-		expect(locks(selectBosses(groups, { ...high, kills: new Map([[700, 0]]) }))[5]).toBe('Сначала убейте босса «Хозяин пещеры»');
-		expect(locks(selectBosses(groups, { ...high, kills: new Map([[700, 3]]) }))[5]).toBeNull();
+	it('нет данных о числе открытых районов — районы не проверяются', () => {
+		expect(locks(selectBosses(groups, { ...base, player: { level: 99, maxRegion: 0 } }))[5]).toBeNull();
 	});
 
-	it('без данных об убийствах требование убить босса не проверяется', () => {
-		expect(locks(selectBosses(groups, { ...base, player: { level: 99 }, kills: null }))[5]).toBeNull();
+	it('не хватает уровня самого босса — причина (уровень района не проверяется)', () => {
+		const strict = new Map(npcs).set(2, { type: 1, level: 50, region: 10 });
+		const result = selectBosses(groups, { ...base, npcs: strict, player: { level: 40, maxRegion: 100 } });
+		expect(locks(result)).toMatchObject({ 2: 'Нужен 50 уровень', 1: null, 5: null });
 	});
 
-	it('не хватает уровня самого босса — тоже причина', () => {
-		const strict = new Map(npcs).set(2, { type: 1, level: 50 });
-		expect(locks(selectBosses(groups, { ...base, npcs: strict, player: { level: 40 }, kills: new Map([[700, 1]]) }))[2]).toBe('Нужен 50 уровень');
-	});
-
-	it('пока данные локаций, справочник или персонаж не загружены, всё открыто', () => {
-		for (const data of [
-			{ ...base, regions: null },
-			{ ...base, locations: null },
-			{ ...base, player: null },
-		]) {
-			expect(Object.values(locks(selectBosses(groups, { ...data, player: data.player ?? null }))).every((lock) => lock === null)).toBe(true);
-		}
-		expect(ids(selectBosses(groups, { ...base, regions: null, player: { level: 1 } }))).toEqual([[1, 2, 3], [5]]);
+	it('пока данные локаций или справочник не загружены, порядок исходный, а персонаж без данных — всё открыто', () => {
+		expect(ids(selectBosses(groups, { ...base, regions: null, player: { level: 1, maxRegion: 100 } }))).toEqual([[1, 2, 3], [5]]);
+		expect(Object.values(locks(selectBosses(groups, base))).every((lock) => lock === null)).toBe(true);
 	});
 
 	it('не меняет исходные группы', () => {
-		selectBosses(groups, { ...base, player: { level: 40 } });
+		selectBosses(groups, { ...base, player: { level: 40, maxRegion: 100 } });
 		expect(groups[0]!.items.map((item) => item.id)).toEqual([1, 2, 3, 4]);
 	});
 });

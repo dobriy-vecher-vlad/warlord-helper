@@ -21,3 +21,40 @@
 .disabled {
 	opacity: 0.55;
 }
+
+/* Строка, которую тянут: над соседями, с подложкой и тенью, без задержки за указателем */
+.dragged {
+	position: relative;
+	z-index: 2;
+	border-radius: 10px;
+	background: var(--background_content);
+	box-shadow: 0 2px 12px rgb(0 0 0 / 20%);
+	transition: none !important;
+}
+
+/* Заголовок группы без боковых полей: их задаёт страница */
+.header.header {
+	padding-right: 0;
+	padding-left: 0;
+	/* Кнопка справа по вертикали вровень с серединой заголовка */
+	align-items: center;
+}
+
+/* Телефон: строки списка идут во всю ширину, поэтому заголовку нужны обычные поля VKUI */
+:global([data-layout='mobile']) .header.header {
+	padding-right: var(--vkui--size_base_padding_horizontal--regular);
+	padding-left: var(--vkui--size_base_padding_horizontal--regular);
+}
+
+/* VKUI даёт содержимому справа свои отступы сверху и снизу (под ссылки): у кнопки они не нужны */
+.header.header .headerButton.headerButton,
+.header.header .headerActions.headerActions {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+/* Несколько кнопок справа от заголовка группы */
+.headerActions {
+	display: flex;
+	gap: 8px;
+}

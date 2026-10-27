@@ -14,6 +14,7 @@ import type { PlayerIndex } from './players';
 import { currentProfile, getSession, useSession, type SessionState } from '../session';
 import { createFight, enterFight, fetchFight, playerOf, type EnterResult, type FightInfo, type Npc, type Player } from './accept';
 import { clearAttempts } from './attempts';
+import { rememberRecent } from './favorites';
 import type { Invite } from './invites';
 
 /** Текущий бой игрока: состояние боя, его запасы и всё, что нужно для запросов. */
@@ -79,11 +80,14 @@ export const markBattleFinished = (fightId: number) => {
 	if (fightId) finished.add(fightId);
 };
 
-/** Бой из ответа профиля: null, если боя нет или он уже закончился. */
+/**
+ * Бой из ответа профиля: null, если боя нет или он закончился в этом сеансе. Побеждённый босс, чью награду ещё не забрали, остаётся
+ * текущим боем (игра так же считает персонажа «на боссе»): окно боя заберёт награду.
+ */
 export function battleFromProfile(profile: Pick<ProfileResponse, 'u'> & { fight?: unknown }): { battle: Battle; fighter: Fighter; me: Me } | null {
 	const battle = parseBattle(profile);
 	const user = profile.u;
-	if (!battle || !user || battle.won || finished.has(battle.fightId)) return null;
+	if (!battle || !user || finished.has(battle.fightId)) return null;
 	return { battle, fighter: parseFighter(user), me: { id: Number(user._id), name: user._name ?? '', avatar: Number(user._aid) || 0 } };
 }
 
@@ -180,7 +184,10 @@ export function patchInvitesContext(patch: Partial<InvitesContext>) {
 	const owner = selectedOwner(getSession()) ?? '';
 	contexts.set((state) => {
 		const current = state.byOwner[owner];
-		return current ? { byOwner: { ...state.byOwner, [owner]: { ...current, ...patch } } } : state;
+		if (!current) return state;
+		// Ничего не изменилось (например, боя по-прежнему нет): подписчики не перерисовываются
+		if ((Object.keys(patch) as (keyof InvitesContext)[]).every((key) => current[key] === patch[key])) return state;
+		return { byOwner: { ...state.byOwner, [owner]: { ...current, ...patch } } };
 	});
 }
 
@@ -233,7 +240,10 @@ export async function createBattle(npcId: number, cost: number): Promise<EnterRe
 	if (!context || !npc) return { ok: false, message: 'Нет данных о боссе, обновите страницу приглашений' };
 	if (context.current) return { ok: false, message: 'Вы уже в бою: сначала закончите его' };
 	const result = await createFight(context.bot, npc, cost);
-	if (result.ok) clearAttempts();
+	if (result.ok) {
+		clearAttempts();
+		void rememberRecent(context.bot, npcId);
+	}
 	return result;
 }
 
@@ -264,7 +274,10 @@ export async function acceptInvite(invite: Invite, cost: number): Promise<EnterR
 	if (!context || !npc) return { ok: false, message: 'Нет данных о боссе, обновите список' };
 	if (context.current) return { ok: false, message: 'Вы уже в бою: сначала закончите его' };
 	const result = await enterFight(context.bot, invite, npc, cost);
-	if (result.ok) clearAttempts();
+	if (result.ok) {
+		clearAttempts();
+		void rememberRecent(context.bot, invite.npc);
+	}
 	return result;
 }
 

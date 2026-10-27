@@ -18,7 +18,7 @@ export function botAuth(): BotAuth | null {
 	const profile = currentProfile();
 	if (!profile?.auth) {
 		openSettings({ text: 'Для продолжения работы необходимо указать пароль авторизации' });
-		openPanel(null);
+		openPanel(null, { force: true });
 		return null;
 	}
 	return { server: profile.server ?? 1, auth: { login: profile.login || profile.id || getSession().user?.id, password: profile.auth } };
@@ -37,7 +37,7 @@ export async function loadBotProfile<T extends { u?: Attrs } = ProfileResponse>(
 	if (!valid(data)) {
 		notify({ text: 'Пароль авторизации игры неисправен, введите новый', icon: 'error' });
 		openSettings({ text: 'Пароль авторизации игры неисправен, введите новый', error: errorText(data) });
-		openPanel(null);
+		openPanel(null, { force: true });
 		return null;
 	}
 	bot.auth = { ...bot.auth, id: data?.u?._id || bot.auth.login };

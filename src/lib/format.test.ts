@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { compactNumber, getTime, numberForm, numberSpaces } from './format';
+import { ATTEMPTS_FROM, compactNumber, getTime, numberForm, numberSpaces } from './format';
 
 describe('numberSpaces', () => {
 	it('разделяет тысячи', () => {
@@ -58,5 +58,18 @@ describe('compactNumber', () => {
 		expect(compactNumber(999)).toBe('999');
 		expect(compactNumber(0)).toBe('0');
 		expect(compactNumber(-2_500_000)).toBe('-2,5 млн');
+	});
+});
+
+describe('ATTEMPTS_FROM', () => {
+	it('«из N попытки / попыток» — родительный падеж по последнему числу', () => {
+		const text = (number: number) => `1 из ${number} ${numberForm(number, ATTEMPTS_FROM)}`;
+		expect(text(1)).toBe('1 из 1 попытки');
+		expect(text(2)).toBe('1 из 2 попыток');
+		expect(text(3)).toBe('1 из 3 попыток');
+		expect(text(5)).toBe('1 из 5 попыток');
+		expect(text(11)).toBe('1 из 11 попыток');
+		expect(text(21)).toBe('1 из 21 попытки');
+		expect(text(30)).toBe('1 из 30 попыток');
 	});
 });

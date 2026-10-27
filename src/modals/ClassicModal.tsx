@@ -16,6 +16,10 @@ interface ClassicModalProps {
 	after?: ReactNode;
 	/** Закреплённый низ окна (как шапка закреплён сверху) */
 	footer?: ReactNode;
+	/** Закреплённый блок под шапкой: не прокручивается, под ним разделитель; прокручивается только содержимое ниже */
+	top?: ReactNode;
+	/** Высота блока `top` (px, на телефоне нужна для высоты шторки; приблизительно) */
+	topHeight?: number;
 	className?: string;
 	children: ReactNode;
 }
@@ -60,14 +64,22 @@ export const ModalTextButton = ({ onClick, children }: { onClick: () => void; ch
  * Окно с обычной шапкой (ModalPage--classic в старом приложении): заголовок по центру, кнопки по краям,
  * под шапкой разделитель. Высота на телефоне — по содержимому или 75% экрана.
  */
-export function ClassicModal({ id, open, onClose, title, before, after, footer, className, children }: ClassicModalProps) {
-	const { ref, pageProps } = useModalPage(open, 52);
-	const header = (
+export function ClassicModal({ id, open, onClose, title, before, after, footer, top, topHeight = 0, className, children }: ClassicModalProps) {
+	const { ref, pageProps } = useModalPage(open, 52 + (top ? topHeight : 0));
+	const bar = (
 		<div className={styles.header}>
 			<div className={styles.before}>{before}</div>
 			<div className={styles.title}>{title}</div>
 			<div className={styles.after}>{after}</div>
 		</div>
+	);
+	const header = top ? (
+		<>
+			{bar}
+			<div className={styles.top}>{top}</div>
+		</>
+	) : (
+		bar
 	);
 	return (
 		<ModalPage
