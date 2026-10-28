@@ -13,9 +13,12 @@ interface Guard {
 
 const guards = new Set<Guard>();
 
-/** Закрытие вкладки и перезагрузка: системное окно браузера, пока есть хотя бы одно активное действие. */
+/** Телефонная раскладка (её ставит приложение на корневой элемент): там подтверждений нет, выход остаётся на совести человека. */
+const isMobile = () => document.documentElement.dataset.layout === 'mobile';
+
+/** Закрытие вкладки и перезагрузка (только на ПК): системное окно браузера, пока есть хотя бы одно активное действие. */
 function warnOnUnload(event: BeforeUnloadEvent) {
-	if (!guards.size) return;
+	if (!guards.size || isMobile()) return;
 	event.preventDefault();
 	event.returnValue = '';
 }
@@ -35,7 +38,8 @@ function listen() {
 export function confirmLeave(modal?: string): boolean {
 	const hit = [...guards].filter((guard) => modal === undefined || guard.modal === modal);
 	if (!hit.length) return true;
-	if (!window.confirm(LEAVE_TEXT)) return false;
+	// На телефоне без вопроса: диалоги в мобильном клиенте ненадёжны, а свайпом закрыть окно можно и так
+	if (!isMobile() && !window.confirm(LEAVE_TEXT)) return false;
 	hit.forEach((guard) => guard.onLeave?.());
 	return true;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Spacing } from '@vkontakte/vkui';
 import { Icon28FaceIdOutline, Icon28GlobeOutline, Icon28KeySquareOutline, Icon28WriteSquareOutline } from '@vkontakte/icons';
 import { findServer } from '../../api/servers';
@@ -7,9 +7,10 @@ import { ActionCell, Button, FormStatus } from '../../components/form/Form';
 import { addProfile, removeProfile, saveSettings } from '../../profile/profileActions';
 import { useSession } from '../../profile/session';
 import { backModal, openModal, type ModalEntry } from '../../store/modal';
-import { ClassicModal, ModalDismiss } from '../ClassicModal';
+import { ClassicModal } from '../ClassicModal';
 import styles from './SettingsModals.module.css';
 import { short } from './settingsShared';
+import { useOnChange } from '../../lib/useOnChange';
 
 interface SettingsData {
 	mode?: 'add';
@@ -27,9 +28,9 @@ export function SettingsModal({ open, entry }: { open: boolean; entry: ModalEntr
 	const index = useSession((s) => s.index);
 	const isDonut = useSession((s) => s.isDonut);
 	const [confirmDelete, setConfirmDelete] = useState(false);
-	useEffect(() => {
+	useOnChange([open], () => {
 		if (!open) setConfirmDelete(false);
-	}, [open]);
+	});
 
 	const add = data.mode === 'add';
 	const exists = add && profiles.some((profile) => profile.id == Number(draft.id));
@@ -37,7 +38,7 @@ export function SettingsModal({ open, entry }: { open: boolean; entry: ModalEntr
 	const current = profiles[index];
 
 	return (
-		<ClassicModal id="settings" open={open} onClose={backModal} title={add ? 'Новый профиль' : 'Настройки'} after={!isDesktop && <ModalDismiss onClick={backModal} />}>
+		<ClassicModal id="settings" open={open} onClose={backModal} title={add ? 'Новый профиль' : 'Настройки'}>
 			<div className={isDesktop ? styles.body : styles.bodyMobile}>
 				{data.header && data.subheader && (
 					<>

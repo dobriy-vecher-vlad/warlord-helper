@@ -2,22 +2,81 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useLeaveGuard } from '../../lib/leaveGuard';
 
 /**
- * Признаки состояния бота. Читаются из длинных циклов, которые держат старую копию состояния React,
- * поэтому лежат в обычном объекте, а не в состоянии компонента.
+ * Признаки состояния бота. Читаются из длинных циклов, которые держат старую копию состояния React, поэтому лежат в обычном
+ * объекте, а не в состоянии компонента. Меняются только его методами: так переходы между состояниями описаны в одном месте.
  */
-export interface RunFlags {
+export class RunFlags {
 	/** Страница открыта: после ухода с неё бот не должен ничего делать */
-	mounted: boolean;
+	mounted = true;
 	/** Бот запущен и не остановлен: пока true, цикл продолжает работу */
-	start: boolean;
+	start = false;
 	/** Идёт запуск (загрузка данных перед первым действием) */
-	starting: boolean;
+	starting = false;
 	/** «Остановить» нажали во время запуска: запуск отменяется на ближайшем шаге */
-	startCancelled: boolean;
+	startCancelled = false;
 	/** Идёт цикл действий */
-	looping: boolean;
+	looping = false;
 	/** «Остановить» нажали во время действия: остановка завершится, когда оно закончится */
-	pausePending: boolean;
+	pausePending = false;
+
+	/** Страница открыта. */
+	mount() {
+		this.mounted = true;
+	}
+
+	/** Страница закрыта: бот останавливается. */
+	unmount() {
+		this.mounted = false;
+		this.start = false;
+	}
+
+	/** Новые действия не начинаются (бот остановлен или закончил всё, что должен). */
+	stop() {
+		this.start = false;
+	}
+
+	/** «Остановить» нажали: запуск отменяется, цикл заканчивает действие, иначе остановка сразу окончательная. Возвращает true в последнем случае. */
+	requestPause(): boolean {
+		this.start = false;
+		if (this.starting) this.startCancelled = true;
+		else if (this.looping) this.pausePending = true;
+		else return true;
+		return false;
+	}
+
+	/** Начать запуск; false — бот уже запускается или работает. */
+	beginStart(): boolean {
+		if (this.starting || this.looping) return false;
+		this.starting = true;
+		this.startCancelled = false;
+		return true;
+	}
+
+	/** Запуск закончился без цикла. Возвращает true, если его отменили кнопкой «Остановить». */
+	endStart(): boolean {
+		const cancelled = this.startCancelled;
+		this.starting = false;
+		this.startCancelled = false;
+		return cancelled;
+	}
+
+	/** Запуск удался: бот работает. */
+	started() {
+		this.start = true;
+		this.starting = false;
+	}
+
+	beginLoop() {
+		this.looping = true;
+	}
+
+	/** Цикл закончился. Возвращает true, если во время него нажали «Остановить»: остановку нужно завершить. */
+	endLoop(): boolean {
+		this.looping = false;
+		const pending = this.pausePending;
+		this.pausePending = false;
+		return pending;
+	}
 }
 
 interface BotRunnerOptions {
@@ -34,7 +93,7 @@ interface BotRunnerOptions {
  * во время запуска он отменяется, во время цикла бот заканчивает начатое действие, вне цикла остановка сразу окончательная.
  */
 export function useBotRunner({ onPause, onStopped }: BotRunnerOptions) {
-	const [flags] = useState<RunFlags>(() => ({ mounted: true, start: false, starting: false, startCancelled: false, looping: false, pausePending: false }));
+	const [flags] = useState(() => new RunFlags());
 	const [running, setRunning] = useState(false);
 	const [starting, setStarting] = useState(false);
 	const [pausing, setPausing] = useState(false);
@@ -46,11 +105,8 @@ export function useBotRunner({ onPause, onStopped }: BotRunnerOptions) {
 	});
 
 	useEffect(() => {
-		flags.mounted = true;
-		return () => {
-			flags.mounted = false;
-			flags.start = false;
-		};
+		flags.mount();
+		return () => flags.unmount();
 	}, [flags]);
 
 	/** Бот остановлен окончательно. */
@@ -62,27 +118,21 @@ export function useBotRunner({ onPause, onStopped }: BotRunnerOptions) {
 
 	/** Остановить: новые действия не начинаются. */
 	const pause = useCallback(() => {
-		flags.start = false;
+		const finished = flags.requestPause();
 		callbacks.current.onPause();
-		if (flags.starting) flags.startCancelled = true;
-		else if (flags.looping) flags.pausePending = true;
-		else finishPause();
+		if (finished) finishPause();
 	}, [flags, finishPause]);
 
 	/** Начать запуск; false — бот уже запускается или работает. */
 	const beginStart = useCallback(() => {
-		if (flags.starting || flags.looping) return false;
-		flags.starting = true;
-		flags.startCancelled = false;
+		if (!flags.beginStart()) return false;
 		setStarting(true);
 		return true;
 	}, [flags]);
 
 	/** Запуск закончился без цикла (ошибка или отмена). Возвращает true, если его отменили кнопкой «Остановить». */
 	const abortStart = useCallback(() => {
-		const cancelled = flags.startCancelled;
-		flags.starting = false;
-		flags.startCancelled = false;
+		const cancelled = flags.endStart();
 		setStarting(false);
 		if (cancelled && flags.mounted) finishPause();
 		return cancelled;
@@ -90,8 +140,7 @@ export function useBotRunner({ onPause, onStopped }: BotRunnerOptions) {
 
 	/** Запуск удался: бот работает. */
 	const markStarted = useCallback(() => {
-		flags.start = true;
-		flags.starting = false;
+		flags.started();
 		setRunning(true);
 		setStarting(false);
 		setPausing(false);
@@ -99,22 +148,18 @@ export function useBotRunner({ onPause, onStopped }: BotRunnerOptions) {
 
 	/** Бот сам выполнил всё, что должен: остановлен без кнопки «Остановить». */
 	const markFinished = useCallback(() => {
-		flags.start = false;
+		flags.stop();
 		setRunning(false);
 	}, [flags]);
 
 	/** Выполнить цикл действий. Если во время него нажали «Остановить», после последнего действия остановка завершается. */
 	const runLoop = useCallback(
 		async (loop: () => Promise<void>) => {
-			flags.looping = true;
+			flags.beginLoop();
 			try {
 				await loop();
 			} finally {
-				flags.looping = false;
-				if (flags.pausePending) {
-					flags.pausePending = false;
-					if (flags.mounted) finishPause();
-				}
+				if (flags.endLoop() && flags.mounted) finishPause();
 			}
 		},
 		[flags, finishPause],

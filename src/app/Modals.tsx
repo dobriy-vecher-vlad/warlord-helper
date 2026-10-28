@@ -1,4 +1,4 @@
-import { Suspense, lazy, useRef } from 'react';
+import { Suspense, lazy, useState } from 'react';
 import type { ItemRef } from '../lib/items';
 import { renderDescription, type DescriptionData } from '../modals/descriptions';
 import { ItemModalWindow } from '../modals/ItemModalWindow';
@@ -29,9 +29,11 @@ const BATTLE_IDS = ['invite', 'battle', 'participants', 'create', 'battleResult'
 /** Данные окна сохраняются, пока оно закрывается, чтобы содержимое не пропадало во время анимации. */
 function useLastEntry(id: ModalEntry['id']) {
 	const active = useActiveModal();
-	const last = useRef<ModalEntry | null>(null);
-	if (active?.id === id) last.current = active;
-	return { open: active?.id === id, entry: last.current };
+	const [last, setLast] = useState<ModalEntry | null>(null);
+	const open = active?.id === id;
+	// Запись запоминается во время отрисовки (так React советует хранить значение по предыдущим данным): без лишнего кадра
+	if (open && last !== active) setLast(active);
+	return { open, entry: open ? active : last };
 }
 
 function DescriptionModal() {
@@ -62,13 +64,15 @@ function ProfileModals() {
 	const participants = useLastEntry('participants');
 	const active = useActiveModal();
 	// После первого открытия окна анализа остаются в разметке: иначе закрытие не получило бы анимации
-	const analysisWanted = useRef(false);
-	if (active?.id === 'arenaItems' || active?.id === 'eventsItems') analysisWanted.current = true;
-	const battleWanted = useRef(false);
-	if (active && BATTLE_IDS.includes(active.id)) battleWanted.current = true;
+	const [analysisWanted, setAnalysisWanted] = useState(false);
+	const analysisNow = active?.id === 'arenaItems' || active?.id === 'eventsItems';
+	if (analysisNow && !analysisWanted) setAnalysisWanted(true);
+	const [battleWanted, setBattleWanted] = useState(false);
+	const battleNow = !!active && BATTLE_IDS.includes(active.id);
+	if (battleNow && !battleWanted) setBattleWanted(true);
 	return (
 		<>
-			{analysisWanted.current && (
+			{(analysisWanted || analysisNow) && (
 				<Suspense fallback={null}>
 					<AnalysisModals active={active?.id} />
 				</Suspense>
@@ -80,7 +84,7 @@ function ProfileModals() {
 			<ServerModal open={active?.id === 'settingsServer'} />
 			<OrderModal open={active?.id === 'settingsOrder'} />
 			<AlertModal open={alert.open} entry={alert.entry} />
-			{battleWanted.current && (
+			{(battleWanted || battleNow) && (
 				<Suspense fallback={null}>
 					<BattleModals invite={invite} create={create} participants={participants} result={result} killAllOpen={active?.id === 'killAll'} battleOpen={active?.id === 'battle'} />
 				</Suspense>

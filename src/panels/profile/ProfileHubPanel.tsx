@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
 import { Group, Panel, PullToRefresh, Spacing } from '@vkontakte/vkui';
 import { Icon28DonateCircleFillYellow, Icon56FaceIdOutline } from '@vkontakte/icons';
 import { findServer } from '../../api/servers';
@@ -18,6 +18,7 @@ import { getModalStack, openModal, subscribeModals } from '../../store/modal';
 import { openPanel } from '../../store/nav';
 import styles from './ProfileHubPanel.module.css';
 import { ProfileCarousel } from './ProfileCarousel';
+import { useOnChange } from '../../lib/useOnChange';
 
 /** Аватар профиля в галерее: выбранный крупно с обводкой, остальные уменьшены. */
 function ProfileAvatar({ profile, selected }: { profile: ProfileView; selected: boolean }) {
@@ -49,7 +50,7 @@ function ProfileName({ profile, selected }: { profile: ProfileView; selected: bo
 	return (
 		<div className={`${styles.slide} ${styles.nameSlide} ${selected ? styles.selected : ''}`}>
 			<div className={styles.name}>{profile.first_name ? `${profile.first_name}\n${profile.last_name}` : `Player\n${profile.id}`}</div>
-			<a className={styles.link} href={`https://vk.com/id${profile.id}`} target="_blank" rel="noreferrer">
+			<a className={styles.link} href={`https://vk.ru/id${profile.id}`} target="_blank" rel="noreferrer">
 				@id{profile.id}
 			</a>
 			<div className={styles.server}>
@@ -113,15 +114,21 @@ export function ProfileHubPanel({ id }: { id: string }) {
 	// Слот по центру карусели. Пустой слот открывает окно добавления; если его закрыли без добавления, карусель возвращается к выбранному профилю
 	const [shown, setShown] = useState(index);
 	const adding = useSyncExternalStore(subscribeModals, getModalStack).some((entry) => entry.data.mode === 'add');
-	useEffect(() => setShown(index), [index]);
-	useEffect(() => {
+	useOnChange([index], () => setShown(index));
+	useOnChange([adding], () => {
 		if (!adding && !profiles[shown]?.id) setShown(index);
-	}, [adding]);
+	});
 	const onSelect = (next: number) => {
 		setShown(next);
 		if (isDonut && next !== index) void selectProfile(next);
 	};
-	const collected = Collections.items.filter((item) => items.includes(item)).length;
+	// Коллекций сотни, предметов у игрока тоже: пересчёт только при изменении набора, а не при каждой отрисовке
+	const collected = useMemo(() => {
+		const owned = new Set(items);
+		return Collections.items.filter((item) => owned.has(item)).length;
+	}, [items]);
+	// Без подписки в галерее один слот: он и есть выбранный, как бы ни был сдвинут `shown`
+	const current = isDonut ? shown : 0;
 	/** Счётчик справа; без подписки вместо него значок VK Donut. */
 	const indicatorProps = (count: number | string, total: number, forms: Forms) => (isDonut ? { count, countLabel: numberForm(total, forms) } : { count: donutIcon });
 
@@ -134,16 +141,16 @@ export function ProfileHubPanel({ id }: { id: string }) {
 					<Spacing size={6} />
 					<ProfileCarousel
 						count={slides.length}
-						value={isDonut ? shown : 0}
+						value={current}
 						onSelect={onSelect}
 						avatarWidth={isDesktop ? 25 : 35}
 						avatar={(x) => {
 							const { profile, full } = slides[x]!;
-							return profile?.id ? <ProfileAvatar profile={full!} selected={x === shown} /> : <EmptyAvatar selected={x === shown} />;
+							return profile?.id ? <ProfileAvatar profile={full!} selected={x === current} /> : <EmptyAvatar selected={x === current} />;
 						}}
 						name={(x) => {
 							const { profile, full } = slides[x]!;
-							return profile?.id ? <ProfileName profile={full!} selected={x === shown} /> : <EmptyName />;
+							return profile?.id ? <ProfileName profile={full!} selected={x === current} /> : <EmptyName />;
 						}}
 					/>
 					<Spacing size={12} />

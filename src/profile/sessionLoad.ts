@@ -150,7 +150,9 @@ export async function reloadProfile(maskId: number | null, isStale: () => boolea
 async function loadProfiles(): Promise<ProfileSlot[] | null> {
 	const vkId = Number(parseQuery().vk_user_id);
 	const defaults: ProfileSlot[] = [{ server: 1, id: vkId, login: vkId, auth: null, main: true }, { id: null }, { id: null }, { id: null }, { id: null }];
-	const { value } = await storageGetWithDefault('storeProfiles', JSON.stringify(defaults));
+	const { value, failed } = await storageGetWithDefault('storeProfiles', JSON.stringify(defaults));
+	// Не прочитали: профили по умолчанию не подставляются, иначе следующее сохранение затёрло бы настоящие
+	if (failed) return null;
 	try {
 		return JSON.parse(value);
 	} catch {
@@ -197,6 +199,8 @@ async function showPromo() {
 		storageGetWithDefault('promo_3', 'false'),
 		storageGetWithDefault('promo_4', 'false'),
 	]);
+	// Хранилище не ответило: что уже показывали, неизвестно, окна не открываются
+	if ([promo1, promo2, promo3, promo4].some((promo) => promo.failed)) return;
 	if (getModalStack().length) return;
 	if (promo3.value !== 'true') return openModal('sales');
 	if (!promo1.existed && !getSession().isDonut) return openModal('donut');

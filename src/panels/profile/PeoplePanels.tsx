@@ -51,7 +51,9 @@ export async function scanFriends(): Promise<Friend[] | { error: string }> {
 		method: 'friends.get',
 		params: { user_id: session.user?.id, fields: 'photo_50', count: 5000, v: '5.130', access_token: token.access_token },
 	});
-	const list: { id: number; photo_50?: string }[] = data?.response?.items ?? [];
+	// Ответа нет — это сбой, а не отсутствие друзей: иначе пользователю скажут «у вас нет друзей»
+	if (!data?.response) return { error: 'ВКонтакте не вернул список друзей, попробуйте позже' };
+	const list: { id: number; photo_50?: string }[] = data.response.items ?? [];
 	if (!list.length) return [];
 	const server = currentProfile()?.server ?? 1;
 	const photos = new Map(list.map((item) => [item.id, item.photo_50]));
@@ -83,7 +85,7 @@ export async function scanFriends(): Promise<Friend[] | { error: string }> {
 			active: [now - Number(user._bd) * 1000, now - Number(user._l_t) * 1000],
 		});
 	}
-	return friends.sort((a, b) => (b.dmg < a.dmg ? -1 : 1)).map((friend, index) => ({ ...friend, x: index + 1 }));
+	return friends.sort((a, b) => b.dmg - a.dmg || a.id - b.id).map((friend, index) => ({ ...friend, x: index + 1 }));
 }
 
 const PAGE = 50;
@@ -198,7 +200,7 @@ export function FriendsPanel({ id }: { id: string }) {
 								key={friend.id}
 								grid={grid}
 								count={numberSpaces(friend.x)}
-								href={`https://vk.com/id${friend.id}`}
+								href={`https://vk.ru/id${friend.id}`}
 								avatar={<Photo src={friend.photo ?? CAMERA_PHOTO} size={32} />}
 								columns={[
 									{ title: friend.name },
@@ -237,6 +239,9 @@ export function FriendsPanel({ id }: { id: string }) {
 	);
 }
 
+/** Один и тот же пустой список: селектор, каждый раз возвращающий новый `[]`, зациклил бы перерисовку. */
+const NO_USERS: VKUser[] = [];
+
 interface Donor extends VKUser {
 	fromDonut: boolean;
 	fromService: boolean;
@@ -245,14 +250,16 @@ interface Donor extends VKUser {
 /** 4. Доны: подписчики VK Donut (только для владельца приложения). */
 export function DonorsPanel({ id }: { id: string }) {
 	const isDesktop = useIsDesktop();
-	const raw: VKUser[] = useSession((s) => s.donutUsers?.response?.items ?? []);
+	const raw: VKUser[] = useSession((s) => s.donutUsers?.response?.items ?? NO_USERS);
 
 	// Один пользователь может быть в списке дважды (обычная подписка и через сервис); у подписчиков сервиса есть пол
 	const donors = useMemo(() => {
+		// Записи одного пользователя собираются за один проход, а не поиском по всему списку для каждого
+		const groups = new Map<string | number, VKUser[]>();
+		for (const user of raw) groups.set(user.id, [...(groups.get(user.id) ?? []), user]);
 		const list: Donor[] = [];
-		for (const user of raw) {
-			const same = raw.filter((item) => item.id == user.id);
-			if (same[0] !== user) continue;
+		for (const same of groups.values()) {
+			const user = same[0]!;
 			const both = same.length === 2;
 			list.push({ ...user, fromDonut: both || !('sex' in user), fromService: both || 'sex' in user });
 		}
@@ -272,7 +279,7 @@ export function DonorsPanel({ id }: { id: string }) {
 					icon={<Icon56DonateOutline width={56} height={56} style={{ color: '#ffae26' }} />}
 					title="VK Donut"
 					action={
-						<Button href="https://vk.com/donut/wiki.warlord" size="m" mode="commerce">
+						<Button href="https://vk.ru/donut/wiki.warlord" size="m" mode="commerce">
 							Узнать подробнее
 						</Button>
 					}
@@ -307,7 +314,7 @@ export function DonorsPanel({ id }: { id: string }) {
 						key={user.id}
 						grid={grid}
 						count={numberSpaces(x + 1)}
-						href={`https://vk.com/id${user.id}`}
+						href={`https://vk.ru/id${user.id}`}
 						avatar={<Photo src={user.photo_200 ?? CAMERA_PHOTO} size={32} />}
 						columns={[{ title: `${user.first_name} ${user.last_name}` }, { title: kind(user), right: true }, ...(isDesktop ? [{ title: user.id, right: true }] : [])]}
 					/>

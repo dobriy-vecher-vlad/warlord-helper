@@ -233,13 +233,26 @@ export function runRound<T>(task: () => Promise<T>): Promise<T> {
 	return run;
 }
 
+/** Вход в бой идёт: пока он не закончился, второй не начинается (два входа подряд списали бы энергию и попытку дважды). */
+let entering = false;
+
+async function enterOnce(enter: () => Promise<EnterResult>): Promise<EnterResult> {
+	if (entering) return { ok: false, message: 'Вход в бой уже идёт' };
+	entering = true;
+	try {
+		return await enter();
+	} finally {
+		entering = false;
+	}
+}
+
 /** Создать свой бой с боссом `npcId`. Один бой за раз: пока идёт прежний, новый не создаётся. Окно боя открывает `showBattle`. */
 export async function createBattle(npcId: number, cost: number): Promise<EnterResult> {
 	const context = getInvitesContext();
 	const npc = context?.npcs.get(npcId);
 	if (!context || !npc) return { ok: false, message: 'Нет данных о боссе, обновите страницу приглашений' };
 	if (context.current) return { ok: false, message: 'Вы уже в бою: сначала закончите его' };
-	const result = await createFight(context.bot, npc, cost);
+	const result = await enterOnce(() => createFight(context.bot, npc, cost));
 	if (result.ok) {
 		clearAttempts();
 		void rememberRecent(context.bot, npcId);
@@ -273,7 +286,7 @@ export async function acceptInvite(invite: Invite, cost: number): Promise<EnterR
 	const npc = context?.npcs.get(invite.npc);
 	if (!context || !npc) return { ok: false, message: 'Нет данных о боссе, обновите список' };
 	if (context.current) return { ok: false, message: 'Вы уже в бою: сначала закончите его' };
-	const result = await enterFight(context.bot, invite, npc, cost);
+	const result = await enterOnce(() => enterFight(context.bot, invite, npc, cost));
 	if (result.ok) {
 		clearAttempts();
 		void rememberRecent(context.bot, invite.npc);

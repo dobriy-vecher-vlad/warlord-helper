@@ -1,1 +1,0 @@
-import{$ as e,R as t}from"./vkui-CabaL8-Z.js";function n(){let{viewWidth:n}=t();return n>=e.SMALL_TABLET}export{n as t};

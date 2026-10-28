@@ -18,6 +18,7 @@ import { findRating, loadRating, ratingDate, tagColor, type RatingBlock, type Ra
 import styles from './RatingPanels.module.css';
 import type { SectionPanels } from '../section';
 import { Photo } from '../../components/Photo';
+import { useOnChange } from '../../lib/useOnChange';
 
 /** Открытый список (панель «1»): какой рейтинг и чей номер показать внизу. */
 const ratingStore = createStore<{ tab: RatingTab; current: (RatingBlock & { tab: RatingTab; id: number | null }) | null }>({ tab: 2, current: null });
@@ -32,7 +33,7 @@ function RowAvatar({ row }: { row: RatingRow }) {
 
 const rowTitle = (row: RatingRow, tab: RatingTab) => row.name || `${tab === 2 ? 'Guild' : 'Player'}\n${row.id}`;
 const rowValue = (row: RatingRow) => (typeof row.title === 'number' && Number.isInteger(row.title) ? numberSpaces(row.title) : row.title);
-const rowLink = (row: RatingRow) => `https://vk.com/id${row.leader ?? row.id}`;
+const rowLink = (row: RatingRow) => `https://vk.ru/id${row.leader ?? row.id}`;
 
 function RatingTableRow({ row, place, tab, isDesktop }: { row: RatingRow; place: number; tab: RatingTab; isDesktop: boolean }) {
 	return (
@@ -149,10 +150,14 @@ export function RatingMainPanel({ id }: { id: string }) {
 	const [mainUser, setMainUser] = useState<number | undefined>(Number(game?._vkId) || undefined);
 	const [mainGuild, setMainGuild] = useState<number | undefined>(Number(game?._clan_id) || undefined);
 
+	// Смена вкладки, сервера или повтор: прежние данные не показываются
+	useOnChange([tab, server, attempt], () => setData(undefined));
 	useEffect(() => {
 		let alive = true;
-		setData(undefined);
-		void loadRating(tab, server).then((result) => alive && setData(result));
+		// Любой сбой загрузки показывает ошибку с кнопкой «Обновить», а не вечную заставку
+		void loadRating(tab, server)
+			.catch(() => null)
+			.then((result) => alive && setData(result));
 		return () => {
 			alive = false;
 		};

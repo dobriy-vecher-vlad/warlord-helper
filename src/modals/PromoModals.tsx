@@ -1,7 +1,8 @@
-import type { ReactNode } from 'react';
-import { ModalCard } from '@vkontakte/vkui';
+import { Fragment, type ComponentProps, type ReactNode } from 'react';
+import { Button, Caption, Counter, Div, Header, Paragraph, Spacing } from '@vkontakte/vkui';
 import {
 	Icon24AddCircleDottedOutline,
+	Icon24PawOutline,
 	Icon24CupOutline,
 	Icon24HammerOutline,
 	Icon24MoneyCircleOutline,
@@ -10,106 +11,170 @@ import {
 	Icon24TshirtOutline,
 	Icon24Users3Outline,
 } from '@vkontakte/icons';
+import { NavCell } from '../components/wiki/NavCell';
 import { storageSet } from '../lib/storage';
 import { backModal, useActiveModal } from '../store/modal';
+import { ClassicModal } from './ClassicModal';
 import styles from './PromoModals.module.css';
-import { useModalMotion } from './useModalMotion';
 
 type Mark = 'prominent' | 'primary';
 
 interface FeatureData {
 	icon: ReactNode;
 	text: string;
-	/** Плашка справа: «Популярное», «Новое» (только в окне подписки) */
+	/** Заголовок строки */
+	title?: string;
+	/** Плашка справа («Новое») */
 	badge?: { mode: Mark; label: string };
 }
 
 const icon = (Icon: typeof Icon24CupOutline) => <Icon width={32} height={32} />;
 
-const BIND = { icon: icon(Icon24AddCircleDottedOutline), text: 'Привязывай профили и получай выгоду на всех' };
-const RAID = { icon: icon(Icon24SkullOutline), text: 'Проходите в автоматическом режиме выбранный рейд всего за 2 минуты' };
-const ARENA = { icon: icon(Icon24CupOutline), text: 'Набирайте в автоматическом режиме очки арены и занимайте первые места' };
-const FORGE = { icon: icon(Icon24HammerOutline), text: 'Удобно сортируйте и улучшайте в один клик любой предмет' };
+const BIND = { icon: icon(Icon24AddCircleDottedOutline), title: 'Привязка профилей', text: 'Привязывай профили и получай выгоду на всех' };
+const RAID = { icon: icon(Icon24SkullOutline), title: 'Рейды', text: 'Проходите в автоматическом режиме выбранный рейд всего за 2 минуты' };
+const ARENA = { icon: icon(Icon24CupOutline), title: 'Арена', text: 'Набирайте в автоматическом режиме очки арены и занимайте первые места' };
+const BOSSES: FeatureData = {
+	icon: icon(Icon24PawOutline),
+	title: 'Боссы',
+	text: 'Принимайте приглашения на боссов со всей игры и автоматически их убивайте',
+	badge: { mode: 'prominent', label: 'Новое' },
+};
+const FORGE = { icon: icon(Icon24HammerOutline), title: 'Кузница', text: 'Удобно сортируйте и улучшайте в один клик любой предмет' };
 
 /** Преимущества в окне подписки. */
 const DONUT_FEATURES: FeatureData[] = [
 	BIND,
-	{ ...RAID, badge: { mode: 'prominent', label: 'Популярное' } },
-	{ ...ARENA, badge: { mode: 'prominent', label: 'Популярное' } },
-	{ ...FORGE, badge: { mode: 'primary', label: 'Новое' } },
-	{ icon: icon(Icon24Users3Outline), text: 'Сканируйте всех ваших друзей, выводя их в удобном и сортируемом списке' },
-	{ icon: icon(Icon24TshirtOutline), text: 'Напротив каждого предмета в приложении будет указываться его наличие у вас' },
-	{ icon: icon(Icon24MoneyCircleOutline), text: 'Список предметов с подробной информацией' },
-	{ icon: icon(Icon24PollOutline), text: 'Считайте затраты на боссов, арену, казну гильдии и предметы ещё эффективнее' },
+	RAID,
+	ARENA,
+	FORGE,
+	BOSSES,
+	{ icon: icon(Icon24Users3Outline), title: 'Друзья', text: 'Сканируйте всех ваших друзей, выводя их в удобном и сортируемом списке' },
+	{ icon: icon(Icon24TshirtOutline), title: 'Наличие предметов', text: 'Напротив каждого предмета в приложении будет указываться его наличие у вас' },
+	{ icon: icon(Icon24MoneyCircleOutline), title: 'Список предметов', text: 'Список предметов с подробной информацией' },
+	{ icon: icon(Icon24PollOutline), title: 'Затраты', text: 'Считайте затраты на боссов, арену, казну гильдии и предметы ещё эффективнее' },
 ];
 
-/** Преимущества в окне акции: четыре основных, остальные — рядом значками. */
-const SALES_FEATURES: FeatureData[] = [BIND, RAID, ARENA, FORGE];
-const SALES_ICONS = [Icon24Users3Outline, Icon24TshirtOutline, Icon24MoneyCircleOutline, Icon24PollOutline];
+/** Купола свечения под сноской: положение по ширине (%), размер, период и сдвиг мигания (с), чтобы моргали вразнобой. */
+const GLOWS = [
+	{ x: 12, width: 200, height: 90, period: 5.5, delay: 0 },
+	{ x: 38, width: 260, height: 120, period: 6.5, delay: -2.5 },
+	{ x: 64, width: 180, height: 80, period: 4.5, delay: -1 },
+	{ x: 88, width: 220, height: 100, period: 5.8, delay: -3.5 },
+];
 
-/** Преимущество подписки: иконка и текст (заголовок в старом приложении был скрыт стилями). */
-function Feature({ icon, text, badge }: FeatureData) {
+/** В окне акции показаны главные преимущества, об остальных сказано кратко. */
+const SALES_FEATURES = [BIND, RAID, ARENA, FORGE, BOSSES];
+
+/** Неразрывные пробелы: после коротких слов (предлоги, союзы, числа) и перед последним словом, чтобы строка не рвалась неудачно. */
+const tie = (text: string) => {
+	const short = /(^|\s)([а-яёa-z0-9]{1,3})\s/gi;
+	// Два прохода: подряд идущие короткие слова («и их») делят один пробел
+	return text
+		.replace(short, '$1$2\u00A0')
+		.replace(short, '$1$2\u00A0')
+		.replace(/\s(\S+)$/, '\u00A0$1');
+};
+
+/** Преимущество: обычная строка списка (иконка, заголовок, подпись), плашка справа. */
+function FeatureRow({ icon, title, text, badge }: FeatureData) {
+	const after = badge && (
+		<Counter mode="primary" style={{ marginLeft: 8 }} appearance={badge.mode === 'prominent' ? 'accent-red' : 'accent'}>
+			{badge.label}
+		</Counter>
+	);
+	return <NavCell title={title && tie(title)} subtitle={tie(text)} icon={icon} after={after} chevron={false} />;
+}
+
+/** Список строк с промежутками сверху, между и снизу. Справа та же пустота, что слева у значка (его рамка шире самого значка). */
+function FeatureList({ features }: { features: FeatureData[] }) {
 	return (
-		<div className={styles.feature}>
-			<span className={styles.featureIcon}>{icon}</span>
-			<span className={styles.featureText}>{text}</span>
-			<span className={styles.featureAfter}>{badge && <span className={`${styles.badge} ${styles[badge.mode]}`}>{badge.label}</span>}</span>
+		<div style={{ paddingRight: 12 }}>
+			<Spacing size={8} />
+			{features.map((feature, index) => (
+				<Fragment key={feature.text}>
+					{index > 0 && <Spacing size={8} />}
+					<FeatureRow {...feature} />
+				</Fragment>
+			))}
+			<Spacing size={8} />
 		</div>
 	);
 }
 
-/** Окно-карточка: затемнение и анимацию задаёт приложение. */
-function PromoCard({ id, open, children }: { id: 'sales' | 'donut'; open: boolean; children: ReactNode }) {
-	const motion = useModalMotion();
+/** Кнопка в футере окна: стандартная L, по краю бежит светящаяся дуга (слои эффекта лежат за кнопкой). */
+function GlowButton(props: ComponentProps<typeof Button>) {
 	return (
-		<ModalCard id={id} open={open} onClose={backModal} className={styles.card} {...motion}>
-			<div className={styles.body}>{children}</div>
-		</ModalCard>
+		<Div>
+			<div className={styles.glow}>
+				<div className={styles.glowLayer} aria-hidden>
+					<div className={styles.glowRun}>
+						<div className={styles.glowRing}>
+							<div className={styles.glowMask} />
+						</div>
+						<div className={`${styles.glowRing} ${styles.glowSharp}`}>
+							<div className={styles.glowMask} />
+						</div>
+					</div>
+				</div>
+				<Button className={styles.glowButton} size="l" appearance="neutral" stretched {...props} />
+			</div>
+		</Div>
 	);
 }
 
-/** «Акция»: две подписки по цене одной. «Хорошо» запоминает, что акция показана (promo_3). */
+/** Сноска под списком: под ней мигают наполовину скрытые красные круги по всей ширине, выделяя, что возможностей больше. */
+function MoreFootnote() {
+	return (
+		<div className={styles.more}>
+			{GLOWS.map((glow) => (
+				<div
+					key={glow.x}
+					className={styles.moreGlow}
+					style={{ left: `${glow.x}%`, bottom: -glow.height / 2, width: glow.width, height: glow.height, animationDuration: `${glow.period}s`, animationDelay: `${glow.delay}s` }}
+					aria-hidden
+				/>
+			))}
+			<Caption style={{ color: 'var(--vkui--color_text_secondary)' }}>и ещё много возможностей</Caption>
+		</div>
+	);
+}
+
+/** Кнопка оформления подписки в VK Donut; `onClick` — что сделать, когда на неё нажали. */
+function SubscribeButton({ onClick }: { onClick?: () => void }) {
+	return (
+		<GlowButton href="https://vk.ru/donut/wiki.warlord" target="_blank" rel="noreferrer" onClick={onClick}>
+			Оформить от 50 рублей в месяц
+		</GlowButton>
+	);
+}
+
+/** «Акция»: две подписки по цене одной. Любое закрытие окна (кнопка, крестик, свайп, тап по фону) засчитывается как просмотр (promo_3). */
 function SalesModal({ open }: { open: boolean }) {
+	const seen = () => void storageSet('promo_3', 'true');
 	const close = () => {
-		void storageSet('promo_3', 'true');
+		seen();
 		backModal();
 	};
 	return (
-		<PromoCard id="sales" open={open}>
-			<div className={styles.title}>Две подписки по цене одной</div>
-			<div className={styles.text}>Приведи друга, который оформит подписку по твоей рекомендации и получи подписку себе сроком на 3 месяца совершенно бесплатно.</div>
-			<div className={styles.subtitle}>Преимущества подписки</div>
-			<div className={styles.features}>
-				{SALES_FEATURES.map((feature) => (
-					<Feature key={feature.text} {...feature} />
-				))}
-				<div className={`${styles.feature} ${styles.icons}`}>
-					{SALES_ICONS.map((Icon, index) => (
-						<Icon key={index} width={32} height={32} />
-					))}
-				</div>
-			</div>
-			<button type="button" className={styles.button} onClick={close}>
-				Хорошо
-			</button>
-		</PromoCard>
+		<ClassicModal id="sales" open={open} onClose={close} title="Акция" footer={<SubscribeButton onClick={seen} />}>
+			<Div>
+				<Paragraph>Приведи друга, который оформит подписку по твоей рекомендации и получи подписку себе сроком на 3 месяца совершенно бесплатно.</Paragraph>
+			</Div>
+			<Header>Преимущества</Header>
+			<FeatureList features={SALES_FEATURES} />
+			<MoreFootnote />
+		</ClassicModal>
 	);
 }
 
-/** «Подписка»: список возможностей и ссылка на VK Donut. */
+/** «Подписка»: обычное окно (шапка, список возможностей, кнопка внизу) со ссылкой на VK Donut. */
 function DonutModal({ open }: { open: boolean }) {
+	const footer = <SubscribeButton />;
 	return (
-		<PromoCard id="donut" open={open}>
-			<div className={`${styles.title} ${styles.titleDonut}`}>Подписка</div>
-			<div className={styles.features}>
-				{DONUT_FEATURES.map((feature) => (
-					<Feature key={feature.text} {...feature} />
-				))}
-			</div>
-			<a className={styles.button} href="https://vk.com/donut/wiki.warlord" target="_blank" rel="noreferrer">
-				Оформить за 50₽ в месяц
-			</a>
-		</PromoCard>
+		<ClassicModal id="donut" open={open} onClose={backModal} title="Подписка" footer={footer}>
+			<FeatureList features={DONUT_FEATURES} />
+			<MoreFootnote />
+		</ClassicModal>
 	);
 }
 

@@ -3,7 +3,7 @@ import { ActionCell } from '../../components/form/Form';
 
 /** Общее для окон настроек профиля. */
 
-const ARTICLE = 'https://vk.com/@wiki.warlord-authorization';
+const ARTICLE = 'https://vk.ru/@wiki.warlord-authorization';
 
 /** Ссылка на статью о входе. */
 export function ArticleCell({ title, anchor }: { title: string; anchor: string }) {

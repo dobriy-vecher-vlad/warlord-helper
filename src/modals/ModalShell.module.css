@@ -93,16 +93,10 @@
 	text-align: left;
 }
 
-/* Кнопка 44×44 (PanelHeaderButton) в 4px от края окна */
+/* Крестик (ModalDismiss, как у ClassicModal) прижат вправо, 4px от края окна */
 .mobileClose {
 	flex-shrink: 0;
 	margin-left: auto;
-	color: var(--icon_secondary);
-}
-
-/* Круглая кнопка; на телефоне Tappable VKUI 8 снимает скругление, поэтому селектор усилен */
-.mobileClose.mobileClose {
-	border-radius: 50%;
 }
 
 .small {

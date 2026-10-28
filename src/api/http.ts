@@ -9,6 +9,12 @@ export const PRIORITY = { background: 0, window: 1, action: 2 } as const;
 /** Если запрос завис, очередь освобождается через это время: один зависший запрос не должен остановить все остальные. */
 const SLOT_MS = 15_000;
 
+/** Запрос к игре обрывается чуть раньше, чем освобождается очередь: иначе зависший запрос шёл бы параллельно со следующим. */
+const REQUEST_MS = SLOT_MS - 1_000;
+
+/** Сколько раз подряд запрос повторяется на ответ «слишком часто», прежде чем сдаться (сервер мог зависнуть в этом ответе). */
+const MAX_THROTTLED = 10;
+
 interface Waiting {
 	priority: number;
 	order: number;
@@ -86,31 +92,35 @@ function getFormData(link: string): FormData {
 /**
  * GET/POST-запрос к игровому серверу и разбор ответа.
  * Запросы к tmp1-fb.geronimo.su уходят POST-ом (параметры из query в теле), при 500 — повторяются GET-ом.
- * При превышении лимита запросов ждёт секунду и повторяет, пока сервер не ответит.
- * Любая ошибка сети или разбора -> null.
+ * При превышении лимита запросов ждёт секунду и повторяет (не более десяти раз подряд).
+ * Любая ошибка сети, разбора или зависший запрос (дольше 14 секунд) -> null.
  */
-export async function getData(link: string, priority: number = PRIORITY.background): Promise<any> {
+export async function getData(link: string, priority: number = PRIORITY.background, throttled = 0): Promise<any> {
 	try {
 		link = link.replace(/%2B/g, '+').replace(/%3D/g, '=');
 		let response: Response;
 		let text: string;
 		if (link.includes(THROTTLE_HOST)) {
 			const release = await acquire(priority);
+			// Один предел на весь запрос (в том числе повтор GET и чтение тела): зависший ответ не держит вызывающего вечно
+			const abort = new AbortController();
+			const timeout = window.setTimeout(() => abort.abort(), REQUEST_MS);
 			try {
 				const url = new URL(link);
-				response = await fetch(url.origin + url.pathname, { method: 'POST', body: getFormData(link) });
-				if (response.status === 500) response = await fetch(link);
+				response = await fetch(url.origin + url.pathname, { method: 'POST', body: getFormData(link), signal: abort.signal });
+				if (response.status === 500) response = await fetch(link, { signal: abort.signal });
 				text = await response.text();
 				// Сервер просит подождать: вся очередь ждёт секунду, запрос повторится со своим приоритетом
 				if (THROTTLE_MESSAGES.includes(text)) blockedUntil = Date.now() + 1000;
 			} finally {
+				window.clearTimeout(timeout);
 				release();
 			}
 		} else {
 			response = await fetch(link);
 			text = await response.text();
 		}
-		if (THROTTLE_MESSAGES.includes(text)) return await getData(link, priority);
+		if (THROTTLE_MESSAGES.includes(text)) return throttled < MAX_THROTTLED ? await getData(link, priority, throttled + 1) : null;
 		return parseResponse(text);
 	} catch {
 		return null;

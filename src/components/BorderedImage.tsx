@@ -1,4 +1,4 @@
-import { useState, type ImgHTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type ImgHTMLAttributes, type ReactNode } from 'react';
 import { PATH_IMAGES } from '../config';
 
 interface BorderedImageProps {
@@ -18,26 +18,116 @@ const CROPPED = /^(stones|rooms|keys|collections|bosses\/icons|items)\//;
 /** У картинки из этих папок белая обводка нарисована в самом файле. */
 export const hasBakedBorder = (src: string) => CROPPED.test(src);
 
+/**
+ * Срез вшитой обводки по папкам, % от размера картинки: [по ширине, по высоте]. Обводка 5px при размере файла 67×71 даёт 7,5% и 7%,
+ * но подобрано на глаз (у боссов и вещей нужно меньше или больше расчётного). Процент не зависит от показанного размера, поэтому
+ * срез одинаков и на 36px, и на 128px, и у большой версии файла (`…x.png`, в 4 раза крупнее).
+ */
+const CROP: [RegExp, [number, number]][] = [
+	[/^bosses\/icons\//, [8, 7.6]],
+	[/^collections\//, [7.7, 7.2]],
+	[/^items\//, [5, 7]],
+];
+const CROP_DEFAULT: [number, number] = [7.5, 7];
+
+/** Срез вшитой обводки в `--crop-x` и `--crop-y` для `.ImageCrop` (см. shell.css); у картинок без вшитой обводки его нет. */
+export function cropStyle(src: string): CSSProperties | undefined {
+	if (!hasBakedBorder(src)) return undefined;
+	const [x, y] = CROP.find(([pattern]) => pattern.test(src))?.[1] ?? CROP_DEFAULT;
+	return { '--crop-x': `${x}%`, '--crop-y': `${y}%` } as CSSProperties;
+}
+
 /** Иконки боссов есть не у всех: у рейдовых, походов и прочих файла нет, вместо него показывается иконка первого босса. */
 const BOSS_ICON = /^bosses\/icons\//;
-const BOSS_ICON_FALLBACK = 'bosses/icons/1.png';
+const LARGE = /x\.png$/;
 
-/** Картинка из media/images/ в рамке с тонкой обводкой (у картинок из CROPPED вшитая белая обводка срезается); загружается лениво, когда подходит к экрану. */
+/** Что показывать, пока файл не нашёлся: у большой картинки (`…x.png`) обычная, у иконки босса в конце иконка первого босса. */
+const candidates = (src: string) => {
+	const list = [src];
+	if (LARGE.test(src)) list.push(src.replace(LARGE, '.png'));
+	if (BOSS_ICON.test(src)) list.push(LARGE.test(src) ? 'bosses/icons/1x.png' : 'bosses/icons/1.png');
+	return list;
+};
+
+/**
+ * Пока картинка не рядом с экраном, в `<img>` стоит прозрачный пиксель. Без `src` (или с пустым) браузер рисует заглушку «битой» картинки
+ * (белая рамка), а так `<img>` остаётся обычной пустой картинкой того же размера.
+ */
+const PLACEHOLDER = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
+/** Насколько заранее до края экрана картинка начинает загружаться (px). У `loading="lazy"` браузера этот запас в несколько экранов. */
+const LOAD_MARGIN = 150;
+
+/**
+ * Рамка подошла к области просмотра. Пока нет, картинка не просит файл вовсе: на странице с сотнями плиток грузятся только видимые
+ * (родной `loading="lazy"` подтягивает и несколько экранов вперёд). Без IntersectionObserver картинка грузится сразу.
+ */
+function useNearViewport() {
+	const ref = useRef<HTMLSpanElement>(null);
+	const [near, setNear] = useState(() => typeof IntersectionObserver === 'undefined');
+	useEffect(() => {
+		const target = ref.current;
+		if (near || !target) return;
+		const observer = new IntersectionObserver(
+			(entries) => {
+				if (entries.some((entry) => entry.isIntersecting)) {
+					setNear(true);
+					observer.disconnect();
+				}
+			},
+			{ rootMargin: `${LOAD_MARGIN}px` },
+		);
+		observer.observe(target);
+		return () => observer.disconnect();
+	}, [near]);
+	return { ref, near };
+}
+
+/** Свойства `<img>`: `useImgLoaded` (Preload.tsx) передаёт ещё и ref-колбэк. */
+type ImgProps = ImgHTMLAttributes<HTMLImageElement> & { ref?: (node: HTMLImageElement | null) => void };
+
+/**
+ * Картинка из media/images/ в рамке с тонкой обводкой (у картинок из CROPPED вшитая белая обводка срезается); файл запрашивается,
+ * когда рамка подходит к экрану. Пока картинка не загрузилась, у рамки серая подложка (`data-pending`): видно очертание картинки.
+ */
 export function BorderedImage({ src, className, imgProps, children }: BorderedImageProps) {
-	// Адрес, для которого файла не нашлось: при смене картинки ошибка прежней не действует
-	const [missing, setMissing] = useState<string | null>(null);
-	const shown = missing === src && BOSS_ICON.test(src) ? BOSS_ICON_FALLBACK : src;
+	const { ref, near } = useNearViewport();
+	// Адреса, для которых файла не нашлось: при смене картинки ошибки прежней не действуют
+	const [failed, setFailed] = useState<{ src: string; paths: string[] }>({ src, paths: [] });
+	const paths = failed.src === src ? failed.paths : [];
+	const shown = candidates(src).find((path) => !paths.includes(path)) ?? src;
+	// Какой файл уже показан: у нового файла обводка снова скрыта до его загрузки
+	const [loadedFor, setLoadedFor] = useState<string | null>(null);
+	const { ref: outerRef, onLoad, onError, ...rest } = (imgProps ?? {}) as ImgProps;
 	return (
-		<span className={`${className ?? ''} ImageBorder ${hasBakedBorder(src) ? 'ImageCrop' : ''}`}>
+		<span
+			ref={ref}
+			className={`${className ?? ''} ImageBorder ${hasBakedBorder(src) ? 'ImageCrop' : ''}`}
+			style={cropStyle(src)}
+			data-pending={loadedFor === shown ? undefined : ''}
+		>
 			{children}
 			<img
-				src={`${PATH_IMAGES}${shown}`}
+				src={near ? `${PATH_IMAGES}${shown}` : PLACEHOLDER}
 				alt=""
 				loading="lazy"
-				{...imgProps}
+				{...rest}
+				ref={(img) => {
+					// Прозрачный пиксель «загруженной картинкой» не считается: ни рамки, ни снятия спиннера
+					outerRef?.(near ? img : null);
+					// Картинка из кэша могла загрузиться раньше, чем React подписался на onLoad
+					if (near && img?.complete && img.naturalWidth) setLoadedFor(shown);
+				}}
+				onLoad={(event) => {
+					if (!near) return;
+					setLoadedFor(shown);
+					onLoad?.(event);
+				}}
 				onError={(event) => {
-					if (BOSS_ICON.test(src) && shown !== BOSS_ICON_FALLBACK) setMissing(src);
-					imgProps?.onError?.(event);
+					if (candidates(src).some((path) => !paths.includes(path) && path !== shown)) setFailed({ src, paths: [...paths, shown] });
+					// Файла нет и запасных не осталось: рамка показывается пустой, а не пропадает совсем
+					else setLoadedFor(shown);
+					onError?.(event);
 				}}
 			/>
 		</span>

@@ -18,6 +18,9 @@
 
 /* Прокручивается только список; поля такие, чтобы значки встали вровень с карточками (12px от края) */
 .listBody {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 	padding: 4px;
 }
 

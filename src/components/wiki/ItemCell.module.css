@@ -49,10 +49,9 @@
 
 .avatar img {
 	display: block;
-	width: 85px;
-	height: 90px;
-	margin: -6px 0 0 -5px;
-	object-view-box: none;
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
 }
 
 .body {

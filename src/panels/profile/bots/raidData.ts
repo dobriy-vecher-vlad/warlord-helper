@@ -228,6 +228,9 @@ export interface FightResult extends FightInput {
 	fireDmg: number;
 }
 
+/** Предел ударов в расчёте: при нулевом уроне (сбойные данные игры) бой не кончился бы никогда, и вкладка зависла бы. */
+const MAX_HITS = 5_000_000;
+
 /**
  * Бой считается заранее, до отправки результата серверу: навык срабатывает каждые 9 очков, затем свиток молнии,
  * свиток огня (если включены и есть) или обычный удар. Бой идёт, пока живы оба. В итоге `hp` и `myHp` — остаток здоровья.
@@ -272,27 +275,6 @@ export function simulateBossFight(input: FightInput): FightResult {
 		taken += dmg;
 		points++;
 		hits++;
-	} while (hp > 0 && myHp > 0);
+	} while (hp > 0 && myHp > 0 && hits < MAX_HITS);
 	return { ...input, hp, myHp, lightning, fire, hits, handHits, lightningHits, fireHits, skillHits, taken, dealt, lightningDmg, fireDmg };
-}
-
-/** Строки отчёта о бое для режима разработчика. */
-export function fightReport(fight: FightResult): string[] {
-	return [
-		`Атака босса: ${numberSpaces(fight.dmg)}`,
-		`Здоровье босса: ${numberSpaces(fight.hp)}`,
-		`Моя атака: ${numberSpaces(fight.myDmg)}`,
-		`Моё здоровье: ${numberSpaces(fight.myHp)}`,
-		`Свиток молнии: ${numberSpaces(fight.lightning)}`,
-		`Свиток огня: ${numberSpaces(fight.fire)}`,
-		`Свиток молнии урон: ${numberSpaces(fight.lightningDmg)}`,
-		`Свиток огня урон: ${numberSpaces(fight.fireDmg)}`,
-		`Количество ударов: ${numberSpaces(fight.hits)}`,
-		`Количество ударов руки: ${numberSpaces(fight.handHits)}`,
-		`Количество ударов молнии: ${numberSpaces(fight.lightningHits)}`,
-		`Количество ударов огня: ${numberSpaces(fight.fireHits)}`,
-		`Количество ударов навыка: ${numberSpaces(fight.skillHits)}`,
-		`Урон полученный: ${numberSpaces(fight.taken)}`,
-		`Урон нанесённый: ${numberSpaces(fight.dealt)}`,
-	];
 }

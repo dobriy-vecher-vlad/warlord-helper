@@ -17,23 +17,7 @@ import { useBotRunner } from '../../../profile/bots/useBotRunner';
 import { fightHash } from '../../../profile/bots/hash';
 import { raidPath } from '../../../profile/bots/raidMaps';
 import { parseReward, type RewardLine } from '../../../profile/bots/reward';
-import {
-	RAIDS,
-	MODES,
-	BOSSES,
-	CHESTS,
-	Settings,
-	DEFAULT_SETTINGS,
-	tierOn,
-	anyTier,
-	RaidData,
-	readRaid,
-	neededEnergy,
-	rewardCards,
-	fightKey,
-	fightReport,
-	simulateBossFight,
-} from './raidData';
+import { RAIDS, MODES, BOSSES, CHESTS, Settings, DEFAULT_SETTINGS, tierOn, anyTier, RaidData, readRaid, neededEnergy, rewardCards, fightKey, simulateBossFight } from './raidData';
 import styles from './RaidsBotPanel.module.css';
 
 /** 6. Рейды: выбор рейда и режима, затем бот проходит карту, убивает боссов и собирает сундуки и бочки. */
@@ -41,10 +25,10 @@ export function RaidsBotPanel({ id }: { id: string }) {
 	const log = useBotLog();
 	const { text: logText, message: logMessage, clear: logClear } = log;
 	const [raid, setRaid] = useState<RaidData | null>(null);
-	const [loading, setLoading] = useState(false);
+	// Страница сразу начинает загрузку рейда
+	const [loading, setLoading] = useState(true);
 	const [exiting, setExiting] = useState(false);
 	const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-	const [devLog, setDevLog] = useState(false);
 	const [, setTick] = useState(0);
 	// Запуск и остановка общие с ботом арены; после остановки данные рейда обновляются (reload объявлен ниже)
 	const { flags, running, starting, pausing, setPausing, pause, beginStart, abortStart, markStarted, markFinished, runLoop } = useBotRunner({
@@ -57,11 +41,12 @@ export function RaidsBotPanel({ id }: { id: string }) {
 	const run = useRef({
 		exiting: false,
 		settings: DEFAULT_SETTINGS,
-		devLog: false,
 		raid: null as RaidData | null,
 	});
-	run.current.settings = settings;
-	run.current.devLog = devLog;
+	// Циклы бота читают настройки из ref: он обновляется после каждой отрисовки, а не во время неё
+	useEffect(() => {
+		run.current.settings = settings;
+	});
 
 	const show = (data: RaidData | null) => {
 		run.current.raid = data;
@@ -122,13 +107,17 @@ export function RaidsBotPanel({ id }: { id: string }) {
 			player: profile.u,
 		};
 		return { bot, data, uraid: profile.uraid };
-	}, []);
+	}, [flags]);
 
 	/** Загрузка или обновление страницы. */
 	const reload = useCallback(
 		async (first = false) => {
 			const result = await fetchRaid();
-			if (!result) return;
+			if (!result) {
+				// Данные не пришли: загрузка не должна крутиться вечно, повторить можно кнопкой «Обновить»
+				if (flags.mounted) setLoading(false);
+				return;
+			}
 			const { data, uraid } = result;
 			let next = run.current.settings;
 			if (uraid !== undefined) {
@@ -142,11 +131,10 @@ export function RaidsBotPanel({ id }: { id: string }) {
 			setLoading(false);
 			updateEnergy(next);
 		},
-		[fetchRaid, logText, updateEnergy],
+		[fetchRaid, flags, logText, updateEnergy],
 	);
 
 	useEffect(() => {
-		setLoading(true);
 		void reload(true);
 	}, [reload]);
 
@@ -209,7 +197,6 @@ export function RaidsBotPanel({ id }: { id: string }) {
 		});
 		const { hp, hits, handHits, lightningHits, fireHits, skillHits, taken, dealt } = fight;
 		const [bossName, bossImage] = BOSSES[data.id - 1]?.[boss.type - 1] ?? ['', ''];
-		if (state.devLog) logMessage(bossImage, bossName, [{ avatar: '', title: 'Данные боя', message: `${fightReport(fight).join('\n')}\n` }]);
 		if (hp <= 0) {
 			const hash = fightHash(fightKey({ s0: handHits, s3: skillHits, c1: lightningHits, c3: fireHits, r: hits + skillHits, dd: dealt, dg: taken }));
 			const result = await getGame(bot.server, { i: 12, t: hash }, bot.auth);
@@ -312,9 +299,9 @@ export function RaidsBotPanel({ id }: { id: string }) {
 		if (settings.barrels) for (const barrel of data.barrels) if (barrel.status === 1) marks.push({ point: barrel.point, visited: false });
 		for (const chest of data.chests) if (chest.status === 1 && tierOn(settings, chest.type)) marks.push({ point: chest.point, visited: false });
 		marks.sort((a, b) => (a.point < b.point ? -1 : 1));
+		// На одной точке могут быть и бочка, и сундук: отмечаются все метки точки
 		const visit = (point: number) => {
-			const mark = marks.find((item) => item.point === point);
-			if (mark) mark.visited = true;
+			for (const mark of marks) if (mark.point === point) mark.visited = true;
 		};
 		if (flags.start) {
 			await openBarrel(bot, data);
@@ -323,7 +310,14 @@ export function RaidsBotPanel({ id }: { id: string }) {
 		}
 		for (const mark of marks) {
 			if (!flags.start || mark.visited) continue;
-			for (const step of raidPath(raidId, data.point, mark.point)) {
+			const path = raidPath(raidId, data.point, mark.point);
+			// Пути нет (точки нет на карте): бот не должен молча пропустить награду и объявить рейд собранным
+			if (!path.length && mark.point !== data.point) {
+				logText(`Не найден путь в точку ${mark.point}`, 'red');
+				pause();
+				return;
+			}
+			for (const step of path) {
 				if (!flags.start || !flags.mounted) break;
 				await move(bot, data, step);
 				visit(step);
@@ -356,14 +350,14 @@ export function RaidsBotPanel({ id }: { id: string }) {
 			const created = await getGame(bot.server, { i: 76, t: settings.selectedRaid ?? 0, t1: settings.selectedMode ?? 0 }, bot.auth);
 			uraid = created?.uraid;
 			if (uraid === undefined) {
-				flags.start = false;
+				flags.stop();
 				abortStart();
 				show(data);
 				logText('Невозможно начать рейд, ошибка при создании', 'red');
 				return;
 			}
 		} else if (uraid === undefined) {
-			flags.start = false;
+			flags.stop();
 			abortStart();
 			show(data);
 			logText('Невозможно начать рейд, лимит попыток', 'red');
@@ -387,7 +381,10 @@ export function RaidsBotPanel({ id }: { id: string }) {
 	const create = async () => {
 		setLoading(true);
 		const result = await fetchRaid();
-		if (!result) return;
+		if (!result) {
+			if (flags.mounted) setLoading(false);
+			return;
+		}
 		const { bot, data, uraid } = result;
 		const settings = run.current.settings;
 		if (uraid === undefined && data.limit < 3) {
@@ -556,7 +553,7 @@ export function RaidsBotPanel({ id }: { id: string }) {
 			avatar="labels/4.png"
 			bottom={
 				<BotFooter
-					loading={!data}
+					loading={!data && loading}
 					log={log.entries}
 					onClear={logClear}
 					mobileRows={2}
@@ -573,15 +570,7 @@ export function RaidsBotPanel({ id }: { id: string }) {
 			<ScrollBox height={299} locked={!data}>
 				{data && !loading ? (
 					<InfoGrid>
-						<InfoCard
-							image="bot/raids/8.png"
-							title={RAIDS[data.id - 1]?.title}
-							subtitle={MODES[data.mode]?.title}
-							onClick={() => {
-								notify({ text: `Режим разработчика ${devLog ? 'выключен' : 'включен'}`, icon: 'done' });
-								setDevLog(!devLog);
-							}}
-						/>
+						<InfoCard image="bot/raids/8.png" title={RAIDS[data.id - 1]?.title} subtitle={MODES[data.mode]?.title} />
 						<InfoCard image="bot/raids/9.png" title="Попытки" subtitle={`${data.limit} из 3`} />
 						<InfoCard image="bot/raids/7.png" title="Здоровье" subtitle={numberSpaces(data.hp)} />
 						<InfoCard image="bot/raids/19.png" title="Энергия" subtitle={`${numberSpaces(data.player._en)} из ${data.energy}`} />

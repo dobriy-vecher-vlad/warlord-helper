@@ -46,9 +46,11 @@ export async function refreshProfiles() {
 	setSession({ fetching: true });
 	try {
 		const state = getSession();
-		await storageSet('storeProfiles', JSON.stringify(state.profiles));
-		const lastFilled = state.profiles.length - [...state.profiles].reverse().findIndex((profile) => profile.id) - 1;
-		await selectProfile(state.profiles[state.index]?.id ? state.index : lastFilled ? lastFilled : 0);
+		await saveProfiles(state.profiles);
+		const fromEnd = [...state.profiles].reverse().findIndex((profile) => profile.id);
+		// Заполненных слотов нет вовсе (findIndex = -1): выбирается первый, а не слот за концом списка
+		const lastFilled = fromEnd === -1 ? 0 : state.profiles.length - fromEnd - 1;
+		await selectProfile(state.profiles[state.index]?.id ? state.index : lastFilled);
 	} finally {
 		setSession({ fetching: false });
 	}
@@ -73,7 +75,7 @@ export async function addProfile() {
 	const next = [...profiles];
 	next[slot] = { server: Number(draft.server), id: Number(draft.id), login: draft.login, auth: draft.auth };
 	setSession({ profiles: next });
-	await storageSet('storeProfiles', JSON.stringify(next));
+	await saveProfiles(next);
 	closeModal();
 	notify({ text: 'Профиль добавлен', icon: 'done' });
 	await selectProfile(slot);
@@ -90,20 +92,31 @@ export async function saveSettings() {
 	const next = [...profiles];
 	next[index] = { ...next[index], login: draft.login || id, auth: draft.auth, id, server: Number(draft.server) };
 	setSession({ profiles: next });
-	await storageSet('storeProfiles', JSON.stringify(next));
+	await saveProfiles(next);
 	closeModal();
 	await selectProfile(index);
 	notify({ text: 'Настройки сохранены', icon: 'done' });
 }
 
-/** Сколько профилей уже удалено: удалять можно не больше шести раз. */
-export async function deletedCount(): Promise<number> {
-	return Number((await storageGetWithDefault('storeProfilesDeleted', '0')).value) || 0;
+/** Сколько профилей уже удалено: удалять можно не больше шести раз. null — хранилище не ответило. */
+export async function deletedCount(): Promise<number | null> {
+	const { value, failed } = await storageGetWithDefault('storeProfilesDeleted', '0');
+	return failed ? null : Number(value) || 0;
+}
+
+/** Сохранить список профилей; если хранилище не приняло, человек узнаёт об этом сразу (иначе изменения пропали бы при следующем запуске). */
+async function saveProfiles(profiles: ProfileSlot[]) {
+	if (!(await storageSet('storeProfiles', JSON.stringify(profiles)))) notify({ text: 'Не удалось сохранить профили, повторите позже', icon: 'error' });
 }
 
 /** Удалить выбранный профиль. */
 export async function removeProfile() {
 	const count = await deletedCount();
+	if (count === null) {
+		closeModal();
+		notify({ text: 'Не удалось проверить лимит удаления, повторите позже', icon: 'error' });
+		return;
+	}
 	if (count > 5) {
 		closeModal();
 		notify({ text: 'Превышен лимит удаления', icon: 'error' });
@@ -115,7 +128,7 @@ export async function removeProfile() {
 	next.splice(index, 1);
 	next.push({ id: null });
 	setSession({ profiles: next, profilesFull: [...next] });
-	await storageSet('storeProfiles', JSON.stringify(next));
+	await saveProfiles(next);
 	closeModal();
 	notify({ text: 'Профиль удалён', icon: 'done' });
 	await selectProfile(index - 1);
@@ -124,6 +137,11 @@ export async function removeProfile() {
 /** Новый порядок дополнительных профилей (окно «Редактирование»); основной профиль всегда первый. */
 export async function saveOrder(rest: ProfileSlot[], deleted: number) {
 	const count = await deletedCount();
+	if (count === null) {
+		closeModal();
+		notify({ text: 'Не удалось проверить лимит удаления, повторите позже', icon: 'error' });
+		return false;
+	}
 	if (count + deleted > 6) {
 		closeModal();
 		notify({ text: 'Превышен лимит удаления', icon: 'error' });

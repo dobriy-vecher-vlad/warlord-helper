@@ -17,7 +17,7 @@ describe('parseParams', () => {
 });
 
 describe('buildLink', () => {
-	const base = 'https://vk.com/app7787242';
+	const base = 'https://vk.ru/app7787242';
 	it('собирает ссылку на раздел, подраздел и окно', () => {
 		expect(buildLink(base, 'map', '4', 21)).toBe(`${base}#view=map&panel=4&modal=21`);
 		expect(buildLink(base, 'map')).toBe(`${base}#view=map`);

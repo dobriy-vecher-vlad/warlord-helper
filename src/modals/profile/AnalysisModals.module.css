@@ -1,31 +1,6 @@
-/* «Анализ сезонов» / «Анализ ивентов»: ModalCard VKUI 4 — 414px и скругление 8px на ПК, 18px на телефоне */
-.card {
-	--button-height: 36px;
-}
-
-.card :global(.vkuiModalCard__container),
-.card :global(.vkuiModalCardBase__container) {
-	padding: 0;
-	border-radius: 8px;
-	background: var(--background_content);
-}
-
-:global([data-layout='mobile']) .card {
-	--button-height: 44px;
-}
-
-:global([data-layout='mobile']) .card :global(.vkuiModalCard__container),
-:global([data-layout='mobile']) .card :global(.vkuiModalCardBase__container) {
-	border-radius: 18px;
-}
-
-/* Крестик на телефоне на месте старого: на 4px левее и ниже, чем в VKUI 8 */
-.card :global(.vkuiModalCardBase__dismiss) {
-	transform: translate(-4px, 4px);
-}
-
+/* «Анализ сезонов» / «Анализ ивентов»: содержимое по центру, крестик сверху справа в шапке окна, кнопка внизу */
 .body {
-	padding-top: 12px;
+	padding: 12px 0;
 	text-align: center;
 }
 
@@ -111,7 +86,7 @@
 	display: block;
 	width: 100%;
 	height: 100%;
-	object-fit: none;
+	object-fit: cover;
 }
 
 .avatar::after {
@@ -131,30 +106,11 @@
 	background-color: rgba(93, 95, 97, 0.12);
 }
 
-.buttons {
-	display: flex;
-	justify-content: center;
-	gap: 12px;
-	padding: 12px;
-}
-
-/* Красная кнопка цвета --dynamic_red (штатный negative светлее); наведение и нажатие чуть темнее */
-.share.share {
-	--vkui--color_background_negative: var(--dynamic_red);
-	--vkui--color_background_negative--hover: #e62e40;
-	--vkui--color_background_negative--active: #cc2939;
-}
-
 /* --- Загрузка --- */
 .loading {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-}
-
-.loadingButtons {
-	display: flex;
-	margin: 18px 0 12px;
 }
 
 /* --- Профиля нет на сервере --- */
@@ -163,7 +119,7 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
-	min-height: 438px;
+	min-height: 320px;
 	text-align: center;
 }
 
@@ -188,8 +144,4 @@
 .errorText {
 	font-size: 17px;
 	font-weight: 500;
-}
-
-.red {
-	color: var(--dynamic_red);
 }

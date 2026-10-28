@@ -34,6 +34,12 @@ export const errorText = (data: unknown): string =>
  */
 export async function loadBotProfile<T extends { u?: Attrs } = ProfileResponse>(bot: BotAuth, valid: (data: T | null) => boolean = (data) => !!data?.u): Promise<T | null> {
 	const data: T | null = await getGame(bot.server, {}, bot.auth);
+	// Нет ответа (сеть, таймаут) — это не неверный пароль: настройки и уход со страницы не нужны, можно повторить.
+	// Вызывающий, для которого отсутствие ответа допустимо (опрос приглашений раз в минуту), получает null без сообщения
+	if (data === null && !valid(null)) {
+		notify({ text: 'Игровой сервер не ответил, попробуйте ещё раз', icon: 'error' });
+		return null;
+	}
 	if (!valid(data)) {
 		notify({ text: 'Пароль авторизации игры неисправен, введите новый', icon: 'error' });
 		openSettings({ text: 'Пароль авторизации игры неисправен, введите новый', error: errorText(data) });

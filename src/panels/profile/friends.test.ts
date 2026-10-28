@@ -73,6 +73,26 @@ describe('scanFriends', () => {
 		expect(getGame).not.toHaveBeenCalled();
 	});
 
+	it('VK не вернул ответ со списком друзей — это ошибка, а не «нет друзей»', async () => {
+		vi.mocked(getBridge).mockReset();
+		vi.mocked(getBridge)
+			.mockResolvedValueOnce({ access_token: 'token' })
+			.mockResolvedValueOnce({ error_data: { error_reason: 'Too many requests' } });
+		const result = await scanFriends();
+		expect(Array.isArray(result)).toBe(false);
+		expect(getGame).not.toHaveBeenCalled();
+	});
+
+	it('равный урон не путает порядок: места стабильны', async () => {
+		mockVk(friendsList(3));
+		vi.mocked(getGame).mockImplementation(async (_server, body) => {
+			const reply = (await answer(body ?? {})) as { u: Record<string, string>[] };
+			return { u: reply.u.map((user) => ({ ...user, _dmgi: '5' })) };
+		});
+		const result = (await scanFriends()) as { id: number; x: number }[];
+		expect(result.map((friend) => friend.id)).toEqual([1000, 1001, 1002]);
+	});
+
 	it('отказ в доступе к друзьям возвращает причину', async () => {
 		vi.mocked(getBridge).mockReset();
 		vi.mocked(getBridge).mockResolvedValueOnce({ error_data: { error_reason: 'User denied' } });

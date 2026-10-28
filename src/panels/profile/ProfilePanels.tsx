@@ -1,6 +1,12 @@
 import type { ReactElement } from 'react';
 import { Panel, PanelSpinner } from '@vkontakte/vkui';
+import { Icon56ErrorTriangleOutline } from '@vkontakte/icons';
+import { Button } from '../../components/form/Form';
+import { Placeholder } from '../../components/profile/Placeholder';
+import { isEmbedded } from '../../lib/platform';
 import { useSession } from '../../profile/session';
+import { startSession } from '../../profile/sessionLoad';
+import { openPanel } from '../../store/nav';
 import type { SectionPanels } from '../section';
 import { CollectionsPanel, InlayPanel, ShopPanel } from './ItemsPanels';
 import { ArenaBotPanel } from './bots/ArenaBotPanel';
@@ -19,12 +25,35 @@ type PanelComponent = (props: { id: string }) => ReactElement;
 
 function afterSessionLoaded(Component: PanelComponent): PanelComponent {
 	return function SessionGate({ id }) {
-		const ready = useSession((state) => state.status === 'ready');
-		return ready ? (
-			<Component id={id} />
-		) : (
+		const status = useSession((state) => state.status);
+		if (status === 'ready') return <Component id={id} />;
+		if (status === 'loading')
+			return (
+				<Panel id={id}>
+					<PanelSpinner />
+				</Panel>
+			);
+		// Профиль не загрузился (нет ВК или игровой сервер недоступен): вместо вечной загрузки — выход и, внутри ВК, повтор
+		return (
 			<Panel id={id}>
-				<PanelSpinner />
+				<Placeholder
+					icon={<Icon56ErrorTriangleOutline />}
+					title="Профиль недоступен"
+					action={
+						<>
+							{isEmbedded() && (
+								<Button size="m" mode="primary" onClick={() => void startSession()}>
+									Повторить
+								</Button>
+							)}
+							<Button size="m" mode="tertiary" onClick={() => openPanel(null, { force: true })}>
+								Назад
+							</Button>
+						</>
+					}
+				>
+					Профиль загружается только внутри ВКонтакте при доступном игровом сервере
+				</Placeholder>
 			</Panel>
 		);
 	};

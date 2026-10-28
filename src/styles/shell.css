@@ -103,6 +103,11 @@ html[data-layout='mobile'] .ItemModalContent {
 	position: relative;
 }
 
+/* Картинка ещё грузится (атрибут ставит BorderedImage): серая подложка показывает очертание картинки, обводка (::after) рисуется как всегда */
+.ImageBorder[data-pending] {
+	background: var(--image_placeholder);
+}
+
 .ImageBorder::after {
 	content: '';
 	position: absolute;
@@ -113,8 +118,8 @@ html[data-layout='mobile'] .ItemModalContent {
 }
 
 .ImageCrop img {
-	/* Белая обводка нарисована в самой картинке: показываем её без 5px по краям */
-	object-view-box: inset(5px);
+	/* Белая обводка нарисована в самой картинке: срезаем её в процентах (--crop-x, --crop-y задаёт BorderedImage), чтобы срез не зависел от показанного размера */
+	object-view-box: inset(var(--crop-y, 7%) var(--crop-x, 7.5%));
 }
 
 .DonutBadge.DonutBadge {

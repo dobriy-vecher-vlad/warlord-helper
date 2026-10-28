@@ -1,23 +1,16 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { useLeaveGuard } from '../../../lib/leaveGuard';
+import type { ReactNode } from 'react';
 import { Checkbox, HorizontalScroll, Input, PullToRefresh } from '@vkontakte/vkui';
 import { Icon24ExternalLinkOutline } from '@vkontakte/icons';
-import { getGame, type GameAuth } from '../../../api/game';
-import type { GuildResponse, ProfileResponse } from '../../../api/gameTypes';
-import { notify } from '../../../app/notify';
 import { useIsDesktop } from '../../../app/layout';
 import { Button } from '../../../components/form/Form';
-import { BotFooter, useBotLog } from '../../../components/profile/BotBlocks';
+import { BotFooter } from '../../../components/profile/BotBlocks';
 import { ScrollBox } from '../../../components/profile/ScrollBox';
 import { Skeleton } from '../../../components/Skeleton';
 import { WikiPanel } from '../../../components/wiki/WikiPanel';
 import { PATH_IMAGES } from '../../../config';
 import { getTime, numberSpaces } from '../../../lib/format';
-import { errorText } from '../../../profile/bots/common';
-import { currentProfile, getSession, openSettings } from '../../../profile/session';
-import { openPanel } from '../../../store/nav';
-import { RESOURCES, CardKey, Times, BotProfile, waiting, INITIAL_TIMES, Mode } from './resourcesData';
-import { RESOURCE_ACTIONS, applyProfile, resetEnergyLinks, type ResourceContext } from './resourcesActions';
+import { RESOURCES, waiting, type CardKey, type Mode } from './resourcesData';
+import { useResourceBot } from './useResourceBot';
 import styles from './ResourcesBotPanel.module.css';
 import { Photo } from '../../../components/Photo';
 
@@ -63,174 +56,21 @@ function ActionCard({
 /** 9. Ресурсы: сбор наград с карты, сундуков, питомца, лотереи, гильдии и т. д. — по отдельности или всё сразу. */
 export function ResourcesBotPanel({ id }: { id: string }) {
 	const isDesktop = useIsDesktop();
-	const log = useBotLog();
-	const { text: logText, message: logMessage } = log;
-	const [loading, setLoading] = useState(false);
-	const [synced, setSynced] = useState(false);
-	const [, setTick] = useState(0);
-	const st = useRef({
-		mounted: true,
-		times: { ...INITIAL_TIMES } as Times,
-		hints: {} as Partial<Record<CardKey, string | null>>,
-		counts: {} as Record<string, number>,
-		profiles: [] as BotProfile[],
-		guildReward: false,
-		wars: { start: null as number | null, end: null as number | null },
-	});
-	const rerender = () => setTick((value) => value + 1);
-
-	const mainProfile = (): BotProfile => {
-		const profile = currentProfile();
-		return { main: true, login: profile?.login || profile?.id || getSession().user?.id || '', auth: profile?.auth, server: profile?.server ?? 1 };
-	};
-
-	const run = useCallback(
-		async (mode: Mode = '', action = '', needReload = true, profile: BotProfile = mainProfile()): Promise<void> => {
-			const s = st.current;
-			const alive = () => s.mounted;
-			setLoading(true);
-
-			if (!profile.auth) {
-				if (profile.main) {
-					openSettings({ text: 'Для продолжения работы необходимо указать пароль авторизации' });
-					openPanel(null, { force: true });
-				} else {
-					logText(`На аккаунте ${profile.login} не указан пароль авторизации`);
-					setLoading(false);
-				}
-				return;
-			}
-			const server = profile.server;
-			const auth: GameAuth = { login: profile.login, password: profile.auth };
-			const game = (body: Record<string, string | number>) => getGame(server, body, auth);
-
-			const dataProfile: ProfileResponse | null = await getGame(server, {}, auth);
-			if (!alive()) return;
-			auth.id = dataProfile?.u?._id || profile.login;
-			let guild: GuildResponse | null = {};
-			if (Number(dataProfile?.u?._clan_id) !== 0) {
-				const data = await game({ i: 49, t1: dataProfile?.u?._clan_id || 0 });
-				guild = data?.clan ?? null;
-			}
-			if (!alive()) return;
-			if (!dataProfile?.u || guild === null) {
-				if (profile.main) {
-					notify({ text: 'Пароль авторизации игры неисправен, введите новый', icon: 'error' });
-					openSettings({ text: 'Пароль авторизации игры неисправен, введите новый', error: errorText(dataProfile) });
-					openPanel(null, { force: true });
-				} else {
-					logText(`Пароль авторизации игры неисправен на аккаунте ${profile.login}`);
-					setLoading(false);
-				}
-				return;
-			}
-			setSynced(true);
-
-			// Остальные профили для «Собрать со всех»: основной — последним
-			const others: BotProfile[] = getSession()
-				.profiles.filter((slot) => slot.id)
-				.map((slot) => ({ main: false, login: slot.login || slot.id || '', auth: slot.auth, server: slot.server ?? 1 }));
-			others.push(others.shift()!);
-			s.profiles = others.filter(Boolean);
-
-			const user = dataProfile.u;
-			const { times, hints } = s;
-			const { builds, chests } = applyProfile(s, { ...dataProfile, u: user }, guild);
-			rerender();
-
-			const reload = () => (alive() && needReload ? run('', '', true, profile) : undefined);
-
-			const handler = RESOURCE_ACTIONS[`${mode}:${action}`];
-			const context: ResourceContext = { game, dataProfile, user, builds, chests, times, hints, state: s, profile, server, needReload, logText, logMessage };
-			if (handler && (!handler.when || handler.when(context))) {
-				await handler.run(context);
-				await reload();
-			}
-			if (mode === 'all') {
-				const steps: [Mode, string][] = [
-					['map', 'collect'],
-					['chest', 'collect'],
-					['chest', 'open'],
-					['pet', 'collect'],
-					['pet', 'send'],
-					['lottery', 'collect'],
-					['search', 'collect'],
-					['energy', 'collect'],
-					['daily', 'collect'],
-					['vip', 'collect'],
-					['guildBuild', 'collect'],
-					['guildReward', 'collect'],
-					['guildWars', 'collect'],
-				];
-				for (const [stepMode, stepAction] of steps) if (alive()) await run(stepMode, stepAction, false, profile);
-			}
-			if (mode === 'all-in-all') {
-				for (const other of s.profiles) {
-					if (!alive()) break;
-					await run('all', '', true, other);
-					logText(`все ресурсы собраны на аккаунте ${other.login}`);
-				}
-			}
-			if (alive()) {
-				rerender();
-				setLoading(false);
-			}
-		},
-		[logText, logMessage],
-	);
-
-	// Сбор ресурсов меняет данные игры: пока он идёт, закрытие вкладки и уход со страницы просят подтверждения (простое обновление не считается)
-	const [acting, setActing] = useState(false);
-	useLeaveGuard(acting);
-	const act = useCallback(
-		async (mode: Mode, action = '') => {
-			setActing(true);
-			try {
-				await run(mode, action);
-			} finally {
-				if (st.current.mounted) setActing(false);
-			}
-		},
-		[run],
-	);
-
-	useEffect(() => {
-		const s = st.current;
-		s.mounted = true;
-		void run();
-		// Таймеры карточек идут каждую секунду
-		const timer = setInterval(() => {
-			const { times } = s;
-			let changed = false;
-			for (const key of ['chest', 'pet', 'lottery', 'guildBuilds'] as const) {
-				if (typeof times[key] === 'number' && times[key] > 0) {
-					times[key] -= 1;
-					changed = true;
-				}
-			}
-			if (changed) setTick((value) => value + 1);
-		}, 1000);
-		return () => {
-			s.mounted = false;
-			resetEnergyLinks();
-			clearInterval(timer);
-		};
-	}, [run]);
-
-	const { times, hints, counts, profiles, wars } = st.current;
+	const { view, loading, log, start, setGuildReward, setWar } = useResourceBot();
+	const { times, hints, counts, profiles, wars, synced } = view;
 	const off = (key: CardKey) => times[key] == null;
 	// У неактивной кнопки и в недоступной карточке загрузка не показывается (как в старом приложении)
 	const collect = (card: CardKey, mode: Mode, title = 'Собрать', disabled = false, action = 'collect') => (
-		<Button size="s" mode="commerce" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void act(mode, action)}>
+		<Button size="s" mode="commerce" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void start(mode, action)}>
 			{title}
 		</Button>
 	);
 	const secondary = (card: CardKey, mode: Mode, action: string, title: string, disabled = false) => (
-		<Button size="s" mode="secondary" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void act(mode, action)}>
+		<Button size="s" mode="secondary" loading={loading && !disabled && !off(card)} disabled={disabled} onClick={() => void start(mode, action)}>
 			{title}
 		</Button>
 	);
-	const then = (promise: Promise<void>, message: string) => void promise.then(() => st.current.mounted && log.text(message));
+	const then = (promise: Promise<boolean>, message: string) => void promise.then((done) => done && log.text(message));
 
 	const chips = (
 		<HorizontalScroll className={styles.chips} arrowSize="m">
@@ -312,8 +152,8 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 			</ActionCard>
 			<ActionCard title="Энергия" disabled={off('energy')} hint={hints.energy ?? null} bottom={collect('energy', 'energy')}>
 				Сбор ежедневной энергии по ссылкам со стены{' '}
-				<a className={styles.link} href="https://vk.com/wiki.warlord" target="_blank" rel="noreferrer">
-					vk.com/wiki.warlord <Icon24ExternalLinkOutline width={16} height={16} />
+				<a className={styles.link} href="https://vk.ru/wiki.warlord" target="_blank" rel="noreferrer">
+					vk.ru/wiki.warlord <Icon24ExternalLinkOutline width={16} height={16} />
 				</a>
 			</ActionCard>
 			<ActionCard title="Ежедневная награда" disabled={off('daily')} hint={hints.daily ?? null} bottom={collect('daily', 'daily')}>
@@ -337,7 +177,7 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 				hint={hints.guildReward ?? null}
 				bottom={collect('guildReward', 'guildReward')}
 				extra={
-					<Checkbox className={styles.checkbox} checked={st.current.guildReward} onChange={() => ((st.current.guildReward = !st.current.guildReward), rerender())}>
+					<Checkbox className={styles.checkbox} checked={view.guildReward} onChange={() => setGuildReward(!view.guildReward)}>
 						Собирать со всех
 					</Checkbox>
 				}
@@ -357,7 +197,7 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 							disabled={loading}
 							placeholder="Начало"
 							value={String(wars.start || '')}
-							onChange={(event) => ((st.current.wars.start = Number(event.target.value)), rerender())}
+							onChange={(event) => setWar('start', Number(event.target.value))}
 						/>
 						<Input
 							className={styles.input}
@@ -365,7 +205,7 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 							disabled={loading}
 							placeholder="Конец"
 							value={String(wars.end || '')}
-							onChange={(event) => ((st.current.wars.end = Number(event.target.value)), rerender())}
+							onChange={(event) => setWar('end', Number(event.target.value))}
 						/>
 					</>
 				}
@@ -403,17 +243,17 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 			bottom={
 				<BotFooter
 					buttonSize="s"
-					loading={!synced}
+					loading={!synced && loading}
 					log={log.entries}
 					onClear={log.clear}
 					actions={[
-						{ title: 'Собрать всё', mode: 'commerce', onClick: () => then(act('all'), 'все ресурсы собраны'), disabled: loading, loading },
+						{ title: 'Собрать всё', mode: 'commerce', onClick: () => then(start('all'), 'все ресурсы собраны'), disabled: loading, loading },
 						...(profiles.length > 1
 							? [
 									{
 										title: 'Собрать со всех',
 										mode: 'secondary' as const,
-										onClick: () => then(act('all-in-all'), 'все ресурсы со всех профилей собраны'),
+										onClick: () => then(start('all-in-all'), 'все ресурсы со всех профилей собраны'),
 										disabled: loading,
 										loading,
 										after: (
@@ -424,13 +264,13 @@ export function ResourcesBotPanel({ id }: { id: string }) {
 									},
 								]
 							: []),
-						{ title: 'Обновить', mode: 'secondary', onClick: () => then(run(), 'данные обновлены'), disabled: loading, loading },
+						{ title: 'Обновить', mode: 'secondary', onClick: () => then(start(), 'данные обновлены'), disabled: loading, loading },
 					]}
 				/>
 			}
 		>
 			{synced ? (
-				<PullToRefresh className={styles.refresh} slotProps={{ controls: { zIndex: 0 } }} onRefresh={() => !loading && then(run(), 'данные обновлены')} isFetching={loading}>
+				<PullToRefresh className={styles.refresh} slotProps={{ controls: { zIndex: 0 } }} onRefresh={() => !loading && then(start(), 'данные обновлены')} isFetching={loading}>
 					<ScrollBox height={240}>{cards}</ScrollBox>
 				</PullToRefresh>
 			) : (

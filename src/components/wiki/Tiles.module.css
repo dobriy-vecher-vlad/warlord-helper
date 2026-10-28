@@ -17,13 +17,6 @@
 	border-radius: 10px;
 }
 
-.background {
-	display: block;
-	width: 100%;
-	aspect-ratio: 1;
-	border-radius: 10px;
-}
-
 .image img {
 	display: block;
 	width: 100%;

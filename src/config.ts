@@ -7,4 +7,4 @@ export const WIKI_VERSION = version;
 export const PATH_IMAGES = 'https://warlord-helper.website.yandexcloud.net/media/images/';
 
 /** Ссылка на приложение внутри ВК (для копирования ссылок на разделы). */
-export const VK_APP_URL = 'https://vk.com/app7787242';
+export const VK_APP_URL = 'https://vk.ru/app7787242';

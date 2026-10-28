@@ -78,4 +78,21 @@ describe('защита от ухода во время работы', () => {
 		expect(ask).not.toHaveBeenCalled();
 		expect(getModalStack()).toHaveLength(0);
 	});
+	it('на телефоне подтверждений нет: выход свободный, но бот узнаёт об уходе', async () => {
+		document.documentElement.dataset.layout = 'mobile';
+		try {
+			const left = vi.fn();
+			await render(<Probe active modal="killAll" onLeave={left} />);
+			const ask = vi.spyOn(window, 'confirm');
+			expect(confirmLeave()).toBe(true);
+			expect(confirmLeave('killAll')).toBe(true);
+			expect(ask).not.toHaveBeenCalled();
+			expect(left).toHaveBeenCalled();
+			const event = new Event('beforeunload', { cancelable: true });
+			window.dispatchEvent(event);
+			expect(event.defaultPrevented).toBe(false);
+		} finally {
+			delete document.documentElement.dataset.layout;
+		}
+	});
 });

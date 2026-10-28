@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { FormItem, Input } from '@vkontakte/vkui';
 import { CopyButton } from '../components/AppHeader';
 import { Button } from '../components/form/Form';
@@ -7,6 +7,7 @@ import { createCustomBoss } from '../store/bossCalc';
 import { backModal } from '../store/modal';
 import { ClassicModal } from './ClassicModal';
 import styles from './NewBossModal.module.css';
+import { useOnChange } from '../lib/useOnChange';
 
 /** Поле в карточке окна (Card + FormItem + Input в старом приложении). */
 function Field({ label, hint, value, onChange }: { label: string; hint: string; value: string; onChange: (value: string) => void }) {
@@ -23,12 +24,12 @@ function Field({ label, hint, value, onChange }: { label: string; hint: string; 
 export function NewBossModal({ open }: { open: boolean }) {
 	const [hp, setHp] = useState('1');
 	const [dmg, setDmg] = useState('1');
-	useEffect(() => {
+	useOnChange([open], () => {
 		if (open) {
 			setHp('1');
 			setDmg('1');
 		}
-	}, [open]);
+	});
 	const create = () => {
 		backModal();
 		createCustomBoss(Number(hp), Number(dmg));

@@ -10,6 +10,7 @@ import { backModal } from '../../store/modal';
 import { ClassicModal, ModalSubmit, ModalTextButton } from '../ClassicModal';
 import styles from './SettingsModals.module.css';
 import { Photo } from '../../components/Photo';
+import { useOnChange } from '../../lib/useOnChange';
 
 /** «Редактирование»: порядок и удаление дополнительных профилей. Основной профиль всегда первый. */
 export function OrderModal({ open }: { open: boolean }) {
@@ -21,14 +22,21 @@ export function OrderModal({ open }: { open: boolean }) {
 	const [deleted, setDeleted] = useState<number | undefined>(undefined);
 	const [deletedNow, setDeletedNow] = useState(0);
 
-	useEffect(() => {
+	// Список берётся один раз при открытии окна
+	useOnChange([open], () => {
 		if (!open) return;
 		setProfiles(storeProfiles.filter((profile) => profile.id && !profile.main));
 		setProfilesFull(storeProfilesFull.filter((profile) => profile.id && !profile.main));
 		setDeleted(undefined);
 		setDeletedNow(0);
-		void deletedCount().then(setDeleted);
-		// Список берётся один раз при открытии окна
+	});
+	useEffect(() => {
+		if (!open) return;
+		let alive = true;
+		void deletedCount().then((count) => alive && setDeleted(count ?? 0));
+		return () => {
+			alive = false;
+		};
 	}, [open]);
 
 	const total = (deleted ?? 0) + deletedNow;

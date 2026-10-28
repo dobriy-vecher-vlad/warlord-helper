@@ -168,21 +168,27 @@ export function ForgePanel({ id }: { id: string }) {
 	};
 
 	const upgrade = async (data: ForgeItem) => {
-		if (!bot.current) return;
+		// Второе нажатие, пока идёт первое, потратило бы ресурсы ещё раз
+		if (!bot.current || upgrading) return;
 		setLoading(true);
 		setUpgrading(true);
-		const result = await getGame(bot.current.server, { i: 26, t1: data.item.id }, bot.current.auth);
-		if (result?.a?._res) {
-			if (result.msg === 'Недостаточно ресурсов.') notify({ text: 'Недостаточно ресурсов для улучшения предмета', icon: 'error' });
-			else if (Number(result.a._res) === 1) notify({ text: 'Удачная попытка улучшения предмета', icon: 'done' });
-			else if (Number(result.a._res) === 2) notify({ text: 'Неудачная попытка улучшения предмета', icon: 'error' });
-			else notify({ text: 'Неизвестная ошибка при улучшении предмета', icon: 'error' });
-		} else {
-			notify({ text: result?.msg ?? (typeof result === 'string' ? result : 'Неизвестная ошибка при улучшении предмета'), icon: 'error' });
+		try {
+			const result = await getGame(bot.current.server, { i: 26, t1: data.item.id }, bot.current.auth);
+			if (result?.a?._res) {
+				if (result.msg === 'Недостаточно ресурсов.') notify({ text: 'Недостаточно ресурсов для улучшения предмета', icon: 'error' });
+				else if (Number(result.a._res) === 1) notify({ text: 'Удачная попытка улучшения предмета', icon: 'done' });
+				else if (Number(result.a._res) === 2) notify({ text: 'Неудачная попытка улучшения предмета', icon: 'error' });
+				else notify({ text: 'Неизвестная ошибка при улучшении предмета', icon: 'error' });
+			} else {
+				notify({ text: result?.msg ?? (typeof result === 'string' ? result : 'Неизвестная ошибка при улучшении предмета'), icon: 'error' });
+			}
+			await reload();
+			setActive(data.item.id);
+		} finally {
+			// Метка снимается всегда: иначе охранник выхода остался бы включённым, а кнопка заблокированной
+			setUpgrading(false);
+			setLoading(false);
 		}
-		await reload();
-		setUpgrading(false);
-		setActive(data.item.id);
 	};
 
 	// Подсказка внизу той же высоты, что и выбранный предмет с характеристиками

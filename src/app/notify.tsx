@@ -19,6 +19,9 @@ const ICONS = {
 	default: <Icon28ListCircleFillGray />,
 };
 
+/** Запас после положенного времени показа: обычное сообщение за это время закрывается само. */
+const CLOSE_GRACE_MS = 600;
+
 const NotifyContext = createContext<(options: NotifyOptions) => void>(() => {});
 
 /** Показ сообщений из кода вне компонентов (загрузка профиля и т. п.); подключается NotifyProvider. */
@@ -32,13 +35,17 @@ export function NotifyProvider({ children }: { children: ReactNode }) {
 	const [api, holder] = useSnackbarManager();
 	const notify = useCallback(
 		({ text, icon, action, onAction, duration = 3000 }: NotifyOptions) => {
-			api.open({
+			const toast = api.open({
 				duration,
 				before: ICONS[icon ?? 'default'],
 				action,
 				onActionClick: onAction,
 				children: text,
 			});
+			// Страховка от зависшего сообщения. Таймер VKUI стартует только после события окончания анимации входа, а оно теряется,
+			// если страница занята (после долгого прохода бота): начало и конец анимации приходят одной пачкой, и сообщение остаётся навсегда.
+			// Закрытие уже закрытого сообщения безвредно.
+			if (duration > 0) window.setTimeout(toast.close, duration + CLOSE_GRACE_MS);
 		},
 		[api],
 	);

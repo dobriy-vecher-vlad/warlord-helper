@@ -81,13 +81,6 @@
 	object-fit: cover;
 }
 
-.avatarFix img {
-	width: calc(100% + 6px);
-	height: calc(100% + 6px);
-	margin: -3px 0 0 -3px;
-	object-view-box: none;
-}
-
 .richBody {
 	min-width: 0;
 }

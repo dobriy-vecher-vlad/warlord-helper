@@ -96,7 +96,8 @@ function StockPanel({ id, title, label, source, forms, owned, yesTitle, noTitle 
 }
 
 const ALL_ITEMS = ITEMS.map((_, index) => index);
-const COLLECTION_ITEMS = ALL_ITEMS.filter((index) => Collections.items.includes(ITEMS[index]!.id));
+const COLLECTION_IDS = new Set<number>(Collections.items);
+const COLLECTION_ITEMS = ALL_ITEMS.filter((index) => COLLECTION_IDS.has(ITEMS[index]!.id));
 
 /** 1. Магазин: все предметы игры и какие из них куплены. */
 export function ShopPanel({ id }: { id: string }) {

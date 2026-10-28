@@ -10,6 +10,21 @@
 	box-shadow: inset 0 -1px 0 var(--separator_common);
 }
 
+/* Шапка без заголовка (только крестик): высоты не занимает, крестик висит поверх содержимого справа сверху, содержимое начинается с самого верха */
+.untitled {
+	z-index: 2;
+	height: 0;
+	padding: 0;
+	box-shadow: none;
+}
+
+.untitled .after {
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	margin: 0;
+}
+
 .before,
 .after {
 	position: relative;
@@ -64,6 +79,13 @@
 
 .content {
 	padding-bottom: 0;
+}
+
+/* Во всю высоту области прокрутки: вложенный блок с flex: 1 растягивается на неё */
+.fill {
+	display: flex;
+	flex-direction: column;
+	min-height: 100%;
 }
 
 /* Закреплённый низ окна: линия сверху, как под шапкой */

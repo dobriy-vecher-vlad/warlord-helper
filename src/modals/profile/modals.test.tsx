@@ -2,7 +2,7 @@ import { act } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../api/game', () => ({ getGame: vi.fn() }));
-vi.mock('../../lib/storage', () => ({ storageGet: vi.fn(async () => null), storageSet: vi.fn(async () => true) }));
+vi.mock('../../lib/storage', () => ({ storageGet: vi.fn(async () => null), storageRead: vi.fn(async () => ({ ok: true, value: null })), storageSet: vi.fn(async () => true) }));
 
 import { getGame } from '../../api/game';
 import { storageGet, storageSet } from '../../lib/storage';
@@ -108,7 +108,8 @@ describe('окно боя', () => {
 	it('кнопки ударов, Max, время боя и расходники', async () => {
 		startBattle(bot, battle, fighter, me, null);
 		await view();
-		await flush();
+		// Метка SOLO появляется, когда загрузится справочник боссов (в полном прогоне это занимает больше одного кадра)
+		for (let attempt = 0; attempt < 20 && !document.body.textContent?.includes('SOLO'); attempt++) await flush();
 		const text = document.body.textContent ?? '';
 		for (const label of ['×1', '×3', '×9', 'Max', 'Рассчитать убийство', 'Обновить']) expect(text).toContain(label);
 		expect(text).toContain('Время боя');
@@ -131,6 +132,24 @@ describe('окно боя', () => {
 		expect(document.body.textContent).toContain('Я');
 		expect(document.body.textContent).toMatch(/Нанес \d[\d\s]* урона/);
 		expect(document.body.textContent).toContain('Гроккар');
+	});
+
+	it('двойное нажатие на удар до перерисовки отправляет один раунд: свитки не списываются дважды', async () => {
+		startBattle(bot, battle, fighter, me, null);
+		vi.mocked(getGame).mockResolvedValue(
+			parseResponse('<data><fight hp="31300000" mhp="31500000" dmg="2450" myhp="789000" myr="10" eid="69" fid="500" res="2" time="70"/></data>'),
+		);
+		await view();
+		await flush();
+		const before = calls().length;
+		const hit = button('×1')!;
+		await act(async () => {
+			hit.click();
+			hit.click();
+		});
+		await flush();
+		// Ушёл один раунд ударов (а не два с одним и тем же планом)
+		expect(calls().slice(before)).toEqual([12]);
 	});
 
 	it('погибший персонаж: все кнопки ударов заблокированы (сервер их не принимает), обновление доступно', async () => {

@@ -4,7 +4,8 @@ import { TileGroups } from '../../components/wiki/TileLists';
 import { WikiPanel } from '../../components/wiki/WikiPanel';
 import { numberForm } from '../../lib/format';
 import { openDescription, registerDescriptions } from '../../modals/descriptions';
-import { BOSSES_DESCRIPTIONS, bossBackground, type Boss } from '../../modals/descriptions/bosses';
+import { largeImage } from '../../lib/largeImage';
+import { BOSSES_DESCRIPTIONS, type Boss } from '../../modals/descriptions/bosses';
 import { sectionBase, type SectionPanels } from '../section';
 import { BossCalcPanel } from './BossCalcPanel';
 import { BossPickPanel, PowerPickPanel } from './BossPickPanels';
@@ -40,7 +41,7 @@ export function BossListPanel({ id }: { id: string }) {
 				groups={BOSS_GROUPS}
 				title={(group) => group.title}
 				items={(group) => group.mobs}
-				describe={(boss) => ({ title: boss.name, subtitle: boss.description, background: bossBackground(boss) })}
+				describe={(boss) => ({ title: boss.name, subtitle: boss.description, image: largeImage(boss.icon) })}
 				open={(boss, link) => openDescription('bosses.boss', boss, link)}
 			/>
 		</WikiPanel>

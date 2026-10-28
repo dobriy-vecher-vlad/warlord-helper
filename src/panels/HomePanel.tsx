@@ -47,14 +47,14 @@ const SECTIONS: (Tile | null)[] = [
 	null,
 ];
 
-const HELP: Tile = { href: 'https://vk.com/@wiki.warlord-faq', title: 'Помощь', color: 'var(--systemTeal)', icon: <Icon28HelpOutline /> };
+const HELP: Tile = { href: 'https://vk.ru/@wiki.warlord-faq', title: 'Помощь', color: 'var(--systemTeal)', icon: <Icon28HelpOutline /> };
 
 /** Второй ряд: внутри ВК — акция, подписка и инструкция по входу, вне ВК — только помощь. */
 const LINKS: (Tile | null)[] = isEmbedded()
 	? [
 			{ onClick: () => openModal('sales'), title: 'Акция', color: 'var(--systemRed)', icon: <Icon28LikeOutline /> },
 			{ onClick: () => openModal('donut'), title: 'Подписка', color: 'var(--systemTeal)', icon: <Icon28LikeOutline /> },
-			{ href: 'https://vk.com/@wiki.warlord-authorization', title: 'Вход', color: 'var(--systemTeal)', icon: <Icon28KeyOutline /> },
+			{ href: 'https://vk.ru/@wiki.warlord-authorization', title: 'Вход', color: 'var(--systemTeal)', icon: <Icon28KeyOutline /> },
 			HELP,
 		]
 	: [HELP, null, null, null];

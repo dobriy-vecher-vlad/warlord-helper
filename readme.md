@@ -10,10 +10,10 @@
 - :eyes: **Разное**. Калькулятор, новые предметы, события, лотерея, обыск друзей.
 
 ## Полезные ссылки
-1. [Приложение](https://vk.com/app7787242)
-2. [FAQ](https://vk.com/@wiki.warlord-faq)
-3. [VK Donut](https://vk.com/@wiki.warlord-donut)
-4. [Ключ авторизации](https://vk.com/@wiki.warlord-authkey)
+1. [Приложение](https://vk.ru/app7787242)
+2. [FAQ](https://vk.ru/@wiki.warlord-faq)
+3. [VK Donut](https://vk.ru/@wiki.warlord-donut)
+4. [Ключ авторизации](https://vk.ru/@wiki.warlord-authkey)
 
 ## Стек
 React 19, TypeScript, VKUI 8, Vite 8. Тесты — Vitest (jsdom), линтер — oxlint, форматирование — Prettier.

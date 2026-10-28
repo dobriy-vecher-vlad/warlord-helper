@@ -70,6 +70,8 @@ function useAttempts() {
 	const bot = context?.bot;
 	const npcs = context?.npcs;
 	const [attempts, setAttempts] = useState<ReadonlyMap<number, FightInfo | null>>(new Map());
+	// Один босс может быть на экране в нескольких строках (избранное, последние, общий список): запрос отменяется, когда ушла последняя
+	const shown = useRef(new Map<number, number>());
 	const queue = useRef<AttemptsQueue | null>(null);
 	const modalOpen = useAnyModal();
 	const covered = useRef(modalOpen);
@@ -86,6 +88,9 @@ function useAttempts() {
 		const instance = new AttemptsQueue(bot, npcs, (id, info) => setAttempts((current) => new Map(current).set(id, info)));
 		queue.current = instance;
 		sync();
+		// Строки, уже бывшие на экране, заново не появятся: новая очередь (другой профиль или справочник) спрашивает о них сама.
+		// Сначала sync: под открытым окном очередь должна уже стоять на паузе
+		for (const id of shown.current.keys()) instance.request(id);
 		document.addEventListener('visibilitychange', sync);
 		return () => {
 			document.removeEventListener('visibilitychange', sync);
@@ -93,8 +98,6 @@ function useAttempts() {
 			queue.current = null;
 		};
 	}, [bot, npcs]);
-	// Один босс может быть на экране в нескольких строках (избранное, последние, общий список): запрос отменяется, когда ушла последняя
-	const shown = useRef(new Map<number, number>());
 	const request = useCallback((id: number) => {
 		shown.current.set(id, (shown.current.get(id) ?? 0) + 1);
 		queue.current?.request(id);
@@ -152,19 +155,18 @@ export function CreateBossPanel({ id }: { id: string }) {
 		if (shift) scrollParent(node).scrollTop += shift;
 	}, [lists]);
 	// Избранные и последние идут двумя группами поверх обычных; закрытые боссы остаются в них серыми, как в общем списке
+	const npcs = context?.npcs;
 	const groups = useMemo(() => {
-		const all = selectBosses(GAME_BOSS_GROUPS, { npcs: context?.npcs ?? new Map(), locations, regions, player });
+		const all = selectBosses(GAME_BOSS_GROUPS, { npcs: npcs ?? new Map(), locations, regions, player });
 		const byId = new Map(all.flatMap((group) => group.items).map((entry) => [entry.id, entry]));
 		const pick = (title: string, list: readonly number[]) => ({ title, items: list.flatMap((id) => byId.get(id) ?? []) });
 		return [pick(FAVORITES, lists.favorites), pick(RECENT, lists.recent), ...all];
-	}, [context, locations, regions, player, lists]);
+	}, [npcs, locations, regions, player, lists]);
 	// Режим изменения порядка избранных; без избранных (или с одним) он не нужен
 	const [editing, setEditing] = useState(false);
 	const reordering = editing && lists.favorites.length > 1;
 	// Избранных осталось меньше двух: режим выключается, чтобы не включиться сам, когда добавят новых
-	useEffect(() => {
-		if (editing && lists.favorites.length < 2) setEditing(false);
-	}, [editing, lists.favorites.length]);
+	if (editing && lists.favorites.length < 2) setEditing(false);
 	const favoriteIds = groups[0]?.title === FAVORITES ? groups[0].items.map((entry) => entry.id) : [];
 	const groupActions = (title: string, searching: boolean): GroupAction[] => {
 		const actions: GroupAction[] = [];
@@ -191,7 +193,8 @@ export function CreateBossPanel({ id }: { id: string }) {
 	// Метки SOLO у части строк: у остальных на их месте пустое поле, чтобы правый край не гулял
 	const solo = (entry: { id: number; boss: Parameters<typeof canKillAlone>[0]; lock: string | null }) =>
 		!entry.lock && !!player && canKillAlone(entry.boss, player.fighter, player.maxHp);
-	const anySolo = groups.some((group) => group.items.some(solo));
+	// Страница перерисовывается при каждом ответе о попытках (раз в секунду): расчёт по всем боссам делается только при смене списка или персонажа
+	const anySolo = useMemo(() => groups.some((group) => group.items.some(solo)), [groups, player]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	return (
 		<PickPanel

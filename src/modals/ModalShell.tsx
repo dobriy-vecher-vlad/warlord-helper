@@ -1,11 +1,12 @@
 import type { ReactNode } from 'react';
-import { ModalPage, PanelHeaderButton } from '@vkontakte/vkui';
-import { Icon24Dismiss } from '@vkontakte/icons';
+import { ModalPage } from '@vkontakte/vkui';
 import { CopyButton } from '../components/AppHeader';
+import { cropStyle, hasBakedBorder } from '../components/BorderedImage';
 import { Divider } from '../components/Divider';
 import { useIsDesktop } from '../app/layout';
 import { PATH_IMAGES } from '../config';
 import { usePanel, useStory } from '../store/nav';
+import { ModalDismiss } from './ClassicModal';
 import styles from './ModalShell.module.css';
 import { useModalPage } from './useModalPage';
 
@@ -14,8 +15,8 @@ export interface ModalHead {
 	description: ReactNode;
 	/** Картинка, путь внутри media/images/ */
 	avatar?: string;
-	/** CSS-фон вместо картинки (например, босс поверх фона локации) */
-	background?: string;
+	/** Крупная версия картинки для большого превью на ПК (если есть) */
+	avatarLarge?: string;
 	/** Значение `modal=` для ссылки на это окно */
 	link?: string | number;
 	/** Без картинки и превью: только заголовок (например, список заточек) */
@@ -32,21 +33,13 @@ interface ModalShellProps {
 
 function Picture({ head, size }: { head: ModalHead; size: 'preview' | 'small' }) {
 	const className = size === 'preview' ? styles.preview : styles.small;
-	if (head.background) {
-		return (
-			<span className={className}>
-				<span className={`${styles.frame} ImageBorder`}>
-					<span className={styles.picture} style={{ background: head.background }} />
-				</span>
-				{size === 'preview' && <span className={styles.glow} style={{ background: head.background }} />}
-			</span>
-		);
-	}
 	if (!head.avatar) return null;
-	const src = `${PATH_IMAGES}${head.avatar}`;
+	// Большое превью берёт крупную версию (если есть), маленькая шапка телефона обычную
+	const file = size === 'preview' ? (head.avatarLarge ?? head.avatar) : head.avatar;
+	const src = `${PATH_IMAGES}${file}`;
 	return (
 		<span className={className}>
-			<span className={`${styles.frame} ImageBorder`}>
+			<span className={`${styles.frame} ImageBorder ${hasBakedBorder(file) ? 'ImageCrop' : ''}`} style={cropStyle(file)}>
 				<img className={styles.picture} src={src} alt="" />
 			</span>
 			{size === 'preview' && <img className={styles.glow} src={src} alt="" />}
@@ -72,9 +65,9 @@ export function ModalShell({ id, open, onClose, head, children }: ModalShellProp
 				<span className={styles.mobileName}>{head.title}</span>
 				<span className={styles.mobileDescription}>{head.description}</span>
 			</span>
-			<PanelHeaderButton className={styles.mobileClose} onClick={onClose} aria-label="Закрыть">
-				<Icon24Dismiss />
-			</PanelHeaderButton>
+			<span className={styles.mobileClose}>
+				<ModalDismiss onClick={onClose} />
+			</span>
 		</div>
 	);
 

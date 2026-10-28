@@ -46,6 +46,8 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 		startPosition: number;
 		unit: number;
 		active: boolean;
+		/** Последнее показанное положение: в `up` состояние React может быть на шаг позади */
+		position: number;
 		samples: { x: number; t: number }[];
 	} | null>(null);
 	const justDragged = useRef(false);
@@ -81,6 +83,7 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 			// Тянем за аватарки — единица шаг аватарки, за подпись — ширина карусели
 			unit: names ? root.clientWidth : (root.clientWidth * avatarWidth) / 100,
 			active: false,
+			position,
 			samples: [{ x: event.clientX, t: event.timeStamp }],
 		};
 	};
@@ -99,7 +102,11 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 				return;
 			}
 			state.active = true;
-			rootRef.current?.setPointerCapture(event.pointerId);
+			try {
+				rootRef.current?.setPointerCapture(event.pointerId);
+			} catch {
+				// Указатель уже не активен (палец убран): без захвата жест всё равно доводится до конца
+			}
 			setDragging(true);
 		}
 		state.samples.push({ x: event.clientX, t: event.timeStamp });
@@ -108,6 +115,7 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 		const last = count - 1;
 		// За краем карусель поддаётся только частично, как у VKUI
 		const next = raw < 0 ? -Math.min(OVERSCROLL, -raw * RESISTANCE) : raw > last ? last + Math.min(OVERSCROLL, (raw - last) * RESISTANCE) : raw;
+		state.position = next;
 		setPosition(next);
 	};
 
@@ -123,11 +131,12 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 		const lastSample = state.samples[state.samples.length - 1];
 		// Дальше половины слайда — на ближайший слайд; от 10% слайда или быстрый бросок — на соседний в сторону жеста
 		const from = Math.round(state.startPosition);
-		const moved = position - from;
+		const current = state.position;
+		const moved = current - from;
 		const speed = first && lastSample ? (first.x - lastSample.x) / Math.max(lastSample.t - first.t, MIN_FLICK_TIME) / state.unit : 0;
 		const flick = Math.abs(speed) > FLICK_SPEED && Math.abs(moved) > MIN_FLICK_SHIFT;
 		const switched = Math.abs(moved) >= SWITCH_SHIFT || flick;
-		const target = clamp(Math.abs(moved) >= 0.5 ? Math.round(position) : switched ? from + Math.sign(moved) : from, 0, count - 1);
+		const target = clamp(Math.abs(moved) >= 0.5 ? Math.round(current) : switched ? from + Math.sign(moved) : from, 0, count - 1);
 		setPosition(target);
 		if (target !== value) onSelect(target);
 	};

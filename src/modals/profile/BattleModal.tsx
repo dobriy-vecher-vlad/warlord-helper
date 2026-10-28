@@ -71,6 +71,12 @@ function Supply({
 	);
 }
 
+/** Раунд закончился исключением (а не ответом сервера): окно показывает ошибку и не остаётся заблокированным. */
+const failed = (error: unknown): { ok: false; message: string } => ({
+	ok: false,
+	message: error instanceof Error && error.message ? `Ошибка боя: ${error.message}` : 'Ошибка боя',
+});
+
 /**
  * Полоска «Время боя». Время боя всегда 2 часа: живой таймер от последнего ответа сервера; на нуле бой проверяется (и заканчивается
  * поражением). Секундомер живёт здесь, чтобы раз в секунду перерисовывалась только полоска, а не всё окно.
@@ -178,11 +184,16 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 	// Звать на помощь можно только в общем бое (у одиночных боссов тип 1)
 	const shared = boss?.type === 0;
 
+	// Удар в пути: второе нажатие до перерисовки кнопок не отправляет тот же план ещё раз (свитки и зелья списались бы дважды)
+	const attacking = useRef(false);
 	const attack = async (rounds: number) => {
+		if (attacking.current) return;
 		const plan = simulate(battle, fighter, setup, rounds);
 		if (!plan.rounds && !plan.skillHits) return;
+		attacking.current = true;
 		setBusy(true);
-		const result = await runRound(() => playRound(plan));
+		const result = await runRound(() => playRound(plan)).catch((error: unknown) => failed(error));
+		attacking.current = false;
 		setBusy(false);
 		if (!result.ok) {
 			log.text(result.message, 'red');
@@ -214,7 +225,7 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 
 	const call = async () => {
 		setCalling(true);
-		const sent = await callFriends(session.bot);
+		const sent = await callFriends(session.bot).catch(() => false);
 		setCalling(false);
 		log.text(sent ? 'Приглашение отправлено друзьям' : 'Не удалось позвать друзей', sent ? 'green' : 'red');
 		notify(sent ? { text: 'Приглашение отправлено друзьям', icon: 'done' } : { text: 'Не удалось позвать друзей', icon: 'error' });
@@ -223,7 +234,7 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 	/** Обновить бой вручную: пустой раунд, как при автоматическом обновлении. */
 	const refresh = async () => {
 		setRefreshing(true);
-		const result = await runRound(() => playRound());
+		const result = await runRound(() => playRound()).catch((error: unknown) => failed(error));
 		setRefreshing(false);
 		if (!result.ok) {
 			log.text(result.message, 'red');

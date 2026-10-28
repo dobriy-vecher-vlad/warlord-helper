@@ -238,6 +238,29 @@ describe('createBattle', () => {
 	});
 });
 
+describe('createBattle: защита от двойного входа', () => {
+	const npcs = new Map([[69, { id: 69, region: 13, place: 2, type: 1, level: 30, tries: 5 }]]);
+	beforeEach(() => {
+		vi.mocked(getGame).mockReset();
+		selectProfile(1);
+		setBattleSession(null);
+	});
+
+	it('пока вход в бой не закончился, второй не стартует и запросов не шлёт; после окончания вход снова возможен', async () => {
+		setInvitesContext({ bot, npcs, players: null });
+		let release!: (value: unknown) => void;
+		vi.mocked(getGame).mockReturnValueOnce(new Promise((resolve) => (release = resolve)));
+		const first = createBattle(69, 5);
+		expect(await createBattle(69, 5)).toEqual({ ok: false, message: 'Вход в бой уже идёт' });
+		// Первый ещё ждёт ответа игры: второй запрос профиля не ушёл
+		expect(getGame).toHaveBeenCalledTimes(1);
+		release({});
+		await first;
+		vi.mocked(getGame).mockResolvedValueOnce(null);
+		expect(await createBattle(69, 5)).toMatchObject({ ok: false, message: 'Не удалось получить данные персонажа' });
+	});
+});
+
 describe('showBattle', () => {
 	beforeEach(() => {
 		selectProfile(1);

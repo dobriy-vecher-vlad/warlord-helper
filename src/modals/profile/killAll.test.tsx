@@ -1,7 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('../../api/game', () => ({ getGame: vi.fn() }));
-vi.mock('../../lib/storage', () => ({ storageGet: vi.fn(async () => '{"f":[69],"r":[]}'), storageSet: vi.fn(async () => true) }));
+vi.mock('../../lib/storage', () => ({
+	storageGet: vi.fn(async () => '{"f":[69],"r":[]}'),
+	storageRead: vi.fn(async () => ({ ok: true, value: '{"f":[69],"r":[]}' })),
+	storageSet: vi.fn(async () => true),
+}));
 
 import { getGame } from '../../api/game';
 import { parseResponse } from '../../api/parse';

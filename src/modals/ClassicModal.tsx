@@ -9,10 +9,11 @@ interface ClassicModalProps {
 	id: string;
 	open: boolean;
 	onClose: () => void;
-	title: ReactNode;
+	/** Без заголовка: на ПК шапки нет (крестик снаружи), на телефоне в шапке только крестик, без разделителя */
+	title?: ReactNode;
 	/** Кнопка слева */
 	before?: ReactNode;
-	/** Кнопка справа */
+	/** Кнопка справа; без `before` и `after` на телефоне справа стоит крестик закрытия (свайп там неочевиден) */
 	after?: ReactNode;
 	/** Закреплённый низ окна (как шапка закреплён сверху) */
 	footer?: ReactNode;
@@ -20,6 +21,8 @@ interface ClassicModalProps {
 	top?: ReactNode;
 	/** Высота блока `top` (px, на телефоне нужна для высоты шторки; приблизительно) */
 	topHeight?: number;
+	/** Содержимое занимает всю высоту области прокрутки (пустое состояние по центру, без прокрутки) */
+	fill?: boolean;
 	className?: string;
 	children: ReactNode;
 }
@@ -64,13 +67,17 @@ export const ModalTextButton = ({ onClick, children }: { onClick: () => void; ch
  * Окно с обычной шапкой (ModalPage--classic в старом приложении): заголовок по центру, кнопки по краям,
  * под шапкой разделитель. Высота на телефоне — по содержимому или 75% экрана.
  */
-export function ClassicModal({ id, open, onClose, title, before, after, footer, top, topHeight = 0, className, children }: ClassicModalProps) {
-	const { ref, pageProps } = useModalPage(open, 52 + (top ? topHeight : 0));
-	const bar = (
-		<div className={styles.header}>
+export function ClassicModal({ id, open, onClose, title, before, after, footer, top, topHeight = 0, fill, className, children }: ClassicModalProps) {
+	const isDesktop = useIsDesktop();
+	const untitled = !title;
+	const hasBar = !(untitled && isDesktop);
+	const { ref, pageProps } = useModalPage(open, (hasBar && !untitled ? 52 : 0) + (top ? topHeight : 0));
+	const right = after === undefined && before === undefined && !isDesktop ? <ModalDismiss onClick={onClose} /> : after;
+	const bar = hasBar && (
+		<div className={`${styles.header} ${untitled ? styles.untitled : ''}`}>
 			<div className={styles.before}>{before}</div>
-			<div className={styles.title}>{title}</div>
-			<div className={styles.after}>{after}</div>
+			{!untitled && <div className={styles.title}>{title}</div>}
+			<div className={styles.after}>{right}</div>
 		</div>
 	);
 	const header = top ? (
@@ -79,7 +86,7 @@ export function ClassicModal({ id, open, onClose, title, before, after, footer, 
 			<div className={styles.top}>{top}</div>
 		</>
 	) : (
-		bar
+		bar || undefined
 	);
 	return (
 		<ModalPage
@@ -91,7 +98,7 @@ export function ClassicModal({ id, open, onClose, title, before, after, footer, 
 			header={header}
 			footer={footer ? <div className={styles.footer}>{footer}</div> : undefined}
 		>
-			<div ref={ref} className={styles.content}>
+			<div ref={ref} className={`${styles.content} ${fill ? styles.fill : ''}`}>
 				{children}
 			</div>
 		</ModalPage>

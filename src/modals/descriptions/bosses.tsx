@@ -1,22 +1,19 @@
 import type Bosses from '../../data/bosses.json';
 import { Divider } from '../../components/Divider';
 import { CardGrid, DescriptionCard, DescriptionCell, ItemList, LinkCell, imageUrl } from '../../components/wiki/Description';
+import { largeImage } from '../../lib/largeImage';
 import { getTime, numberForm, numberSpaces } from '../../lib/format';
 import type { ItemRef } from '../../lib/items';
 import { findRegion } from './map';
 
 export type Boss = (typeof Bosses)[number] & { items: ItemRef[]; rewards: { exp: number; m1: number; m2: number; m6?: number } };
 
-/** Фон картинки босса: сам босс поверх фона локации. */
-export const bossBackground = (boss: { image: string; background: string }) =>
-	`url(${imageUrl(boss.image)}) top left 25%/cover no-repeat, url(${imageUrl(boss.background)}) center/cover`;
-
 export const BOSSES_DESCRIPTIONS = {
 	'bosses.boss': (data: Boss) => {
 		const location = findRegion(data.region);
 		const { m1, m2, m6, exp } = data.rewards;
 		return {
-			head: { title: data.name, description: 'Боссы — Список боссов', background: bossBackground(data) },
+			head: { title: data.name, description: 'Боссы — Список боссов', avatar: data.icon, avatarLarge: largeImage(data.icon) },
 			body: (
 				<>
 					<DescriptionCell label="Описание" text={data.description} />

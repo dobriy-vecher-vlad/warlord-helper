@@ -1,5 +1,4 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Icon56UsersOutline } from '@vkontakte/icons';
 import { PRIORITY } from '../../api/http';
 import { notify } from '../../app/notify';
 import { BotLog, FooterButton, useBotLog } from '../../components/profile/BotBlocks';
@@ -20,6 +19,7 @@ import { backModal } from '../../store/modal';
 import { ClassicModal } from '../ClassicModal';
 import { Stat, partStyles as styles } from './BattleParts';
 import killStyles from './KillAllModal.module.css';
+import { useOnChange } from '../../lib/useOnChange';
 
 /** Что известно о персонаже и попытках боссов на момент последнего обновления. */
 interface Snapshot {
@@ -61,6 +61,9 @@ export function KillAllModal({ open }: { open: boolean }) {
 	const stop = useRef(false);
 	/** Проход идёт (в отличие от `running` меняется сразу, без ожидания перерисовки) */
 	const working = useRef(false);
+	/** Новый номер открытия: работа прежнего открытия по нему понимает, что устарела. */
+	const nextSession = () => ++session.current;
+	const { clear: clearLog } = log;
 
 	const entries = useMemo(
 		() => (data && bosses && context ? killPlan({ favorites: lists.favorites, bosses, npcs: context.npcs, player: data.player, attempts: data.attempts, killed, unlimited }) : []),
@@ -106,28 +109,35 @@ export function KillAllModal({ open }: { open: boolean }) {
 	};
 
 	// Каждое открытие — как первый вход: ничего не помнится
-	useEffect(() => {
+	useOnChange([open], () => {
 		if (!open) return;
-		const mine = ++session.current;
-		stop.current = false;
-		live.current.data = null;
-		live.current.killed = new Map();
 		setData(null);
 		setKilled(new Map());
 		setRunning(null);
 		setStopping(false);
 		setActive(null);
-		log.clear();
+		clearLog();
 		setLoading(true);
-		void refresh(mine).then((ok) => {
-			if (mine !== session.current) return;
-			setLoading(false);
-			if (!ok) notify({ text: 'Не удалось получить данные персонажа', icon: 'error' });
-		});
-		return () => {
-			// Окно закрыто: работа этого открытия дальше ничего не пишет
-			session.current++;
-		};
+	});
+	/** Первая загрузка после открытия: данные персонажа и попытки; устаревшее открытие ничего не показывает. */
+	const firstLoad = async (mine: number) => {
+		const ok = await refresh(mine);
+		if (mine !== session.current) return;
+		setLoading(false);
+		if (!ok) notify({ text: 'Не удалось получить данные персонажа', icon: 'error' });
+	};
+	useEffect(() => {
+		if (!open) return;
+		const mine = nextSession();
+		stop.current = false;
+		live.current.data = null;
+		live.current.killed = new Map();
+		// Состояние меняется только после ответа игры (после await), не синхронно: линтер этого не видит
+		// oxlint-disable-next-line react/set-state-in-effect
+		void firstLoad(mine);
+		// Окно закрыто: работа этого открытия дальше ничего не пишет
+		return () => void nextSession();
+		// Открытие окна — единственное, что начинает всё заново
 	}, [open]);
 
 	// Пока бот работает, закрытие окна и вкладки просят подтверждения; согласие закрыть окно останавливает бота (он дорабатывает текущего босса)
@@ -265,7 +275,16 @@ export function KillAllModal({ open }: { open: boolean }) {
 	);
 
 	return (
-		<ClassicModal id="killAll" open={open} onClose={backModal} title="Список боя" footer={footer} top={<Cards ready={!!data} fights={fights} energy={energy} />} topHeight={82}>
+		<ClassicModal
+			id="killAll"
+			open={open}
+			onClose={backModal}
+			title="Список боя"
+			footer={footer}
+			fill
+			top={<Cards ready={!!data} fights={fights} energy={energy} />}
+			topHeight={82}
+		>
 			<div className={killStyles.listBody}>
 				{data === null || !bosses ? (
 					<section>
@@ -282,7 +301,7 @@ export function KillAllModal({ open }: { open: boolean }) {
 						))}
 					</section>
 				) : (
-					<Placeholder icon={<Icon56UsersOutline />} title="Некого убивать">
+					<Placeholder fill title="Список пуст" style={{ padding: 24 }}>
 						Добавьте боссов в избранное: в список попадают те, кого вы убьёте один и на кого хватает энергии
 					</Placeholder>
 				)}

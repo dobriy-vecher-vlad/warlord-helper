@@ -77,4 +77,32 @@ describe('очередь запросов к игровому серверу', (
 		await next;
 		expect(sent).toEqual(['stuck', 'next']);
 	});
+	it('зависший ответ обрывается через 14 секунд и даёт null, а не ждёт вечно', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(
+				(_url: string, init?: { signal?: AbortSignal }) =>
+					new Promise((_resolve, reject) => init?.signal?.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')))),
+			),
+		);
+		const { getData } = await import('./http');
+		const result = getData(link('hang'));
+		await vi.advanceTimersByTimeAsync(13_900);
+		let settled = false;
+		void result.then(() => (settled = true));
+		await vi.advanceTimersByTimeAsync(0);
+		expect(settled).toBe(false);
+		await vi.advanceTimersByTimeAsync(200);
+		expect(await result).toBeNull();
+	});
+
+	it('ответ «слишком часто» повторяется не бесконечно: после десяти повторов запрос сдаётся и даёт null', async () => {
+		const fetchMock = vi.fn(async () => ({ status: 200, text: async () => 'Err. More than 1 request per second' }));
+		vi.stubGlobal('fetch', fetchMock);
+		const { getData } = await import('./http');
+		const result = getData(link('busy'));
+		await vi.advanceTimersByTimeAsync(30_000);
+		expect(await result).toBeNull();
+		expect(fetchMock).toHaveBeenCalledTimes(11);
+	});
 });

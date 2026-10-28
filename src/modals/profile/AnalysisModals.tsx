@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-import bridge from '@vkontakte/vk-bridge';
-import { ModalCard } from '@vkontakte/vkui';
-import { Icon24DoneOutline, Icon24ShareOutline } from '@vkontakte/icons';
+import { Button, Div } from '@vkontakte/vkui';
 import { getGame } from '../../api/game';
 import sadFace from '../../assets/sadFace.svg';
-import { Button } from '../../components/form/Form';
+import { cropStyle } from '../../components/BorderedImage';
 import { Skeleton } from '../../components/Skeleton';
 import { PATH_IMAGES } from '../../config';
 import { ARENA_SEASONS, OTHER_EVENTS } from '../../lib/data';
@@ -15,7 +13,8 @@ import { DEFAULT_AUTHORIZATION } from '../../profile/constants';
 import { currentProfile, getSession, useSession } from '../../profile/session';
 import { backModal } from '../../store/modal';
 import styles from './AnalysisModals.module.css';
-import { useModalMotion } from '../useModalMotion';
+import { ClassicModal } from '../ClassicModal';
+import { useOnChange } from '../../lib/useOnChange';
 
 type Kind = 'arenaItems' | 'eventsItems';
 
@@ -27,21 +26,18 @@ interface Result {
 	items: (Item & { is: boolean })[] | null;
 	/** Сколько событий активировано (для ивентов) */
 	events: number;
-	/** Дней в игре */
-	days: number;
 }
 
 const ITEM_FORMS = ['предмет', 'предмета', 'предметов'] as const;
 const EVENT_FORMS = ['событие', 'события', 'событий'] as const;
 const SERVER_NAMES = ['Эрмун', 'Антарес'];
-const PHOTOS = ['138604865_457240013', '138604865_457240014', '138604865_457240015', '138604865_457240016'];
 /** Всего событий во всех ивентах */
 const EVENTS_TOTAL = OTHER_EVENTS.reduce((sum, event) => sum + event.items.length, 0);
 
 const byIndex = (index: number) => ITEMS[index];
 
-/** Предметы персонажа (игровые id) выбранного профиля и дни в игре; null — профиля нет на сервере. */
-async function loadOwned(): Promise<{ owned: number[]; days: number } | null> {
+/** Предметы персонажа (игровые id) выбранного профиля; null — профиля нет на сервере. */
+async function loadOwned(): Promise<number[] | null> {
 	const profile = currentProfile();
 	const user = getSession().user;
 	if (!profile?.id) return null;
@@ -52,7 +48,7 @@ async function loadOwned(): Promise<{ owned: number[]; days: number } | null> {
 		const game = await getGame(server, { i: 39, t: hub._uid }, DEFAULT_AUTHORIZATION[server - 1] ?? {});
 		const list = Array.isArray(game?.i) ? game.i : game?.i ? [game.i] : [];
 		if (!list.length) return null;
-		return { owned: list.map((item: { _id: string }) => Number(item._id)), days: Math.round(Number(game.u._bd) / 60 / 60 / 24) };
+		return list.map((item: { _id: string }) => Number(item._id));
 	} catch {
 		return null;
 	}
@@ -60,13 +56,13 @@ async function loadOwned(): Promise<{ owned: number[]; days: number } | null> {
 
 async function loadResult(kind: Kind): Promise<Result> {
 	const data = await loadOwned();
-	if (!data) return { items: null, events: 0, days: 0 };
-	const has = (item: Item) => data.owned.includes(item.id);
+	if (!data) return { items: null, events: 0 };
+	const has = (item: Item) => data.includes(item.id);
 	if (kind === 'arenaItems') {
 		const items = ARENA_SEASONS.flatMap((season) => season.month.flatMap((month) => month.items.map((ref) => byIndex(ref.id))))
 			.filter(present)
 			.map((item) => ({ ...item, is: has(item) }));
-		return { items, events: 0, days: data.days };
+		return { items, events: 0 };
 	}
 	let events = 0;
 	const items: Result['items'] = [];
@@ -80,7 +76,7 @@ async function loadResult(kind: Kind): Promise<Result> {
 			if (current.some((item) => item.is)) events++;
 		}
 	}
-	return { items, events, days: data.days };
+	return { items, events };
 }
 
 /** Заглушка на время загрузки (как в старом окне). */
@@ -92,11 +88,7 @@ function Loading() {
 			<Skeleton width={100} height={25} style={{ marginTop: 15 }} />
 			<Skeleton width={240} height={20} style={{ marginTop: 12 }} />
 			<Skeleton width={260} height={25} style={{ marginTop: 24 }} />
-			<Skeleton height={126} borderRadius={0} style={{ marginTop: 18 }} />
-			<div className={styles.loadingButtons}>
-				<Skeleton width={150} height="var(--button-height)" style={{ marginRight: 12 }} />
-				<Skeleton width={64} height="var(--button-height)" />
-			</div>
+			<Skeleton height={126} borderRadius={0} style={{ marginTop: 18, marginBottom: 12 }} />
 		</div>
 	);
 }
@@ -107,7 +99,9 @@ function Missed({ items }: { items: Item[] }) {
 		const item = items[index];
 		return (
 			<div key={index} className={styles.cell}>
-				<span className={`${styles.avatar} ${item ? '' : styles.empty}`}>{item && <img src={`${PATH_IMAGES}${item.icon}`} alt="" />}</span>
+				<span className={`${styles.avatar} ${item ? 'ImageCrop' : styles.empty}`} style={item && cropStyle(item.icon)}>
+					{item && <img src={`${PATH_IMAGES}${item.icon}`} alt="" />}
+				</span>
 			</div>
 		);
 	};
@@ -121,18 +115,18 @@ function Missed({ items }: { items: Item[] }) {
 
 /**
  * «Анализ сезонов» и «Анализ ивентов»: сколько предметов арены (событий) собрал выбранный профиль.
- * «Готово» запоминает, что окно показано (promo_2 / promo_4), и при запуске оно больше не открывается.
+ * Любое закрытие (кнопка «Хорошо», крестик, свайп, тап по фону) запоминает, что окно показано (promo_2 / promo_4), и при запуске оно больше не открывается.
  */
 function AnalysisModal({ id, open }: { id: Kind; open: boolean }) {
-	const motion = useModalMotion();
 	const ready = useSession((s) => s.status === 'ready');
 	const server = useSession((s) => currentProfile(s)?.server ?? 1);
 	const [result, setResult] = useState<Result | null>(null);
 
+	// Каждое открытие заново: прежний результат не показывается
+	useOnChange([id, open, ready], () => setResult(null));
 	useEffect(() => {
 		if (!open || !ready) return;
 		let alive = true;
-		setResult(null);
 		void loadResult(id).then((data) => alive && setResult(data));
 		return () => {
 			alive = false;
@@ -155,25 +149,13 @@ function AnalysisModal({ id, open }: { id: Kind; open: boolean }) {
 				<img src={sadFace} alt="" />
 				<div className={styles.errorTitle}>Произошла ошибка</div>
 				<div className={styles.errorText}>Вашего профиля нет на сервере {serverName}</div>
-				<Button mode="tertiary" onClick={done}>
-					<span className={styles.red}>Закрыть</span>
-				</Button>
 			</div>
 		);
 	} else {
-		const { items, events, days } = result;
+		const { items, events } = result;
 		const owned = items.filter((item) => item.is).length;
 		const missed = items.filter((item) => !item.is);
 		const arena = id === 'arenaItems';
-		const share = () =>
-			bridge
-				.send('VKWebAppShowWallPostBox', {
-					message: arena
-						? `Я в королевстве ${serverName} уже ${days} дней!\nЗа это время я собрал ${owned} из ${items.length} предметов арены. А сколько у тебя?`
-						: `Я в королевстве ${serverName} уже ${days} дней!\nЗа это время я принял участие в ${events} из ${EVENTS_TOTAL} ивентов. А сколько у тебя?`,
-					attachments: `photo-${PHOTOS[Math.floor(Math.random() * PHOTOS.length)]},https://vk.com/app7787242#promo=${id}`,
-				})
-				.catch(() => undefined);
 		content = (
 			<div className={styles.body}>
 				<div className={styles.title}>{arena ? 'Вы получили' : 'Вы активировали'}</div>
@@ -181,26 +163,35 @@ function AnalysisModal({ id, open }: { id: Kind; open: boolean }) {
 				<div className={styles.countLabel}>{arena ? numberForm(owned, ITEM_FORMS) : numberForm(events, EVENT_FORMS)}</div>
 				<div className={styles.text}>{arena ? `— это ${Math.floor((owned * 100) / items.length)}% от общего арсенала` : `и собрали ${owned} ${numberForm(owned, ITEM_FORMS)}`}</div>
 				<div className={styles.subtitle}>
-					{missed.length === 0
-						? 'Поздравляем!'
-						: `Вы упустили ${missed.length} ${numberForm(missed.length, ITEM_FORMS)}` +
-							(arena ? '' : ` и ${EVENTS_TOTAL - events} ${numberForm(EVENTS_TOTAL - events, EVENT_FORMS)}`)}
+					{missed.length === 0 ? (
+						'Поздравляем!'
+					) : (
+						<>
+							Вы упустили {missed.length} {numberForm(missed.length, ITEM_FORMS)}
+							{!arena && (
+								<>
+									<br />и {EVENTS_TOTAL - events} {numberForm(EVENTS_TOTAL - events, EVENT_FORMS)}
+								</>
+							)}
+						</>
+					)}
 				</div>
 				<Missed items={missed} />
-				<div className={styles.buttons}>
-					<Button mode="destructive" className={styles.share} before={<Icon24ShareOutline />} onClick={share}>
-						Поделиться
-					</Button>
-					<Button mode="secondary" before={<Icon24DoneOutline />} onClick={done} />
-				</div>
 			</div>
 		);
 	}
 
+	const footer = (
+		<Div>
+			<Button size="l" stretched onClick={done}>
+				Хорошо
+			</Button>
+		</Div>
+	);
 	return (
-		<ModalCard id={id} open={open} onClose={backModal} className={styles.card} {...motion}>
+		<ClassicModal id={id} open={open} onClose={done} footer={footer}>
 			{content}
-		</ModalCard>
+		</ClassicModal>
 	);
 }
 

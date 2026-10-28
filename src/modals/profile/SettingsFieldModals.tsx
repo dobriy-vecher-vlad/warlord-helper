@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Spacing } from '@vkontakte/vkui';
 import { getGame } from '../../api/game';
 import { SERVERS, findServer } from '../../api/servers';
@@ -8,14 +8,15 @@ import { backModal } from '../../store/modal';
 import { ClassicModal, ModalBack, ModalSubmit } from '../ClassicModal';
 import styles from './SettingsModals.module.css';
 import { ArticleCell } from './settingsShared';
+import { useOnChange } from '../../lib/useOnChange';
 
 /** Идентификатор профиля (число). */
 export function IdModal({ open }: { open: boolean }) {
 	const id = useSession((s) => s.draft.id);
 	const [key, setKey] = useState<string>('');
-	useEffect(() => {
+	useOnChange([open, id], () => {
 		if (open) setKey(id ? String(id) : '');
-	}, [open, id]);
+	});
 	const valid = Number(key) != 0;
 	const change = (value: string) => {
 		// Как в старом: число от 1 до 999999999999, пустое поле разрешено
@@ -62,12 +63,12 @@ export function LoginModal({ open }: { open: boolean }) {
 	const [key, setKey] = useState('');
 	const [loading, setLoading] = useState(false);
 	const [servers, setServers] = useState<{ uid: string; name: string }[] | string | null>(null);
-	useEffect(() => {
+	useOnChange([open, login], () => {
 		if (open) {
 			setKey(login ? String(login) : '');
 			setServers(null);
 		}
-	}, [open, login]);
+	});
 	const value = key.trim();
 	const server = serverId ? findServer(serverId) : null;
 
@@ -139,9 +140,9 @@ export function LoginModal({ open }: { open: boolean }) {
 export function PasswordModal({ open }: { open: boolean }) {
 	const auth = useSession((s) => s.draft.auth);
 	const [key, setKey] = useState('');
-	useEffect(() => {
+	useOnChange([open, auth], () => {
 		if (open) setKey(auth ?? '');
-	}, [open, auth]);
+	});
 	const value = key.trim();
 	return (
 		<ClassicModal
@@ -179,9 +180,9 @@ export function PasswordModal({ open }: { open: boolean }) {
 export function ServerModal({ open }: { open: boolean }) {
 	const server = useSession((s) => s.draft.server);
 	const [key, setKey] = useState(0);
-	useEffect(() => {
+	useOnChange([open, server], () => {
 		if (open) setKey(server ?? 0);
-	}, [open, server]);
+	});
 	const valid = Number(key) != 0;
 	return (
 		<ClassicModal

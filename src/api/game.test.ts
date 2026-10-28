@@ -89,7 +89,7 @@ describe('getData', () => {
 		const fetchMock = vi.fn().mockResolvedValueOnce(response('', 500)).mockResolvedValueOnce(response('{"a":2}'));
 		vi.stubGlobal('fetch', fetchMock);
 		expect(await getData('https://tmp1-fb.geronimo.su/g.php?a=1')).toEqual({ a: 2 });
-		expect(fetchMock.mock.calls[1]).toEqual(['https://tmp1-fb.geronimo.su/g.php?a=1']);
+		expect(fetchMock.mock.calls[1]).toEqual(['https://tmp1-fb.geronimo.su/g.php?a=1', { signal: expect.any(AbortSignal) }]);
 	});
 	it('другие хосты — обычный GET', async () => {
 		const fetchMock = vi.fn().mockResolvedValue(response('{"a":3}'));

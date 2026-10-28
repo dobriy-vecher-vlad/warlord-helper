@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useIsDesktop } from '../../app/layout';
+import { useOnChange } from '../../lib/useOnChange';
 
 /**
  * Порционная подгрузка списка по мере прокрутки (InfiniteScroll в старом приложении): сколько элементов показано,
@@ -12,10 +13,16 @@ export function useLazyCount(total: number, step: number, resetKey: unknown) {
 	const scroll = useRef<HTMLDivElement>(null);
 	const sentinel = useRef<HTMLDivElement>(null);
 
+	// Новый список (поиск, фильтр): показ с начала и прокрутка вверх
+	useOnChange([resetKey], () => setCount(step));
+	// Раскладка читается через ref, чтобы смена ширины окна сама прокрутку не вызывала
+	const desktop = useRef(isDesktop);
 	useEffect(() => {
-		setCount(step);
+		desktop.current = isDesktop;
+	});
+	useEffect(() => {
 		scroll.current?.scrollTo({ top: 0 });
-		if (!isDesktop) document.documentElement.scrollTo({ top: 0 });
+		if (!desktop.current) document.documentElement.scrollTo({ top: 0 });
 	}, [resetKey]);
 
 	useEffect(() => {

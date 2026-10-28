@@ -64,7 +64,6 @@ export const MAP_DESCRIPTIONS = {
 							label={`${count} ${numberForm(count, data.sign)}`}
 							text={`${numberSpaces(resources)} ${numberForm(resources, ['ресурс', 'ресурса', 'ресурсов'])}`}
 							avatar={data.icon}
-							avatarFix
 							counter={index + 1}
 						/>
 					))}
@@ -146,7 +145,7 @@ export const MAP_DESCRIPTIONS = {
 						<Divider />
 						<CardGrid>
 							{data.bosses.map((boss) => (
-								<DescriptionCard key={boss} label={Bosses[boss]?.name} text={Bosses[boss]?.description} avatar={Bosses[boss]?.icon} avatarFix />
+								<DescriptionCard key={boss} label={Bosses[boss]?.name} text={Bosses[boss]?.description} avatar={Bosses[boss]?.icon} />
 							))}
 						</CardGrid>
 					</>

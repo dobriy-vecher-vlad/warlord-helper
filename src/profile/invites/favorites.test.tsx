@@ -1,8 +1,11 @@
+import { useEffect } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../lib/storage', () => ({ storageGet: vi.fn(), storageSet: vi.fn(async () => true) }));
+vi.mock('../../lib/storage', () => ({ storageRead: vi.fn(), storageSet: vi.fn(async () => true) }));
+vi.mock('../../app/notify', () => ({ notify: vi.fn() }));
 
-import { storageGet, storageSet } from '../../lib/storage';
+import { notify } from '../../app/notify';
+import { storageRead, storageSet } from '../../lib/storage';
 import { flush, installBrowserStubs, render } from '../../test/harness';
 import { RECENT_LIMIT, bossListsKey, loadBossLists, parseBossLists, rememberRecent, toggleFavorite, useBossLists } from './favorites';
 
@@ -20,7 +23,8 @@ describe('parseBossLists', () => {
 
 describe('избранное и последние', () => {
 	beforeEach(() => {
-		vi.mocked(storageGet).mockReset().mockResolvedValue(null);
+		vi.mocked(storageRead).mockReset().mockResolvedValue({ ok: true, value: null });
+		vi.mocked(notify).mockClear();
 		vi.mocked(storageSet).mockClear();
 	});
 
@@ -45,7 +49,7 @@ describe('избранное и последние', () => {
 	it('списки читаются из хранилища один раз', async () => {
 		await loadBossLists(bot);
 		await loadBossLists(bot);
-		expect(storageGet).toHaveBeenCalledTimes(0);
+		expect(storageRead).toHaveBeenCalledTimes(0);
 	});
 
 	it('при смене профиля туда и обратно у каждого остаются свои списки', async () => {
@@ -54,7 +58,11 @@ describe('избранное и последние', () => {
 		await toggleFavorite(other, 32);
 		const seen: Record<string, readonly number[]> = {};
 		const Probe = ({ name, owner }: { name: string; owner: typeof bot }) => {
-			seen[name] = useBossLists(owner).favorites;
+			const favorites = useBossLists(owner).favorites;
+			// Тест складывает значения для проверки после отрисовки (в самой отрисовке ничего не меняется)
+			useEffect(() => {
+				seen[name] = favorites;
+			});
 			return null;
 		};
 		await render(
@@ -67,5 +75,23 @@ describe('избранное и последние', () => {
 		expect(seen.first).toContain(31);
 		expect(seen.first).not.toContain(32);
 		expect(seen.second).toEqual([32]);
+	});
+	it('сбой чтения не затирает сохранённое: изменение отклоняется, ничего не записывается, загрузка повторится', async () => {
+		const lost = { server: 1, auth: { login: 77, password: 'k' } };
+		vi.mocked(storageRead).mockResolvedValueOnce({ ok: false, value: null });
+		expect(await toggleFavorite(lost, 10)).toBe(false);
+		expect(storageSet).not.toHaveBeenCalled();
+		expect(notify).toHaveBeenCalledWith(expect.objectContaining({ icon: 'error' }));
+		// Хранилище снова отвечает: списки читаются заново и меняются поверх настоящих, а не пустых
+		vi.mocked(storageRead).mockResolvedValue({ ok: true, value: '{"f":[5],"r":[]}' });
+		expect(await toggleFavorite(lost, 10)).toBe(true);
+		expect(vi.mocked(storageSet).mock.calls.at(-1)).toEqual([bossListsKey(lost), '{"f":[5,10],"r":[]}']);
+	});
+
+	it('хранилище не приняло запись — человек узнаёт об этом', async () => {
+		const sad = { server: 1, auth: { login: 78, password: 'k' } };
+		vi.mocked(storageSet).mockResolvedValueOnce(false);
+		expect(await toggleFavorite(sad, 1)).toBe(false);
+		expect(notify).toHaveBeenCalledWith(expect.objectContaining({ icon: 'error', text: expect.stringContaining('сохранить') }));
 	});
 });

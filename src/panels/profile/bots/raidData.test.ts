@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { fightReport, neededEnergy, simulateBossFight, tierOn, type FightInput, type RaidData, type Settings } from './raidData';
+import { neededEnergy, simulateBossFight, tierOn, type FightInput, type RaidData, type Settings } from './raidData';
 
 const input: FightInput = { hp: 1000, dmg: 10, myHp: 10000, myDmg: 100, skill: 0, lightning: 0, fire: 0, useLightning: false, useFire: false };
 
@@ -35,11 +35,17 @@ describe('simulateBossFight', () => {
 		expect(fight.lightningDmg).toBe(150);
 		expect(fight.fireDmg).toBe(300);
 	});
+});
 
-	it('отчёт содержит все строки, числа с разделителем тысяч', () => {
-		const lines = fightReport(simulateBossFight({ ...input, hp: 12345 }));
-		expect(lines).toHaveLength(15);
-		expect(lines[0]).toBe('Атака босса: 10');
+describe('simulateBossFight: защита от зависания', () => {
+	it('нулевой урон у обеих сторон не зацикливает расчёт: бой считается неоконченным, оба живы', () => {
+		const fight = simulateBossFight({ hp: 1000, dmg: 0, myHp: 500, myDmg: 0, skill: 0, lightning: 0, fire: 0, useLightning: false, useFire: false });
+		expect(fight.hp).toBeGreaterThan(0);
+		expect(fight.myHp).toBeGreaterThan(0);
+	});
+	it('данные без чисел (NaN) тоже завершаются', () => {
+		const fight = simulateBossFight({ hp: NaN, dmg: NaN, myHp: NaN, myDmg: NaN, skill: NaN, lightning: 0, fire: 0, useLightning: false, useFire: false });
+		expect(Number.isNaN(fight.hp)).toBe(true);
 	});
 });
 

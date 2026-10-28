@@ -69,6 +69,7 @@ function fightKey(fields: Record<string, string | number>) {
 export function ArenaBotPanel({ id }: { id: string }) {
 	const isDesktop = useIsDesktop();
 	const log = useBotLog();
+	const { text: logText } = log;
 	// Запуск и остановка общие с ботом рейдов; после остановки данные обновляются (reload объявлен ниже)
 	const { flags, running, starting, pausing, setPausing, pause, beginStart, abortStart, markStarted, runLoop } = useBotRunner({
 		onPause: () => log.text('Бот поставлен на паузу, завершаем последнее действие'),
@@ -85,8 +86,11 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		settings: DEFAULT_SETTINGS,
 		tryLimit: 20,
 	});
-	run.current.settings = settings;
-	run.current.tryLimit = tryLimit;
+	// Циклы бота читают настройки из ref: он обновляется после каждой отрисовки, а не во время неё
+	useEffect(() => {
+		run.current.settings = settings;
+		run.current.tryLimit = tryLimit;
+	});
 
 	const update = (patch: Player) => {
 		run.current.player = { ...run.current.player, ...patch };
@@ -101,7 +105,8 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		if (!profile || !flags.mounted) return null;
 		const arena = await getGame(bot.server, { i: 9, t: 1 }, bot.auth);
 		if (!arena?.my_rating) {
-			openPanel(null, { force: true });
+			// Страница уже открыта и данные есть (обновление после остановки): сбой не выбрасывает с неё, можно повторить
+			if (!run.current.player) openPanel(null, { force: true });
 			notify({ text: 'Ошибка при получении данных арены', icon: 'error' });
 			return null;
 		}
@@ -114,11 +119,11 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		async (message = true) => {
 			setLoading(true);
 			const bot = await load();
-			if (bot && message) log.text('Данные обновлены');
+			if (bot && message) logText('Данные обновлены');
 			setLoading(false);
 			return bot;
 		},
-		[load, log.text],
+		[load, logText, setLoading],
 	);
 
 	useEffect(() => {

@@ -2,6 +2,7 @@ import { Tappable } from '@vkontakte/vkui';
 import { Icon24CheckCircleOutline, Icon24CubeBoxOutline, Icon24InfoCircleOutline, Icon24StickerOutline, Icon24TshirtOutline } from '@vkontakte/icons';
 import { PATH_IMAGES } from '../../config';
 import { BorderedImage } from '../BorderedImage';
+import { largeImage } from '../../lib/largeImage';
 import { numberSpaces } from '../../lib/format';
 import { itemAt, tooltipText, type ItemRef } from '../../lib/items';
 import { useOwned } from '../../profile/owned';
@@ -44,7 +45,7 @@ export function ItemCell({ data, full = false }: ItemCellProps) {
 	const content = (
 		<>
 			<div className={styles.main}>
-				<BorderedImage src={item.icon} className={styles.avatar} />
+				<BorderedImage src={largeImage(item.icon)} className={styles.avatar} />
 				<div className={styles.body}>
 					<div className={styles.title}>{item.title}</div>
 					<div className={styles.stats}>

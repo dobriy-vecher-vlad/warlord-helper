@@ -35,7 +35,13 @@ export function fileDate(daysAgo: number) {
 	return `${year}.${month}.${day}`;
 }
 
-const sum = (values: number[]) => values.reduce((a, b) => a + b, 0);
+/** Начало дня файла статистики в мс. Строка «2026.10.19» разбирается вручную: `new Date` понимает такой формат не во всех браузерах. */
+export function fileTime(time: string) {
+	const [year, month, day] = time.split('.').map(Number);
+	return Date.UTC(year!, month! - 1, day!);
+}
+
+const sum = (values: number[] = []) => values.reduce((a, b) => a + b, 0);
 
 /** Игрок в файле статистики рейтинга. */
 interface UserStat {
@@ -134,7 +140,9 @@ function guildBlocks(list: GuildStat[], now: number): RatingBlock[] {
 		items: list.sort((a, b) => order(b) - order(a)).map((guild) => row(guild, show(guild))),
 	});
 	const users = (guild: GuildStat, field: 'dmg' | 'hp' | 'lvl') => sum(guild.users.map((user) => user[field]));
-	const attendance = (guild: GuildStat) => Math.ceil(100 / (guild.users.length / guild.users.filter((user) => (user.date[1] ?? Infinity) < 86400 * 7).length));
+	// В гильдии без участников делить не на что: посещаемость 0%, а не NaN (он ломает сортировку)
+	const attendance = (guild: GuildStat) =>
+		guild.users.length ? Math.ceil((100 * guild.users.filter((user) => (user.date[1] ?? Infinity) < 86400 * 7).length) / guild.users.length) : 0;
 	return [
 		block('Уровень', 'навыки и постройки', (guild) => guild.lvl),
 		block('Стража', 'атака и здоровье', (guild) => sum(guild.guard)),
@@ -169,15 +177,20 @@ export async function loadRating(tab: RatingTab, server: number): Promise<Rating
 		const time = fileDate(day);
 		const data = await getData(`https://warlord.website.yandexcloud.net/data/${folder}/${realm}/${time}.json`);
 		if (!Array.isArray(data)) continue;
-		const now = new Date(time).getTime();
-		const blocks = tab === 1 ? profileBlocks(data) : guildBlocks(data, now);
-		// Поиск идёт в порядке после всех сортировок (как по rating.items в старом приложении)
-		const search = data.map((row: { id: number; vkId?: number; name: string }) =>
-			tab === 1 ? { id: Number(row.vkId), vkId: row.vkId, name: row.name } : { id: row.id, name: row.name },
-		);
-		const result = { time, count: data.length, blocks, search };
-		cache.set(key, result);
-		return result;
+		try {
+			const now = fileTime(time);
+			const blocks = tab === 1 ? profileBlocks(data) : guildBlocks(data, now);
+			// Поиск идёт в порядке после всех сортировок (как по rating.items в старом приложении)
+			const search = data.map((row: { id: number; vkId?: number; name: string }) =>
+				tab === 1 ? { id: Number(row.vkId), vkId: row.vkId, name: row.name } : { id: row.id, name: row.name },
+			);
+			const result = { time, count: data.length, blocks, search };
+			cache.set(key, result);
+			return result;
+		} catch {
+			// Файл за этот день повреждён (нет нужных полей): берём предыдущий, а не оставляем страницу на заставке
+			continue;
+		}
 	}
 	return null;
 }

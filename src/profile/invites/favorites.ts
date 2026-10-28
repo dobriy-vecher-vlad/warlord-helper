@@ -1,4 +1,5 @@
-import { storageGet, storageSet } from '../../lib/storage';
+import { notify } from '../../app/notify';
+import { storageRead, storageSet } from '../../lib/storage';
 import { createStore, useStore } from '../../store/createStore';
 import type { BotAuth } from '../bots/common';
 
@@ -40,15 +41,23 @@ const save = (bot: BotAuth, lists: BossLists) =>
 	storageSet(bossListsKey(bot), lists.favorites.length || lists.recent.length ? JSON.stringify({ f: lists.favorites, r: lists.recent }) : '');
 
 /** Загрузки по профилям: списки читаются один раз, повторные вызовы и изменения до ответа ждут её. */
-const loading = new Map<string, Promise<void>>();
+const loading = new Map<string, Promise<boolean>>();
 
-/** Прочитать списки профиля из хранилища (один раз за сеанс). */
-export function loadBossLists(bot: BotAuth): Promise<void> {
+/**
+ * Прочитать списки профиля из хранилища (один раз за сеанс). false — прочитать не удалось: пустые списки не подставляются
+ * (иначе следующее нажатие на звезду записало бы только себя поверх сохранённых), загрузка не запоминается и повторится.
+ */
+export function loadBossLists(bot: BotAuth): Promise<boolean> {
 	const owner = ownerOf(bot);
 	let promise = loading.get(owner);
 	if (!promise) {
-		promise = storageGet(bossListsKey(bot)).then((raw) => {
-			setLists(owner, parseBossLists(raw));
+		promise = storageRead(bossListsKey(bot)).then(({ ok, value }) => {
+			if (!ok) {
+				loading.delete(owner);
+				return false;
+			}
+			setLists(owner, parseBossLists(value));
+			return true;
 		});
 		loading.set(owner, promise);
 	}
@@ -58,13 +67,20 @@ export function loadBossLists(bot: BotAuth): Promise<void> {
 /** Записи идут одна за другой: быстрые нажатия не должны записаться в обратном порядке и оставить старое значение. */
 let saving: Promise<unknown> = Promise.resolve();
 
-async function change(bot: BotAuth, update: (lists: BossLists) => BossLists) {
-	await loadBossLists(bot);
+/** Изменить списки и сохранить. false — не вышло (списки не загрузились или хранилище не приняло запись): человек об этом узнаёт. */
+async function change(bot: BotAuth, update: (lists: BossLists) => BossLists): Promise<boolean> {
+	if (!(await loadBossLists(bot))) {
+		notify({ text: 'Не удалось загрузить избранное, повторите позже', icon: 'error' });
+		return false;
+	}
 	const owner = ownerOf(bot);
 	const lists = update(store.get().byOwner[owner] ?? EMPTY);
 	setLists(owner, lists);
-	saving = saving.then(() => save(bot, lists)).catch(() => undefined);
-	await saving;
+	const written = saving.then(() => save(bot, lists)).catch(() => false);
+	saving = written;
+	const ok = await written;
+	if (!ok) notify({ text: 'Не удалось сохранить избранное, повторите позже', icon: 'error' });
+	return ok;
 }
 
 /** Поставить или снять звезду. */

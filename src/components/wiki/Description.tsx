@@ -29,21 +29,19 @@ interface DescriptionCardProps {
 	text?: ReactNode;
 	/** Путь картинки внутри media/images/ */
 	avatar?: string;
-	/** Немного увеличить картинку, обрезав края (для иконок с рамкой) */
-	avatarFix?: boolean;
 	/** Порядковый номер слева */
 	counter?: ReactNode;
 }
 
 /** Карточка с иконкой, заголовком и подписью (в старом приложении — DescriptionRichCell). */
-export function DescriptionCard({ label, text, avatar, avatarFix, counter }: DescriptionCardProps) {
+export function DescriptionCard({ label, text, avatar, counter }: DescriptionCardProps) {
 	return (
 		<div className={styles.card}>
 			<div className={styles.richCell}>
 				{(avatar || counter !== undefined) && (
 					<div className={styles.richBefore}>
 						{counter !== undefined && <span className={styles.counter}>{counter}</span>}
-						{avatar && <BorderedImage src={avatar} className={`${styles.avatar} ${avatarFix ? styles.avatarFix : ''}`} />}
+						{avatar && <BorderedImage src={avatar} className={styles.avatar} />}
 					</div>
 				)}
 				<div className={styles.richBody}>

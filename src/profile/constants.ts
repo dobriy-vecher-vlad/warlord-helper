@@ -16,7 +16,7 @@ export const VK_SERVICE_TOKEN = '9942dca8c434ee910f1745a2989105b6b66d712e4f6d96b
 export const ADMIN_VK_ID = 153968505;
 
 /** Заглушка аватара ВК. */
-export const CAMERA_PHOTO = 'https://vk.com/images/camera_200.png';
+export const CAMERA_PHOTO = 'https://vk.ru/images/camera_200.png';
 
 /**
  * Служебные игровые профили по серверам (индекс = id сервера − 1): через них читаются чужие данные

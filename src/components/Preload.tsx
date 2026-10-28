@@ -1,22 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Spinner, type SpinnerProps } from '@vkontakte/vkui';
+import { useOnChange } from '../lib/useOnChange';
 
 /** Уже загруженные картинки: при повторном показе спиннер не появляется вовсе. */
 const loaded = new Set<string>();
 
-/** Адреса картинок из CSS-фона вида `url(a) …, url(b) …`. */
-export const backgroundUrls = (background: string) => [...background.matchAll(/url\(([^)]+)\)/g)].flatMap((match) => (match[1] ? [match[1]] : []));
-
 function useImagesLoaded(urls: string[]) {
 	const key = urls.join('\n');
-	const [done, setDone] = useState(() => urls.every((url) => loaded.has(url)));
+	const cached = (list: string[]) => list.every((url) => loaded.has(url));
+	const [done, setDone] = useState(() => cached(urls));
+	// Другие картинки: спиннер возвращается, если их ещё нет в кэше
+	useOnChange([key], () => setDone(cached(key ? key.split('\n') : [])));
 	useEffect(() => {
 		const list = key ? key.split('\n') : [];
-		if (list.every((url) => loaded.has(url))) {
-			setDone(true);
-			return;
-		}
-		setDone(false);
+		if (cached(list)) return;
 		let cancelled = false;
 		let left = list.length;
 		for (const url of list) {
