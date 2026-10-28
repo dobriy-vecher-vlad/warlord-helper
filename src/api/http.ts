@@ -82,10 +82,13 @@ function parseQueryString(search: string): Record<string, string | undefined> {
 	return result;
 }
 
+/** Поля с XML: в теле multipart сервер не раскодирует значение, и закодированный список игроков даёт пустой ответ. */
+const XML_FIELDS = new Set(['sdata', 'f_data']);
+
 function getFormData(link: string): FormData {
 	const body = parseQueryString(new URL(link).search);
 	const data = new FormData();
-	for (const [key, value] of Object.entries(body)) data.append(key, String(value));
+	for (const [key, value] of Object.entries(body)) data.append(key, XML_FIELDS.has(key) ? decodeURIComponent(String(value)) : String(value));
 	return data;
 }
 

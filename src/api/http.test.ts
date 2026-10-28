@@ -105,4 +105,22 @@ describe('очередь запросов к игровому серверу', (
 		expect(await result).toBeNull();
 		expect(fetchMock).toHaveBeenCalledTimes(11);
 	});
+
+	it('XML-поля (список игроков) уходят в теле раскодированными: сервер сам их не раскодирует', async () => {
+		let body: FormData | undefined;
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (_url: string, init?: { body?: FormData }) => {
+				body = init?.body;
+				return { status: 200, text: async () => '<data/>' };
+			}),
+		);
+		const { getData } = await import('./http');
+		const xml = '<data><u>1</u><u>2</u></data>';
+		const query = new URLSearchParams({ i: '67', sdata: xml, f_data: xml, t: '33' }).toString();
+		await getData(`https://tmp1-fb.geronimo.su/warlord_vk/game.php?${query}`);
+		expect(body?.get('sdata')).toBe(xml);
+		expect(body?.get('f_data')).toBe(xml);
+		expect(body?.get('t')).toBe('33');
+	});
 });
