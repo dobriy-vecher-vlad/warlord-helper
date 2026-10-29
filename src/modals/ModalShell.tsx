@@ -5,6 +5,7 @@ import { cropStyle, hasBakedBorder } from '../components/BorderedImage';
 import { Divider } from '../components/Divider';
 import { useIsDesktop } from '../app/layout';
 import { PATH_IMAGES } from '../config';
+import { useLargeFile } from '../lib/largeImage';
 import { usePanel, useStory } from '../store/nav';
 import { ModalDismiss } from './ClassicModal';
 import styles from './ModalShell.module.css';
@@ -33,14 +34,14 @@ interface ModalShellProps {
 
 function Picture({ head, size }: { head: ModalHead; size: 'preview' | 'small' }) {
 	const className = size === 'preview' ? styles.preview : styles.small;
+	// Картинка всегда большая, если у файла есть такая версия (см. `useLargeFile`)
+	const { file, onError } = useLargeFile(head.avatarLarge ?? head.avatar ?? '');
 	if (!head.avatar) return null;
-	// Большое превью берёт крупную версию (если есть), маленькая шапка телефона обычную
-	const file = size === 'preview' ? (head.avatarLarge ?? head.avatar) : head.avatar;
 	const src = `${PATH_IMAGES}${file}`;
 	return (
 		<span className={className}>
 			<span className={`${styles.frame} ImageBorder ${hasBakedBorder(file) ? 'ImageCrop' : ''}`} style={cropStyle(file)}>
-				<img className={styles.picture} src={src} alt="" />
+				<img className={styles.picture} src={src} alt="" onError={onError} />
 			</span>
 			{size === 'preview' && <img className={styles.glow} src={src} alt="" />}
 		</span>

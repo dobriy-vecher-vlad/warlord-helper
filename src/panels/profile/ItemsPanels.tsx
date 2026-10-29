@@ -14,13 +14,13 @@ import { LazyGrid } from '../../components/profile/LazyGrid';
 import { ItemCard } from '../../components/wiki/ItemCard';
 import { FilterCards } from '../../components/wiki/ItemFilterBar';
 import { WikiPanel } from '../../components/wiki/WikiPanel';
-import { PATH_IMAGES } from '../../config';
 import Collections from '../../data/collections.json';
 import { numberForm, numberSpaces } from '../../lib/format';
 import { ITEMS, ITEM_TYPES } from '../../lib/items';
 import { useSession, type OwnedItem } from '../../profile/session';
 import styles from './ItemsPanels.module.css';
 import { sectionBase } from '../section';
+import { LargeImg } from '../../components/LargeImg';
 
 /** Типы предметов на вкладках (номер — тип в каталоге, 1 — все). */
 const TYPE_TABS = [{ value: 1, title: 'Все' }, ...ITEM_TYPES] as const;
@@ -137,7 +137,7 @@ function Stones({ stones }: { stones: OwnedItem['stones'] }) {
 		<span className={styles.stones}>
 			{stones.map(([section, level], index) => (
 				<span key={index} className={styles.stone}>
-					{section !== 0 && <img src={`${PATH_IMAGES}stones/${(section - 1) * 7 + level}.png`} alt="" />}
+					{section !== 0 && <LargeImg src={`stones/${(section - 1) * 7 + level}.png`} />}
 				</span>
 			))}
 		</span>

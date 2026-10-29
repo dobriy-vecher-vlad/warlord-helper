@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type CSSProperties, type ImgHTMLAttributes, type ReactNode } from 'react';
 import { PATH_IMAGES } from '../config';
+import { isMissingLarge, markMissingLarge, preferLarge } from '../lib/largeImage';
 
 interface BorderedImageProps {
 	/** Путь картинки внутри media/images/ */
@@ -43,14 +44,17 @@ export function cropStyle(src: string): CSSProperties | undefined {
 
 /** Иконки боссов есть не у всех: у рейдовых, походов и прочих файла нет, вместо него показывается иконка первого босса. */
 const BOSS_ICON = /^bosses\/icons\//;
-const LARGE = /x\.png$/;
+const LARGE = /x\.(png|webp)$/;
 
-/** Что показывать, пока файл не нашёлся: у большой картинки (`…x.png`) обычная, у иконки босса в конце иконка первого босса. */
+/**
+ * Что показывать, пока файл не нашёлся: у большой картинки (`…x.png`) обычная, у иконки босса в конце иконка первого босса.
+ * Большие файлы, которых нет на сервере (у вещей они есть не у всех), пропускаются сразу, без повторного запроса.
+ */
 const candidates = (src: string) => {
 	const list = [src];
-	if (LARGE.test(src)) list.push(src.replace(LARGE, '.png'));
+	if (LARGE.test(src)) list.push(src.replace(LARGE, '.$1'));
 	if (BOSS_ICON.test(src)) list.push(LARGE.test(src) ? 'bosses/icons/1x.png' : 'bosses/icons/1.png');
-	return list;
+	return list.filter((path, index) => index === list.length - 1 || !isMissingLarge(path));
 };
 
 /**
@@ -99,7 +103,9 @@ export function BorderedImage({ src, className, imgProps, children }: BorderedIm
 	// Адреса, для которых файла не нашлось: при смене картинки ошибки прежней не действуют
 	const [failed, setFailed] = useState<{ src: string; paths: string[] }>({ src, paths: [] });
 	const paths = failed.src === src ? failed.paths : [];
-	const shown = candidates(src).find((path) => !paths.includes(path)) ?? src;
+	// В списках и плитках картинка всегда большая (если она есть): на телефоне с плотным экраном обычная была бы мутной
+	const wanted = preferLarge(src);
+	const shown = candidates(wanted).find((path) => !paths.includes(path)) ?? wanted;
 	// Какой файл уже показан: у нового файла обводка снова скрыта до его загрузки
 	const [loadedFor, setLoadedFor] = useState<string | null>(null);
 	const { ref: outerRef, onLoad, onError, ...rest } = (imgProps ?? {}) as ImgProps;
@@ -128,7 +134,8 @@ export function BorderedImage({ src, className, imgProps, children }: BorderedIm
 					onLoad?.(event);
 				}}
 				onError={(event) => {
-					if (candidates(src).some((path) => !paths.includes(path) && path !== shown)) setFailed({ src, paths: [...paths, shown] });
+					if (LARGE.test(shown)) markMissingLarge(shown);
+					if (candidates(wanted).some((path) => !paths.includes(path) && path !== shown)) setFailed({ src, paths: [...paths, shown] });
 					// Файла нет и запасных не осталось: рамка показывается пустой, а не пропадает совсем
 					else setLoadedFor(shown);
 					onError?.(event);

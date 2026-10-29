@@ -1,1 +1,0 @@
-import{y as e}from"./format-VIaatkVT.js";var t=new WeakMap;function n(e){let n=t.get(e);return n||t.set(e,n=new Set(e)),n}function r(){let t=e(e=>e.isDonut),r=n(e(e=>e.items));return{isDonut:t,owns:e=>r.has(e)}}export{r as t};

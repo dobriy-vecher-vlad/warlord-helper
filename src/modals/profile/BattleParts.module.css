@@ -291,12 +291,46 @@
 }
 
 /*
- * Метка SOLO: у чипа VKUI рамка — border шириной 0,33px (на экране в 3 пикселя плотности). Верхняя грань при дробном положении
- * чипа в строке на iPhone пропадает, поэтому рамка рисуется внутренней тенью, как у картинок (ImageBorder).
+ * Метка SOLO: у чипа VKUI рамка — border шириной 0,33px (на экране в 3 пикселя плотности), и на iPhone дробная ширина у верхней
+ * грани пропадает (внутренняя тень так же). Поэтому рамка рисуется отдельным слоем: рамка в 1px, вписанная в размер в ×2 или ×3
+ * больше и сжатая обратно, то есть ровно в один пиксель экрана при любой плотности.
  */
 .soloChip {
 	--vkui--size_border--regular: 0px;
-	box-shadow: inset 0 0 0 var(--thin-border) var(--image_border);
+	position: relative;
+}
+
+.soloChip::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	left: 0;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100%;
+	border: 1px solid var(--image_border);
+	border-radius: 6px;
+	pointer-events: none;
+}
+
+@media (min-resolution: 2dppx) {
+	.soloChip::after {
+		width: 200%;
+		height: 200%;
+		border-radius: 12px;
+		transform: scale(0.5);
+		transform-origin: 0 0;
+	}
+}
+
+@media (min-resolution: 3dppx) {
+	.soloChip::after {
+		width: 300%;
+		height: 300%;
+		border-radius: 18px;
+		transform: scale(0.3333333);
+		transform-origin: 0 0;
+	}
 }
 
 /* Пустое место под метку SOLO (ширина нативного чипа с текстом SOLO) */

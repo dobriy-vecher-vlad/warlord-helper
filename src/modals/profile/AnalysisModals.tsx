@@ -4,7 +4,6 @@ import { getGame } from '../../api/game';
 import sadFace from '../../assets/sadFace.svg';
 import { cropStyle } from '../../components/BorderedImage';
 import { Skeleton } from '../../components/Skeleton';
-import { PATH_IMAGES } from '../../config';
 import { ARENA_SEASONS, OTHER_EVENTS } from '../../lib/data';
 import { numberForm } from '../../lib/format';
 import { ITEMS, type Item } from '../../lib/items';
@@ -15,6 +14,7 @@ import { backModal } from '../../store/modal';
 import styles from './AnalysisModals.module.css';
 import { ClassicModal } from '../ClassicModal';
 import { useOnChange } from '../../lib/useOnChange';
+import { LargeImg } from '../../components/LargeImg';
 
 type Kind = 'arenaItems' | 'eventsItems';
 
@@ -100,7 +100,7 @@ function Missed({ items }: { items: Item[] }) {
 		return (
 			<div key={index} className={styles.cell}>
 				<span className={`${styles.avatar} ${item ? 'ImageCrop' : styles.empty}`} style={item && cropStyle(item.icon)}>
-					{item && <img src={`${PATH_IMAGES}${item.icon}`} alt="" />}
+					{item && <LargeImg src={item.icon} />}
 				</span>
 			</div>
 		);

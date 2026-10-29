@@ -3,6 +3,7 @@ import { Checkbox, IconButton, Radio, Tappable } from '@vkontakte/vkui';
 import { Icon16Clear, Icon28ListOutline } from '@vkontakte/icons';
 import { useIsDesktop } from '../../app/layout';
 import { PATH_IMAGES } from '../../config';
+import { useLargeFile } from '../../lib/largeImage';
 import type { RewardLine } from '../../profile/bots/reward';
 import { logTime } from '../../profile/bots/common';
 import { hasBakedBorder } from '../BorderedImage';
@@ -21,9 +22,12 @@ const imageUrl = (src: string) => (/^(https?:|\/|data:)/.test(src) ? src : `${PA
  * У предметов (`item`) и картинок из папок с вшитой белой обводкой края обрезаются на 3px.
  */
 export function Thumb({ src, size, item = false, className }: { src: string; size: number; item?: boolean; className?: string }) {
+	// Картинки из media/images/ берутся большими, если есть большая версия; ссылки (фото ВК) остаются как есть
+	const absolute = /^(https?:|\/|data:)/.test(src);
+	const { file, onError } = useLargeFile(absolute ? '' : src);
 	return (
 		<span className={`${styles.thumb} ${item || hasBakedBorder(src) ? styles.thumbItem : ''} ${className ?? ''}`} style={{ width: size, height: size }}>
-			<img src={imageUrl(src)} alt="" />
+			<img src={absolute ? src : imageUrl(file)} alt="" onError={onError} />
 		</span>
 	);
 }

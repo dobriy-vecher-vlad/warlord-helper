@@ -3,9 +3,9 @@ import { PanelHeaderBack, PanelHeaderButton } from '@vkontakte/vkui';
 import { Icon28CopyOutline } from '@vkontakte/icons';
 import { useCopyLink } from '../app/copyLink';
 import { useIsDesktop } from '../app/layout';
-import { PATH_IMAGES } from '../config';
 import { Separator } from './Separator';
 import styles from './AppHeader.module.css';
+import { LargeImg } from './LargeImg';
 
 /** Кнопка в шапке (иконка 28px акцентного цвета). */
 export function HeaderButton({ label, onClick, children }: { label: string; onClick: () => void; children: ReactNode }) {
@@ -64,7 +64,7 @@ export function AppHeader({ title, subtitle, avatar, center = false, onBack, bef
 				<div className={styles.content}>
 					{avatar && (
 						<span className={`${styles.avatar} ImageBorder`}>
-							<img src={`${PATH_IMAGES}${avatar}`} alt="" />
+							<LargeImg src={avatar} />
 						</span>
 					)}
 					<div className={styles.text}>
