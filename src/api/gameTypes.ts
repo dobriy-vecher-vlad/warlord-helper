@@ -66,6 +66,8 @@ export interface ProfileResponse {
 	stones?: { s?: OneOrMany<Attrs>; st?: OneOrMany<Attrs> };
 	/** Сколько раз игрок собрал каждую коллекцию: `_id` коллекции и `_cnt` */
 	ucollc?: { i?: OneOrMany<Attrs> };
+	/** Гильдия игрока: `_u4` — навык «Кузница», прибавка к шансу удачного улучшения предмета, % */
+	clan?: Attrs;
 	/** Все боссы игры: `u` — босс (`_rid`, `_rn` — место на карте, `_type`, `_epr` — энергия, `_rq1` — уровень, `_rlmt` — попыток), `r` — награда */
 	npcs?: { npc?: OneOrMany<{ u: Attrs; r?: Attrs }>; /** Сколько раз игрок убил каждого босса: `_id` босса и `_v` убийств */ kill?: OneOrMany<Attrs> };
 }

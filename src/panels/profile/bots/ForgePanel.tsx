@@ -91,9 +91,12 @@ function forgeItems(profile: ProfileResponse | null, tab: string, counts: Record
 			scrolls = Number(upgrades.find((entry) => Number(entry._id) === item.id)?._cnt) || 0;
 			if (lvl >= 5 || scrolls < SCROLLS[lvl]!) continue;
 		}
+		// Прибавка урона и здоровья за уровень (каждая округляется вверх отдельно, как в игре) и по ней цена в каждой валюте
+		const dmg = MULTIPLIER.map((share) => Math.ceil(item.dmg * share || 0));
+		const hp = MULTIPLIER.map((share) => Math.ceil(item.hp * share || 0));
 		const costs = currenciesOf(item).map((currency) => {
 			const multiplier = resourceOf(currency)?.multiplier || 1;
-			return { currency, prices: MULTIPLIER.map((share) => Math.ceil((item.dmg + item.hp) * share) * multiplier) };
+			return { currency, prices: MULTIPLIER.map((_, level) => (dmg[level]! + hp[level]!) * multiplier) };
 		});
 		result.push({
 			index,
@@ -102,8 +105,8 @@ function forgeItems(profile: ProfileResponse | null, tab: string, counts: Record
 			scrolls,
 			costs,
 			blocked: costs.some((cost) => (counts[`m${cost.currency}`] ?? 0) < cost.prices[lvl]!),
-			dmg: MULTIPLIER.map((share) => Math.ceil(item.dmg * share || 0)),
-			hp: MULTIPLIER.map((share) => Math.ceil(item.hp * share || 0)),
+			dmg,
+			hp,
 		});
 	}
 	return result.sort((a, b) => b.lvl - a.lvl);
@@ -112,15 +115,20 @@ function forgeItems(profile: ProfileResponse | null, tab: string, counts: Record
 const sumTo = (values: number[], count: number) => values.slice(0, count).reduce((a, b) => a + b, 0);
 
 /**
- * Футер выбранного предмета: сколько спишется (валюта предмета, заточки или жемчужины), что прибавится к урону и здоровью и шанс.
- * Ячейка без прибавки урона или здоровья не показывается; шанс всегда последний.
+ * Футер выбранного предмета: сначала что прибавится к урону и здоровью (ячейка без прибавки не показывается), затем сколько спишется (валюта
+ * предмета, заточки или жемчужины) и в конце шанс с прибавкой от навыка гильдии.
  */
-function ForgeCounters({ data, counts }: { data: ForgeItem; counts: Record<string, number> }) {
+function ForgeCounters({ data, counts, clanBonus }: { data: ForgeItem; counts: Record<string, number>; clanBonus: number }) {
 	const currentDmg = sumTo(data.dmg, data.lvl);
 	const currentHp = sumTo(data.hp, data.lvl);
 	const pearls = data.lvl >= 5;
+	// Шанс улучшения: базовый по уровню плюс прибавка от навыка гильдии, но не больше 100% (как в клиенте игры)
+	const base = CHANCE[data.lvl]!;
+	const chance = Math.min(100, base + clanBonus);
 	return (
 		<Counters>
+			{data.dmg[data.lvl]! > 0 && <Counter title="Урон" now={data.item.dmg + currentDmg} change={data.dmg[data.lvl]} suffix="DMG" />}
+			{data.hp[data.lvl]! > 0 && <Counter title="Здоровье" now={(data.item.hp + currentHp) * 15} change={data.hp[data.lvl]! * 15} suffix="HP" />}
 			{data.costs.map((cost) => (
 				<Counter
 					key={cost.currency}
@@ -131,9 +139,7 @@ function ForgeCounters({ data, counts }: { data: ForgeItem; counts: Record<strin
 				/>
 			))}
 			<Counter title={pearls ? 'Жемчужины' : 'Заточки'} now={pearls ? counts.m9 : data.scrolls} change={-SCROLLS[data.lvl]!} suffix={<Currency id={pearls ? 9 : 7} />} />
-			{data.dmg[data.lvl]! > 0 && <Counter title="Урон" now={data.item.dmg + currentDmg} change={data.dmg[data.lvl]} suffix="DMG" />}
-			{data.hp[data.lvl]! > 0 && <Counter title="Здоровье" now={(data.item.hp + currentHp) * 15} change={data.hp[data.lvl]! * 15} suffix="HP" />}
-			<Counter title="Шанс" now={`${CHANCE[data.lvl]}%`} />
+			<Counter title="Шанс" now={chance} change={chance - base} suffix="%" tight />
 		</Counters>
 	);
 }
@@ -277,7 +283,7 @@ export function ForgePanel({ id }: { id: string }) {
 					}
 				/>
 				<Divider />
-				<ForgeCounters data={selected} counts={counts} />
+				<ForgeCounters data={selected} counts={counts} clanBonus={Number(profile?.clan?._u4) || 0} />
 			</>
 		);
 	} else {

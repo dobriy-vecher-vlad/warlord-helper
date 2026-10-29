@@ -186,6 +186,35 @@ describe('«Кузница»', () => {
 		expect(notify).not.toHaveBeenCalled();
 	});
 
+	it('шанс в футере с прибавкой от навыка гильдии (не больше 100%), а урон идёт раньше затрат и шанса', async () => {
+		game.mockResolvedValue({ ...profile(1), clan: { _u4: '10' } });
+		await show();
+		await settle();
+		await click(card(rod.title)!);
+		const footer = text();
+		expect(footer).toContain('80%');
+		expect(footer).toContain('10%');
+		expect(footer.indexOf('Урон')).toBeLessThan(footer.indexOf('Заточки'));
+		expect(footer.lastIndexOf('Шанс')).toBeGreaterThan(footer.lastIndexOf('Заточки'));
+	});
+
+	it('цена улучшения как в игре: прибавка урона и здоровья округляется вверх отдельно (Кольцо Вьюги с 3 на 4 уровень: 225 турмалинов и 7 заточек)', async () => {
+		const ring = ITEMS.find((item) => item.title === 'Кольцо Вьюги')!;
+		game.mockResolvedValue({
+			u: { _m1: '0', _m2: '0', _m3: '0', _m4: '0', _m5: '0', _m6: '5000', _m9: '0' },
+			i: [{ _id: String(ring.id), _o: '1', _u: '3' }],
+			iupgrade: { i: [{ _id: String(ring.id), _cnt: '7' }] },
+		});
+		await show();
+		await settle();
+		await click(card(ring.title)!);
+		const footer = text();
+		expect(footer).toContain('225');
+		expect(footer).not.toContain('220');
+		expect(footer).toContain('5 000');
+		expect(button('Улучшить')).toBeTruthy();
+	});
+
 	it('сервер не ответил: заглушка с повтором, а после повтора список', async () => {
 		game.mockResolvedValue(null);
 		await show();

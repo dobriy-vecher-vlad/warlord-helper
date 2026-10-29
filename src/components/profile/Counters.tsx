@@ -18,22 +18,39 @@ export function Counters({ children }: { children: ReactNode }) {
 
 /**
  * Ячейка футера: сверху сколько сейчас, снизу на сколько изменится (плюс зелёным, минус красным); без изменения вторая строка пуста.
+ * `tight` — суффикс вплотную к числу («70%» вместо «70 %»).
  * `now` — число (с пробелами между разрядами), готовая строка или undefined (неизвестно, показывается тире); `suffix` стоит после чисел.
  */
-export function Counter({ title, now, change = 0, suffix }: { title: string; now: number | string | undefined; change?: number; suffix?: ReactNode }) {
+export function Counter({
+	title,
+	now,
+	change = 0,
+	suffix,
+	tight = false,
+}: {
+	title: string;
+	now: number | string | undefined;
+	change?: number;
+	suffix?: ReactNode;
+	tight?: boolean;
+}) {
 	return (
 		<div className={styles.counter}>
 			<div className={styles.counterTitle}>{title}</div>
 			<div className={styles.counterContent}>
 				<div className={styles.counterText}>
-					{now === undefined ? '—' : typeof now === 'number' ? numberSpaces(now) : now} {now !== undefined && suffix}
+					{now === undefined ? '—' : typeof now === 'number' ? numberSpaces(now) : now}
+					{tight ? '' : ' '}
+					{now !== undefined && suffix}
 				</div>
 				<div className={`${styles.counterText} ${change > 0 ? styles.up : change < 0 ? styles.down : ''}`}>
 					{change === 0 ? (
 						' '
 					) : (
 						<>
-							{change > 0 ? <Icon16Add /> : <Icon16Minus />} {numberSpaces(Math.abs(change))} {suffix}
+							{change > 0 ? <Icon16Add /> : <Icon16Minus />} {numberSpaces(Math.abs(change))}
+							{tight ? '' : ' '}
+							{suffix}
 						</>
 					)}
 				</div>
