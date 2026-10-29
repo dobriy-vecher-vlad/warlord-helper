@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ModalPage, PanelHeaderBack, PanelHeaderButton } from '@vkontakte/vkui';
-import { Icon24Dismiss, Icon28DoneOutline } from '@vkontakte/icons';
+import { Icon24Dismiss } from '@vkontakte/icons';
 import { useIsDesktop } from '../app/layout';
 import styles from './ClassicModal.module.css';
 import { useModalPage } from './useModalPage';
@@ -39,12 +39,14 @@ export function ModalHeaderButton({ onClick, disabled, children, label, text }: 
 /** «Назад» в шапке окна. */
 export const ModalBack = ({ onClick }: { onClick: () => void }) => <PanelHeaderBack className={`${styles.button} HeaderBack`} onClick={onClick} hideLabelOnIOS />;
 
-/** «Готово»: на ПК текстом, на телефоне галочкой (PanelHeaderSubmit VKUI 4). */
+/**
+ * «Готово» словом и на ПК, и на телефоне: приложение работает с `platform="ios"`, где `PanelHeaderSubmit` показывает подпись, а не
+ * галочку (так было и в старом приложении).
+ */
 export function ModalSubmit({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
-	const isDesktop = useIsDesktop();
 	return (
-		<ModalHeaderButton onClick={onClick} disabled={disabled} label="Готово" text={isDesktop}>
-			{isDesktop ? 'Готово' : <Icon28DoneOutline />}
+		<ModalHeaderButton onClick={onClick} disabled={disabled} label="Готово" text>
+			Готово
 		</ModalHeaderButton>
 	);
 }
