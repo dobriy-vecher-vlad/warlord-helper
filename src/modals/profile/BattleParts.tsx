@@ -44,7 +44,7 @@ export function Bar({ label, value, percent, onClick }: { label: string; value?:
 
 /** Метка «SOLO»: босса можно убить в одиночку (расчёт с навыками, без свитков и зелий). */
 export const SoloChip = () => (
-	<Chip readOnly removable={false}>
+	<Chip className={styles.soloChip} readOnly removable={false}>
 		SOLO
 	</Chip>
 );

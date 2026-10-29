@@ -122,6 +122,18 @@ html[data-layout='mobile'] .ItemModalContent {
 	object-view-box: inset(var(--crop-y, 7%) var(--crop-x, 7.5%));
 }
 
+/* Без object-view-box (Safari на iPhone) обводка осталась бы на месте: картинку растягиваем от центра ровно настолько, чтобы срез вышел за рамку, а рамка его обрезает */
+@supports not (object-view-box: inset(1%)) {
+	.ImageCrop {
+		overflow: hidden;
+		isolation: isolate;
+	}
+
+	.ImageCrop img {
+		transform: scale(var(--crop-kx, 1.176), var(--crop-ky, 1.163));
+	}
+}
+
 .DonutBadge.DonutBadge {
 	background-color: rgb(255, 174, 38);
 }

@@ -123,7 +123,15 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 		const state = gesture.current;
 		if (!state || event.pointerId !== state.id) return;
 		gesture.current = null;
-		if (!state.active) return;
+		if (!state.active) {
+			// Нажатие на аватарку соседнего слота (не перетаскивание и не отмена касания браузером) подводит этот слот в центр
+			if (!state.vertical && event.type === 'pointerup') {
+				const slide = (event.target as Element).closest('[data-strip="avatars"] [data-slide]');
+				const target = slide ? Number(slide.getAttribute('data-slide')) : value;
+				if (target !== value) onSelect(target);
+			}
+			return;
+		}
 		justDragged.current = true;
 		setTimeout(() => (justDragged.current = false), 0);
 		setDragging(false);
@@ -162,10 +170,10 @@ export function ProfileCarousel({ count, value, onSelect, avatarWidth, avatar, n
 			}}
 			onDragStart={(event) => event.preventDefault()}
 		>
-			<div className={styles.avatars}>
+			<div className={styles.avatars} data-strip="avatars">
 				<div className={`${styles.layer} ${styles.avatarLayer}`}>
 					{Array.from({ length: count }, (_, index) => (
-						<div key={index} className={styles.avatarCell}>
+						<div key={index} className={styles.avatarCell} data-slide={index}>
 							{avatar(index)}
 						</div>
 					))}

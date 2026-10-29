@@ -30,11 +30,15 @@ const CROP: [RegExp, [number, number]][] = [
 ];
 const CROP_DEFAULT: [number, number] = [7.5, 7];
 
-/** Срез вшитой обводки в `--crop-x` и `--crop-y` для `.ImageCrop` (см. shell.css); у картинок без вшитой обводки его нет. */
+/**
+ * Срез вшитой обводки для `.ImageCrop` (см. shell.css); у картинок без вшитой обводки его нет. `--crop-x` и `--crop-y` нужны
+ * `object-view-box`, а `--crop-kx` и `--crop-ky` (во сколько раз растянуть картинку, чтобы срез вышел за рамку) — запасному
+ * способу для браузеров без него (Safari на iPhone).
+ */
 export function cropStyle(src: string): CSSProperties | undefined {
 	if (!hasBakedBorder(src)) return undefined;
 	const [x, y] = CROP.find(([pattern]) => pattern.test(src))?.[1] ?? CROP_DEFAULT;
-	return { '--crop-x': `${x}%`, '--crop-y': `${y}%` } as CSSProperties;
+	return { '--crop-x': `${x}%`, '--crop-y': `${y}%`, '--crop-kx': 1 / (1 - (2 * x) / 100), '--crop-ky': 1 / (1 - (2 * y) / 100) } as CSSProperties;
 }
 
 /** Иконки боссов есть не у всех: у рейдовых, походов и прочих файла нет, вместо него показывается иконка первого босса. */
