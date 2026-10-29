@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Spacing } from '@vkontakte/vkui';
 import { Icon28FaceIdOutline, Icon28GlobeOutline, Icon28KeySquareOutline, Icon28WriteSquareOutline } from '@vkontakte/icons';
 import { findServer } from '../../api/servers';
@@ -10,7 +9,7 @@ import { backModal, openModal, type ModalEntry } from '../../store/modal';
 import { ClassicModal } from '../ClassicModal';
 import styles from './SettingsModals.module.css';
 import { short } from './settingsShared';
-import { useOnChange } from '../../lib/useOnChange';
+import { askConfirm } from '../../lib/confirmAction';
 
 interface SettingsData {
 	mode?: 'add';
@@ -27,10 +26,6 @@ export function SettingsModal({ open, entry }: { open: boolean; entry: ModalEntr
 	const profiles = useSession((s) => s.profiles);
 	const index = useSession((s) => s.index);
 	const isDonut = useSession((s) => s.isDonut);
-	const [confirmDelete, setConfirmDelete] = useState(false);
-	useOnChange([open], () => {
-		if (!open) setConfirmDelete(false);
-	});
 
 	const add = data.mode === 'add';
 	const exists = add && profiles.some((profile) => profile.id == Number(draft.id));
@@ -97,15 +92,22 @@ export function SettingsModal({ open, entry }: { open: boolean; entry: ModalEntr
 							{profiles.length !== 0 && !current?.main && (
 								<>
 									<Spacing size={8} />
-									{!confirmDelete ? (
-										<Button stretched mode="tertiary" className={styles.danger} onClick={() => setConfirmDelete(true)}>
-											Удалить профиль
-										</Button>
-									) : (
-										<Button stretched mode="destructive" onClick={() => void removeProfile()}>
-											Точно удалить профиль
-										</Button>
-									)}
+									<Button
+										stretched
+										mode="tertiary"
+										className={styles.danger}
+										onClick={() =>
+											askConfirm({
+												title: 'Удалить профиль?',
+												description: 'Профиль будет удалён из приложения',
+												confirm: 'Удалить',
+												destructive: true,
+												onConfirm: () => void removeProfile(),
+											})
+										}
+									>
+										Удалить профиль
+									</Button>
 								</>
 							)}
 						</>

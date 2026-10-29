@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { ComponentProps, ReactNode } from 'react';
 import { useIsDesktop } from '../../app/layout';
 import { ItemCard } from '../wiki/ItemCard';
 import styles from './SelectedItem.module.css';
@@ -11,17 +11,17 @@ export interface ActionLayout {
 	stretched: boolean;
 }
 
-/** Выбранный предмет внизу панели с кнопкой действия («Улучшить», «Купить»). */
-export function SelectedItem({ index, button }: { index: number; button: (layout: ActionLayout) => ReactNode }) {
+/** Выбранный предмет внизу панели с кнопкой действия («Улучшить», «Купить»); без кнопки карточка просто показывает предмет. */
+export function SelectedItem({ index, button, custom }: { index: number; button?: (layout: ActionLayout) => ReactNode; custom?: ComponentProps<typeof ItemCard>['custom'] }) {
 	const isDesktop = useIsDesktop();
 	return (
 		<div className={styles.selected}>
 			{isDesktop ? (
-				<ItemCard index={index} after={button({ stretched: false })} />
+				<ItemCard index={index} custom={custom} after={button?.({ stretched: false })} disabled={!button} plain={!button} />
 			) : (
 				<>
-					<ItemCard index={index} disabled plain />
-					<div className={styles.action}>{button({ stretched: true })}</div>
+					<ItemCard index={index} custom={custom} disabled plain />
+					{button && <div className={styles.action}>{button({ stretched: true })}</div>}
 				</>
 			)}
 		</div>

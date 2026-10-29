@@ -183,7 +183,7 @@ export function ArenaBotPanel({ id }: { id: string }) {
 				update({ _en: Number(state.player!._en) - 4 });
 				await getGame(bot.server, { i: 121 }, bot.auth);
 				state.tries++;
-				if (flags.start) log.text(`Пропустили противника${state.settings.useLoss ? ` ${state.tries}/${state.tryLimit}` : ''}`, 'green');
+				if (flags.start) log.text(`Пропустили противника${state.settings.useLoss ? ` ${state.tries} из ${state.tryLimit}` : ''}`, 'green');
 			} else {
 				if (flags.start) log.text('Не хватает энергии на пропуск противника', 'red');
 				pause();
@@ -258,7 +258,7 @@ export function ArenaBotPanel({ id }: { id: string }) {
 				const cups = Math.max(0, Number(state.player!._ap) - 16);
 				update({ _ap: cups, _al: leagueOf(cups) });
 				state.tries++;
-				if (flags.start) log.text(`Противник оказался сильнее${state.settings.useLoss ? ` ${state.tries}/${state.tryLimit}` : ''}`, 'red');
+				if (flags.start) log.text(`Противник оказался сильнее${state.settings.useLoss ? ` ${state.tries} из ${state.tryLimit}` : ''}`, 'red');
 			}
 		}
 	};

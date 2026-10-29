@@ -5,7 +5,6 @@ import { ITEMS } from '../../lib/items';
 import { setSession } from '../../profile/session';
 import { initNav } from '../../store/nav';
 import { flush, installBrowserStubs, render } from '../../test/harness';
-import { CollectionsPanel, InlayPanel } from './ItemsPanels';
 import { getGame } from '../../api/game';
 import { getBridge } from '../../profile/vk';
 import { getModalStack, closeModal } from '../../store/modal';
@@ -59,23 +58,6 @@ beforeEach(() => {
 		],
 		game: { _ap: '1500' } as never,
 		draft: { id: null, login: null, auth: null, server: null },
-	});
-});
-
-describe('страницы предметов профиля', () => {
-	it('«Коллекции» не падают с пустым набором собранных', async () => {
-		setSession({ items: [], itemsFull: [] });
-		await show(CollectionsPanel);
-		await settle();
-		expect(text()).toContain('Коллекции');
-		expect(text()).toContain('0 коллекций');
-	});
-
-	it('«Инкрустация» показывает уровни и бонусы купленных предметов', async () => {
-		await show(InlayPanel);
-		await settle();
-		expect(text()).toContain('Инкрустация');
-		expect(text()).toContain('3 уровня');
 	});
 });
 

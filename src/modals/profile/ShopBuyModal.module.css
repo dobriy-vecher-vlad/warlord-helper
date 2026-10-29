@@ -32,4 +32,6 @@
 .actions {
 	display: flex;
 	gap: 8px;
+	/* Отступы вокруг кнопок в закреплённом низу окна */
+	padding: 12px;
 }

@@ -12,6 +12,7 @@ import { WikiPanel } from '../../../components/wiki/WikiPanel';
 import { numberForm, numberSpaces } from '../../../lib/format';
 import { storageGetWithDefault, storageSet } from '../../../lib/storage';
 import { wait } from '../../../lib/async';
+import { askConfirm } from '../../../lib/confirmAction';
 import { botAuth, loadBotProfile, type BotAuth } from '../../../profile/bots/common';
 import { useBotRunner } from '../../../profile/bots/useBotRunner';
 import { fightHash } from '../../../profile/bots/hash';
@@ -495,7 +496,7 @@ export function RaidsBotPanel({ id }: { id: string }) {
 							Начать рейд
 						</Button>
 						<Button size="s" mode="tertiary" className={`${styles.startButton} ${styles.limit}`}>
-							<span>{raid.limit}/3</span>
+							<span>{raid.limit} из 3</span>
 						</Button>
 					</div>
 				}
@@ -561,7 +562,20 @@ export function RaidsBotPanel({ id }: { id: string }) {
 					actions={[
 						{ title: 'Запустить', mode: 'commerce', onClick: () => void start(), disabled: running || starting || exiting || loading, loading: running || starting },
 						{ title: 'Остановить', mode: 'destructive', onClick: () => (setPausing(true), pause()), disabled: !(running || starting) || loading, loading: pausing },
-						{ title: 'Завершить', mode: 'secondary', onClick: () => void exit(), disabled: running || starting || exiting || !data?.point || loading, loading: exiting },
+						{
+							title: 'Завершить',
+							mode: 'secondary',
+							onClick: () =>
+								askConfirm({
+									title: 'Завершить рейд?',
+									description: 'Выход стоит 5 энергии, прохождение прервётся',
+									confirm: 'Завершить',
+									destructive: true,
+									onConfirm: () => void exit(),
+								}),
+							disabled: running || starting || exiting || !data?.point || loading,
+							loading: exiting,
+						},
 						{ title: 'Обновить', mode: 'secondary', onClick: () => (setLoading(true), void reload()), disabled: running || starting || exiting || loading, loading },
 					]}
 				/>

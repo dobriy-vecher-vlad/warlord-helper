@@ -31,11 +31,15 @@ interface ItemCardProps {
 	end?: ReactNode;
 	/** Карточку нельзя нажать (без подсветки и действия) */
 	disabled?: boolean;
+	/** Не предмет каталога (например, камень): своё название и картинка вместо данных предмета по индексу */
+	custom?: { title: string; icon: string; description?: string };
+	/** Плашка с числом в углу картинки (сколько таких предметов или частей) */
+	badge?: ReactNode;
 }
 
 /** Компактная карточка предмета (в старом приложении — getItemPreview). */
-export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plain = false, selected, after, end, disabled }: ItemCardProps) {
-	const item = itemAt(index);
+export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plain = false, selected, after, end, disabled, custom, badge }: ItemCardProps) {
+	const item = custom ? { ...custom, id: -1, description: custom.description ?? '' } : itemAt(index);
 	const open =
 		onClick ??
 		(() => {
@@ -59,6 +63,7 @@ export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plai
 		<Tappable className={classes} onClick={after || disabled ? undefined : open} hasHover={!after && !disabled} hasActive={!after && !disabled}>
 			<BorderedImage src={item.icon} className={styles.image} imgProps={imgProps}>
 				{!loaded && <Spinner size="m" className={styles.preload} />}
+				{badge !== undefined && <span className={styles.badge}>{badge}</span>}
 			</BorderedImage>
 			<span className={styles.body}>
 				<span className={styles.title}>{item.title}</span>

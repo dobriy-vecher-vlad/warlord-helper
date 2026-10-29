@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { AdaptivityProvider, AppRoot, ConfigProvider, Badge, Epic, ScreenSpinner, SplitCol, SplitLayout, Tabbar, TabbarItem, View } from '@vkontakte/vkui';
 import { Icon28NewsfeedOutline } from '@vkontakte/icons';
 import bridge from '@vkontakte/vk-bridge';
+import { useConfirm } from '../lib/confirmAction';
+import { useLeaveRequest } from '../lib/leaveGuard';
 import { isEmbedded } from '../lib/platform';
 import { CAMERA_PHOTO } from '../profile/constants';
 import { installRouteRules } from '../profile/routes';
@@ -18,6 +20,8 @@ import { initTheme, useTheme, useThemeKnown } from '../store/theme';
 import { HUB_STORIES } from '../stories/registry';
 import { useIsDesktop } from './layout';
 import { ErrorBoundary } from './ErrorBoundary';
+import { ConfirmAlert } from './ConfirmAlert';
+import { LeaveAlert } from './LeaveAlert';
 import { NotifyProvider } from './notify';
 import { Modals, preloadAnalysisModals } from './Modals';
 import { Sidebar } from './Sidebar';
@@ -41,6 +45,10 @@ function Layout() {
 	// Внутри ВК, пока грузятся профиль и данные игры и раздел из ссылки, показывается только заставка, а не приложение с загрузкой поверх
 	const loading = useSession((s) => s.status === 'loading');
 	const [built, setBuilt] = useState(!isEmbedded());
+	// Подтверждение ухода, пока идёт действие, которое уход прервёт
+	const leaving = useLeaveRequest();
+	// Подтверждение необратимого или платного действия (удаление профиля, выход из рейда и другие)
+	const asked = useConfirm();
 	useEffect(() => {
 		if (loading || built) return;
 		let alive = true;
@@ -83,7 +91,7 @@ function Layout() {
 	];
 
 	return (
-		<SplitLayout center popout={busy ? <ScreenSpinner /> : null}>
+		<SplitLayout center popout={leaving ? <LeaveAlert /> : asked ? <ConfirmAlert options={asked} /> : busy ? <ScreenSpinner /> : null}>
 			{isDesktop && story && (
 				<SplitCol fixed width="280px" maxWidth="280px" minWidth="280px">
 					<Sidebar />

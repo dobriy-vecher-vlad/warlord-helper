@@ -8,6 +8,9 @@ import { Divider } from '../../components/Divider';
 import { Button } from '../../components/form/Form';
 import { NavCell } from '../../components/wiki/NavCell';
 import Collections from '../../data/collections.json';
+import { GAME_BOSS_GROUPS, RAID_BOSSES } from '../bosses/bossCalcData';
+import { CARDS } from './bots/resourcesData';
+import { RAIDS } from './bots/raidData';
 import ShopData from '../../data/shop.json';
 import { numberForm, numberSpaces, type Forms } from '../../lib/format';
 import { ADMIN_VK_ID, CAMERA_PHOTO } from '../../profile/constants';
@@ -72,6 +75,12 @@ function EmptyName() {
 /** Предметы, которые продаются в магазине (снимок каталога игры, как в панели «Магазин»): главная считает купленное из них, а не из всего каталога. */
 const SHOP_IDS = new Set(ShopData.map(([id]) => id));
 
+/** Предметы, которые вообще могут быть у персонажа и улучшаться в кузнице: из магазина и из коллекций. */
+const FORGE_IDS = new Set<number>([...ShopData.map(([id]) => id!), ...Collections.items]);
+
+/** Боссы, которых можно позвать в бой: временные, общие и одиночные (рейдовых боссов создать нельзя). */
+const BOSS_COUNT = GAME_BOSS_GROUPS.filter((group) => group.title !== RAID_BOSSES).reduce((sum, group) => sum + group.items.length, 0);
+
 /** «Мой профиль»: галерея профилей, настройки и разделы профиля. */
 export function ProfileHubPanel({ id }: { id: string }) {
 	const isDesktop = useIsDesktop();
@@ -113,6 +122,7 @@ export function ProfileHubPanel({ id }: { id: string }) {
 	};
 	// Коллекций сотни, предметов у игрока тоже: пересчёт только при изменении набора, а не при каждой отрисовке
 	const bought = useMemo(() => items.filter((id) => SHOP_IDS.has(id)).length, [items]);
+	const forgeable = useMemo(() => items.filter((id) => FORGE_IDS.has(id)).length, [items]);
 	const collected = useMemo(() => {
 		const owned = new Set(items);
 		return Collections.items.filter((item) => owned.has(item)).length;
@@ -148,7 +158,24 @@ export function ProfileHubPanel({ id }: { id: string }) {
 						Настройки профиля
 					</Button>
 					<Divider size={12} />
-					<NavCell profile title="Рейды" subtitle="Подземелья и награды" image="labels/4.png" count={donutIcon} onClick={() => openPanel('6')} />
+					{hasPlayers(server ?? 1) && (
+						<NavCell
+							profile
+							title="Боссы"
+							subtitle="Приглашения и бои"
+							image="labels/29.png"
+							{...indicatorProps(BOSS_COUNT, BOSS_COUNT, ['босс', 'босса', 'боссов'])}
+							onClick={() => openPanel('11')}
+						/>
+					)}
+					<NavCell
+						profile
+						title="Рейды"
+						subtitle="Подземелья и награды"
+						image="labels/4.png"
+						{...indicatorProps(RAIDS.length, RAIDS.length, ['рейд', 'рейда', 'рейдов'])}
+						onClick={() => openPanel('6')}
+					/>
 					<NavCell
 						profile
 						title="Арена"
@@ -157,25 +184,37 @@ export function ProfileHubPanel({ id }: { id: string }) {
 						{...indicatorProps(numberSpaces(Number(game?._ap ?? 0)), Number(game?._ap ?? 0), ['кубок', 'кубка', 'кубков'])}
 						onClick={() => openPanel('7')}
 					/>
-					<NavCell profile title="Ресурсы" subtitle="Сбор наград и энергии" image="labels/14.png" count={donutIcon} onClick={() => openPanel('9')} />
+					<NavCell
+						profile
+						title="Ресурсы"
+						subtitle="Сбор наград и энергии"
+						image="labels/14.png"
+						{...indicatorProps(CARDS.length, CARDS.length, ['источник', 'источника', 'источников'])}
+						onClick={() => openPanel('9')}
+					/>
 					<NavCell
 						profile
 						title="Магазин"
 						subtitle="Ассортимент предметов"
 						image="labels/12.png"
-						{...indicatorProps(`${bought} / ${ShopData.length}`, ShopData.length, ['предмет', 'предмета', 'предметов'])}
+						{...indicatorProps(`${bought} из ${ShopData.length}`, ShopData.length, ['предмет', 'предмета', 'предметов'])}
 						onClick={() => openPanel('1')}
 					/>
-					<NavCell profile title="Кузница" subtitle="Улучшение предметов" image="labels/20.png" count={donutIcon} onClick={() => openPanel('10')} />
-					{hasPlayers(server ?? 1) && <NavCell profile title="Боссы" subtitle="Приглашения и бои" image="labels/29.png" count={donutIcon} onClick={() => openPanel('11')} />}
-					<Divider size={12} />
 					<NavCell
 						profile
 						title="Коллекции"
 						subtitle="Ассортимент коллекций"
-						image="labels/20.png"
-						{...indicatorProps(`${collected} / ${Collections.items.length}`, Collections.items.length, ['коллекция', 'коллекции', 'коллекций'])}
+						image="labels/11.png"
+						{...indicatorProps(`${collected} из ${Collections.items.length}`, Collections.items.length, ['коллекция', 'коллекции', 'коллекций'])}
 						onClick={() => openPanel('2')}
+					/>
+					<NavCell
+						profile
+						title="Кузница"
+						subtitle="Улучшение предметов"
+						image="labels/20.png"
+						{...indicatorProps(`${forgeable} из ${FORGE_IDS.size}`, FORGE_IDS.size, ['предмет', 'предмета', 'предметов'])}
+						onClick={() => openPanel('10')}
 					/>
 					<NavCell
 						profile
@@ -185,6 +224,7 @@ export function ProfileHubPanel({ id }: { id: string }) {
 						{...indicatorProps(items.length, items.length, ['предмет', 'предмета', 'предметов'])}
 						onClick={() => openPanel('3')}
 					/>
+					<Divider size={12} />
 					{(server === 1 || server === 2) && (
 						<NavCell profile title="Друзья" subtitle="Друзья и характеристики" image="labels/23.png" count={donutIcon} onClick={() => openPanel('5')} />
 					)}

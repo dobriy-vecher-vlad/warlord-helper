@@ -15,7 +15,7 @@ export interface TabOption<T extends string | number> {
 /** Вкладки с подчёркиванием (Tabs VKUI), листаются по горизонтали. */
 export function Tabs<T extends string | number>({ options, value, onChange }: { options: readonly TabOption<T>[]; value: T; onChange: (value: T) => void }) {
 	return (
-		<VKTabs className={styles.tabs}>
+		<VKTabs className={styles.tabs} layoutFillMode="shrinked">
 			<HorizontalScroll arrowSize="m">
 				<div className={styles.list}>
 					{options.map((option) => (

@@ -7,6 +7,7 @@ import { NewBossModal } from '../modals/NewBossModal';
 import { PromoModals } from '../modals/PromoModals';
 import { AlertModal } from '../modals/profile/AlertModal';
 import { OrderModal } from '../modals/profile/OrderModal';
+import { InlayModal } from '../modals/profile/InlayModal';
 import { ShopBuyModal } from '../modals/profile/ShopBuyModal';
 import { IdModal, LoginModal, PasswordModal, ServerModal } from '../modals/profile/SettingsFieldModals';
 import { SettingsModal } from '../modals/profile/SettingsModals';
@@ -64,6 +65,7 @@ function ProfileModals() {
 	const create = useLastEntry('create');
 	const participants = useLastEntry('participants');
 	const shopBuy = useLastEntry('shopBuy');
+	const inlay = useLastEntry('inlay');
 	const active = useActiveModal();
 	// После первого открытия окна анализа остаются в разметке: иначе закрытие не получило бы анимации
 	const [analysisWanted, setAnalysisWanted] = useState(false);
@@ -87,6 +89,7 @@ function ProfileModals() {
 			<OrderModal open={active?.id === 'settingsOrder'} />
 			<AlertModal open={alert.open} entry={alert.entry} />
 			<ShopBuyModal open={shopBuy.open} entry={shopBuy.entry} />
+			<InlayModal open={inlay.open} entry={inlay.entry} />
 			{(battleWanted || battleNow) && (
 				<Suspense fallback={null}>
 					<BattleModals invite={invite} create={create} participants={participants} result={result} killAllOpen={active?.id === 'killAll'} battleOpen={active?.id === 'battle'} />

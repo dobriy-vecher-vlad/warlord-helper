@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { FavoriteButton } from '../../components/wiki/FavoriteButton';
+import { askConfirm } from '../../lib/confirmAction';
 import { ATTEMPTS_FROM, numberForm } from '../../lib/format';
 import { PickPanel, type GroupAction } from '../../components/wiki/PickPanel';
 import { SoloSlot } from '../../modals/profile/BattleParts';
@@ -175,7 +176,18 @@ export function CreateBossPanel({ id }: { id: string }) {
 			if (!reordering) actions.push({ label: 'Убить', onClick: () => openModal('killAll') });
 			if (lists.favorites.length > 1) actions.push({ label: reordering ? 'Готово' : 'Изменить', onClick: () => setEditing(!reordering) });
 		}
-		if (title === RECENT && bot) actions.push({ label: 'Очистить', onClick: () => void clearRecent(bot) });
+		if (title === RECENT && bot)
+			actions.push({
+				label: 'Очистить',
+				onClick: () =>
+					askConfirm({
+						title: 'Очистить недавние?',
+						description: 'Список недавних боссов будет очищен целиком',
+						confirm: 'Очистить',
+						destructive: true,
+						onConfirm: () => void clearRecent(bot),
+					}),
+			});
 		return actions;
 	};
 	const reorder =

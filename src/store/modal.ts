@@ -1,4 +1,4 @@
-import { confirmLeave } from '../lib/leaveGuard';
+import { guardedLeave } from '../lib/leaveGuard';
 import { createStore, useStore } from './createStore';
 
 /** Идентификаторы модальных окон. Дополняются по мере переноса разделов. */
@@ -23,7 +23,8 @@ export type ModalId =
 	| 'participants'
 	| 'create'
 	| 'killAll'
-	| 'shopBuy';
+	| 'shopBuy'
+	| 'inlay';
 
 export interface ModalEntry {
 	id: ModalId;
@@ -59,8 +60,13 @@ export function openModal(id: ModalId, data: Record<string, unknown> = {}, key: 
 /** Назад к предыдущему окну; если его нет — закрыть. Если в окне идёт действие, которое закрытие прервёт, спрашивается подтверждение. */
 export function backModal() {
 	const top = modals.get().stack.at(-1);
-	if (top && !confirmLeave(top.id)) return;
-	modals.set((state) => next(state.stack, state.stack.slice(0, -1)));
+	// Согласие приходит позже (окно Alert): закрывается то же окно, а не то, что успело открыться поверх
+	const close = () => {
+		if (modals.get().stack.at(-1)?.id !== top?.id) return;
+		modals.set((state) => next(state.stack, state.stack.slice(0, -1)));
+	};
+	if (top) guardedLeave(close, top.id);
+	else close();
 }
 
 /**

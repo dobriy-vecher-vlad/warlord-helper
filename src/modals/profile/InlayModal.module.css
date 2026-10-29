@@ -1,0 +1,42 @@
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	/* Низ такой же, как поля вокруг кнопок в закреплённом низу окна (12px) */
+	padding: 12px;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 6px 4px;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text_secondary);
+}
+
+.value {
+	display: flex;
+	align-items: center;
+	color: var(--text_primary);
+	font-weight: 500;
+}
+
+.short {
+	color: var(--destructive);
+}
+
+.empty {
+	padding: 24px 0;
+	text-align: center;
+	color: var(--text_secondary);
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+	/* Отступы вокруг кнопок в закреплённом низу окна */
+	padding: 12px;
+}

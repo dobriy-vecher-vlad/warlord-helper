@@ -46,7 +46,7 @@ describe('applyProfile', () => {
 		const { builds, chests } = applyProfile(s, profile({ j: [{ _t: '0' }, { _t: '5' }], chests: { ch: { _o: '1', _ot: '0' } } }), null);
 		expect(builds).toHaveLength(2);
 		expect(chests).toHaveLength(1);
-		expect(s.times.map).toBe('1/2');
+		expect(s.times.map).toBe('1 из 2');
 		expect(s.times.chest).toBe('clear');
 	});
 

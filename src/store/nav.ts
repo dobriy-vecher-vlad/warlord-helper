@@ -1,5 +1,5 @@
 import { parseHash } from '../lib/hash';
-import { confirmLeave } from '../lib/leaveGuard';
+import { guardedLeave } from '../lib/leaveGuard';
 import { HUB_STORIES } from '../stories/registry';
 import { createStore, useStore } from './createStore';
 import { resetItemFilter } from './itemFilter';
@@ -80,21 +80,27 @@ interface NavOptions {
 
 /**
  * Открыть раздел. Недоступный раздел (рейтинг с плитки на главной вне ВК) — страница 404. Пока работает бот или идёт действие,
- * которое уход прервёт, переход просит подтверждения браузера.
+ * которое уход прервёт, переход просит подтверждения в окне Alert.
  */
 export function openStory(story: StoryId, { force = false }: NavOptions = {}) {
-	if (!force && !confirmLeave()) return;
-	resetItemFilter();
-	nav.set({ story, panel: null, pendingModal: null, notFound: !ROUTES[story] || !rules.available(story, null) });
+	const go = () => {
+		resetItemFilter();
+		nav.set({ story, panel: null, pendingModal: null, notFound: !ROUTES[story] || !rules.available(story, null) });
+	};
+	if (force) go();
+	else guardedLeave(go);
 }
 
 /** Перейти в подраздел текущего раздела (или на его главную панель, если panel = null). */
 export function openPanel(panel: string | null, { force = false }: NavOptions = {}) {
 	const { story } = nav.get();
-	if (!force && !confirmLeave()) return;
 	if (story && panel && !rules.allowed(story, panel)) return;
-	resetItemFilter();
-	nav.set({ panel, pendingModal: null, notFound: false });
+	const go = () => {
+		resetItemFilter();
+		nav.set({ panel, pendingModal: null, notFound: false });
+	};
+	if (force) go();
+	else guardedLeave(go);
 }
 
 export function consumePendingModal() {

@@ -43,7 +43,7 @@ export function Counter({ title, now, change = 0, suffix }: { title: string; now
 }
 
 /** Заглушка загрузки футера выбранного предмета: карточка, разделитель и ряд ячеек той же высоты. */
-export function FooterSkeleton() {
+export function FooterSkeleton({ cell = { count: 4, width: 140, height: 56 } }: { cell?: { count: number; width: number; height: number } }) {
 	const isDesktop = useIsDesktop();
 	return (
 		<>
@@ -51,8 +51,8 @@ export function FooterSkeleton() {
 			{!isDesktop && <Skeleton height={36} style={{ margin: '8px 8px 0', width: 'auto' }} />}
 			<Divider />
 			<Counters>
-				{[0, 1, 2, 3].map((index) => (
-					<Skeleton key={index} height={56} width={140} />
+				{Array.from({ length: cell.count }, (_, index) => (
+					<Skeleton key={index} height={cell.height} width={cell.width} />
 				))}
 			</Counters>
 		</>

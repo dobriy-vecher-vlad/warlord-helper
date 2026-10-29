@@ -21,7 +21,9 @@ export const BUILD_NAMES = [
 ];
 export const WAR_PLACES = ['', 'бандитскийлагерь', 'логовогоблинов', 'фортнежити'];
 
-export type CardKey = 'map' | 'chest' | 'pet' | 'lottery' | 'energy' | 'daily' | 'vip' | 'guildBuilds' | 'guildReward' | 'guildWars' | 'search';
+/** Карточки сбора на странице «Ресурсы» (по ним главная профиля считает их число). */
+export const CARDS = ['map', 'chest', 'pet', 'lottery', 'energy', 'daily', 'vip', 'guildBuilds', 'guildReward', 'guildWars', 'search'] as const;
+export type CardKey = (typeof CARDS)[number];
 
 /** Таймер карточки: секунды, «clear» (готово к действию), строка «1/2», список набегов; null — карточка недоступна. */
 export interface Times {

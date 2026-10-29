@@ -1,7 +1,9 @@
 import { Fragment, type ComponentProps, type ReactNode } from 'react';
 import { Button, Caption, Counter, Div, Header, Paragraph, Spacing } from '@vkontakte/vkui';
 import {
+	Icon28DiamondOutline,
 	Icon24AddCircleDottedOutline,
+	Icon24CubeBoxOutline,
 	Icon24PawOutline,
 	Icon24CupOutline,
 	Icon24HammerOutline,
@@ -45,16 +47,30 @@ const SHOP: FeatureData = {
 	text: 'Удобная сортировка магазина и быстрая покупка предметов',
 	badge: { mode: 'prominent', label: 'Новое' },
 };
+const COLLECTIONS: FeatureData = {
+	icon: icon(Icon24CubeBoxOutline),
+	title: 'Коллекции',
+	text: 'Части каждой коллекции и обмен на предмет или заточку в один клик',
+	badge: { mode: 'prominent', label: 'Новое' },
+};
+const INLAY: FeatureData = {
+	icon: icon(Icon28DiamondOutline),
+	title: 'Инкрустация',
+	text: 'Быстрая вставка камней в предметы и удобное создание новых',
+	badge: { mode: 'prominent', label: 'Новое' },
+};
 const FORGE = { icon: icon(Icon24HammerOutline), title: 'Кузница', text: 'Удобно сортируйте и улучшайте в один клик любой предмет' };
 
 /** Преимущества в окне подписки. */
 const DONUT_FEATURES: FeatureData[] = [
 	BIND,
+	BOSSES,
 	RAID,
 	ARENA,
-	FORGE,
-	BOSSES,
 	SHOP,
+	COLLECTIONS,
+	FORGE,
+	INLAY,
 	{ icon: icon(Icon24Users3Outline), title: 'Друзья', text: 'Сканируйте всех ваших друзей, выводя их в удобном и сортируемом списке' },
 	{ icon: icon(Icon24TshirtOutline), title: 'Наличие предметов', text: 'Напротив каждого предмета в приложении будет указываться его наличие у вас' },
 	{ icon: icon(Icon24PollOutline), title: 'Затраты', text: 'Считайте затраты на боссов, арену, казну гильдии и предметы ещё эффективнее' },
@@ -69,7 +85,7 @@ const GLOWS = [
 ];
 
 /** В окне акции показаны главные преимущества, об остальных сказано кратко. */
-const SALES_FEATURES = [BIND, RAID, ARENA, FORGE, BOSSES, SHOP];
+const SALES_FEATURES = [BIND, BOSSES, RAID, ARENA, SHOP, COLLECTIONS, FORGE, INLAY];
 
 /** Неразрывные пробелы: после коротких слов (предлоги, союзы, числа) и перед последним словом, чтобы строка не рвалась неудачно. */
 const tie = (text: string) => {

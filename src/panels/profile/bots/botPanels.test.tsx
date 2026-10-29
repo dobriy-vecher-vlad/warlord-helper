@@ -175,7 +175,7 @@ describe('страница «Рейды»', () => {
 		await settle();
 		expect(text()).toContain('Подземелье форта');
 		expect(text()).toContain('Легендарный режим');
-		expect(text()).toContain('1/3');
+		expect(text()).toContain('1 из 3');
 		expect(button('Начать рейд')?.disabled).toBe(true);
 		const raidCell = [...document.body.querySelectorAll('span')].find((item) => item.textContent === 'Подземелье форта')!;
 		await click(raidCell);
@@ -189,7 +189,7 @@ describe('страница «Рейды»', () => {
 		await show(RaidsBotPanel);
 		await settle();
 		expect(button('Начать рейд')?.disabled).toBe(true);
-		expect(text()).toContain('3/3');
+		expect(text()).toContain('3 из 3');
 	});
 
 	it('с активным рейдом показывает показатели, боссов, бочки и сундуки', async () => {

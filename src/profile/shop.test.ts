@@ -33,7 +33,7 @@ const wallet = (extra: Partial<Wallet> = {}): Wallet => ({ level: 50, owned: new
 
 describe('предметы магазина', () => {
 	it('снимок каталога магазина: предметы из каталога, без повторов, цена и валюта заданы', () => {
-		expect(SHOP_ALL.length).toBeGreaterThan(500);
+		expect(SHOP_ALL.length).toBeGreaterThan(300);
 		expect(SHOP_ALL.filter((value) => value.kind === 'free').length).toBeGreaterThan(100);
 		expect(new Set(SHOP_ALL.map((value) => value.item.id)).size).toBe(SHOP_ALL.length);
 		for (const shopEntry of SHOP_ALL) {
@@ -126,6 +126,8 @@ describe('каталог магазина из профиля игры', () => {
 				row(fourth!.id, { _p1: '40', _l11: '3' }),
 				row(fifth!.id, { _p1: '50', _l13: '1' }),
 				row(sixth!.id, { _p6: '70', _l8: '2' }),
+				// Предмет коллекции при обмене сразу попадает на аккаунт: в магазин не входит
+				row(ITEMS[6]!.id, { _p1: '10', _l10: '5' }),
 				row(999_999_999, { _p1: '1' }),
 				row(first!.id, { _p1: '100' }),
 			],

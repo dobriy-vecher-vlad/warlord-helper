@@ -281,7 +281,7 @@ export function applyProfile(state: ResourceState, dataProfile: ProfileResponse 
 	}
 	const builds = asArray<Attrs>(dataProfile.j);
 	if (dataProfile.j) {
-		times.map = builds.length ? `${builds.filter((build) => Number(build._t) <= 0).length}/${builds.length}` : null;
+		times.map = builds.length ? `${builds.filter((build) => Number(build._t) <= 0).length} из ${builds.length}` : null;
 		hints.map = null;
 	} else {
 		times.map = null;
