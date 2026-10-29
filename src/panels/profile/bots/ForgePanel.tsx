@@ -139,7 +139,7 @@ function ForgeCounters({ data, counts, clanBonus }: { data: ForgeItem; counts: R
 				/>
 			))}
 			<Counter title={pearls ? 'Жемчужины' : 'Заточки'} now={pearls ? counts.m9 : data.scrolls} change={-SCROLLS[data.lvl]!} suffix={<Currency id={pearls ? 9 : 7} />} />
-			<Counter title="Шанс" now={chance} change={chance - base} suffix="%" tight />
+			<Counter title="Шанс" now={base} change={chance - base} suffix="%" tight />
 		</Counters>
 	);
 }

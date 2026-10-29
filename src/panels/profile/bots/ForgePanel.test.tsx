@@ -186,14 +186,16 @@ describe('«Кузница»', () => {
 		expect(notify).not.toHaveBeenCalled();
 	});
 
-	it('шанс в футере с прибавкой от навыка гильдии (не больше 100%), а урон идёт раньше затрат и шанса', async () => {
+	it('шанс в футере: сверху базовый, снизу прибавка от навыка гильдии (итог не больше 100%), а урон идёт раньше затрат и шанса', async () => {
 		game.mockResolvedValue({ ...profile(1), clan: { _u4: '10' } });
 		await show();
 		await settle();
 		await click(card(rod.title)!);
 		const footer = text();
-		expect(footer).toContain('80%');
+		// Сверху базовый шанс без прибавки (у первого улучшения рода 70%), снизу прибавка гильдии
+		expect(footer).toContain('70%');
 		expect(footer).toContain('10%');
+		expect(footer).not.toContain('80%');
 		expect(footer.indexOf('Урон')).toBeLessThan(footer.indexOf('Заточки'));
 		expect(footer.lastIndexOf('Шанс')).toBeGreaterThan(footer.lastIndexOf('Заточки'));
 	});
