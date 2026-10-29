@@ -186,7 +186,7 @@ describe('«Кузница»', () => {
 		expect(notify).not.toHaveBeenCalled();
 	});
 
-	it('шанс в футере: сверху базовый, снизу прибавка от навыка гильдии (итог не больше 100%), а урон идёт раньше затрат и шанса', async () => {
+	it('шанс в футере: сверху базовый, снизу прибавка от навыка гильдии (итог не больше 100%), а шанс идёт первым, затем урон и затраты', async () => {
 		game.mockResolvedValue({ ...profile(1), clan: { _u4: '10' } });
 		await show();
 		await settle();
@@ -196,8 +196,8 @@ describe('«Кузница»', () => {
 		expect(footer).toContain('70%');
 		expect(footer).toContain('10%');
 		expect(footer).not.toContain('80%');
-		expect(footer.indexOf('Урон')).toBeLessThan(footer.indexOf('Заточки'));
-		expect(footer.lastIndexOf('Шанс')).toBeGreaterThan(footer.lastIndexOf('Заточки'));
+		expect(footer.lastIndexOf('Шанс')).toBeLessThan(footer.lastIndexOf('Урон'));
+		expect(footer.lastIndexOf('Урон')).toBeLessThan(footer.lastIndexOf('Заточки'));
 	});
 
 	it('цена улучшения как в игре: прибавка урона и здоровья округляется вверх отдельно (Кольцо Вьюги с 3 на 4 уровень: 225 турмалинов и 7 заточек)', async () => {
