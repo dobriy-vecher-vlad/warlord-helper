@@ -1,0 +1,66 @@
+/* Как у вкладок: на ПК ряд на всю ширину карточки, выступая за её поля 8px; на телефоне блок и так во всю ширину */
+:global([data-layout='desktop']) .scroll {
+	margin: 0 -8px;
+}
+
+.counters {
+	--gap: 6px;
+	display: flex;
+	justify-content: flex-start;
+	align-items: stretch;
+	gap: var(--gap);
+	width: max-content;
+	min-width: 100%;
+	box-sizing: border-box;
+}
+
+/* Поля 8px по краям ряда — настоящими элементами (как у вкладок): отступы и padding у края прокрутки не всегда попадают в её ширину. Зазор между ячейками учтён */
+.counters::before,
+.counters::after {
+	content: '';
+	flex: none;
+	width: calc(8px - var(--gap));
+}
+
+.counter {
+	flex: none;
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 8px 10px;
+	border-radius: 10px;
+	box-shadow: inset 0 0 0 var(--thin-border) var(--image_border);
+}
+
+.counterTitle,
+.counterText {
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	white-space: nowrap;
+	color: var(--text_primary);
+}
+
+.counterContent {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+/* Отступ иконки валюты от числа задаёт сама иконка (5px); иконка плюса или минуса отступает от числа на 6px */
+.counterText {
+	display: flex;
+	align-items: center;
+}
+
+.counterText > svg {
+	margin-right: 6px;
+}
+
+.up {
+	color: var(--button_commerce_background);
+}
+
+.down {
+	color: var(--destructive);
+}

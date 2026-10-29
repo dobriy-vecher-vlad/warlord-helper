@@ -1,0 +1,35 @@
+.body {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	padding: 12px 12px 4px;
+}
+
+.row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 6px 4px;
+	font-size: 15px;
+	line-height: 20px;
+	color: var(--text_secondary);
+}
+
+.values {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.value {
+	display: flex;
+	align-items: center;
+	color: var(--text_primary);
+	font-weight: 500;
+}
+
+.actions {
+	display: flex;
+	gap: 8px;
+}

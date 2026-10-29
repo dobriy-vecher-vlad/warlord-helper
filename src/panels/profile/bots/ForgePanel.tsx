@@ -1,22 +1,27 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLeaveGuard } from '../../../lib/leaveGuard';
-import { Icon12ArrowUp, Icon16Up, Icon56FragmentsOutline } from '@vkontakte/icons';
+import { Icon12Add, Icon56FragmentsOutline } from '@vkontakte/icons';
 import type { ProfileResponse } from '../../../api/gameTypes';
 import { getGame } from '../../../api/game';
 import { useIsDesktop } from '../../../app/layout';
 import { notify } from '../../../app/notify';
+import { SelectedItem, MOBILE_ACTION_HEIGHT } from '../../../components/profile/SelectedItem';
+import { FooterButton } from '../../../components/profile/BotBlocks';
+import { LoadFailed } from '../../../components/profile/LoadFailed';
+import { Counter, Counters, FooterSkeleton } from '../../../components/profile/Counters';
 import { Divider } from '../../../components/Divider';
-import { Button } from '../../../components/form/Form';
 import { LazyGrid } from '../../../components/profile/LazyGrid';
 import { Placeholder } from '../../../components/profile/Placeholder';
-import { Tabs } from '../../../components/profile/ProfileBlocks';
+import { Tabs, TabsSkeleton } from '../../../components/profile/ProfileBlocks';
 import { ScrollBox } from '../../../components/profile/ScrollBox';
 import { Skeleton } from '../../../components/Skeleton';
+import { Currency } from '../../../components/wiki/Currency';
 import { ItemCard, ItemCardGrid } from '../../../components/wiki/ItemCard';
 import { WikiPanel } from '../../../components/wiki/WikiPanel';
-import { numberForm, numberSpaces, type Forms } from '../../../lib/format';
-import { ITEMS, type Item } from '../../../lib/items';
+import { numberSpaces, type Forms } from '../../../lib/format';
+import { ITEMS, ITEM_INDEX, ITEM_TYPES, type Item } from '../../../lib/items';
 import { asArray, botAuth, loadBotProfile, type BotAuth } from '../../../profile/bots/common';
+import { setSession } from '../../../profile/session';
 import styles from './ForgePanel.module.css';
 
 /** Доля характеристик предмета, которую даёт каждый уровень улучшения (1–10). */
@@ -44,7 +49,15 @@ const RESOURCES: Resource[] = [
 	{ id: 'm9', name: 'Редкие жемчужины', forms: ['жемчужина', 'жемчужины', 'жемчужин'], multiplier: 0 },
 ];
 
-const resourceOf = (item: Item) => RESOURCES.find((resource) => resource.id === `m${item.currency}`);
+/** Вкладка «Все» в строке ресурсов */
+const ALL = 'all';
+
+const TYPE_TABS = [{ value: 0, title: 'Все' }, ...ITEM_TYPES] as const;
+
+const resourceOf = (currency: number) => RESOURCES.find((resource) => resource.id === `m${currency}`);
+
+/** Улучшение списывает ресурс на каждую цену предмета: у предметов кузницы гильдии это аметисты и топазы сразу. */
+const currenciesOf = (item: Item) => item.prices.map(([currency]) => currency);
 
 /** Предмет персонажа, который можно улучшить сейчас. */
 interface ForgeItem {
@@ -53,9 +66,9 @@ interface ForgeItem {
 	lvl: number;
 	/** Заточек этого предмета у персонажа (для жемчужин — 0) */
 	scrolls: number;
-	/** Цена улучшения на каждом уровне */
-	prices: number[];
-	/** Не хватает валюты на следующий уровень */
+	/** Цена улучшения в каждой валюте предмета по уровням */
+	costs: { currency: number; prices: number[] }[];
+	/** Не хватает хотя бы одной валюты на следующий уровень */
 	blocked: boolean;
 	dmg: number[];
 	hp: number[];
@@ -66,27 +79,29 @@ function forgeItems(profile: ProfileResponse | null, tab: string, counts: Record
 	const upgrades = asArray(profile?.iupgrade?.i);
 	const result: ForgeItem[] = [];
 	for (const owned of asArray(profile?.i).filter((entry) => Number(entry._o) === 1)) {
-		const index = ITEMS.findIndex((entry) => entry.id === Number(owned._id));
-		const item = ITEMS[index];
-		if (!item) continue;
+		const index = ITEM_INDEX.get(Number(owned._id));
+		const item = index === undefined ? undefined : ITEMS[index];
+		if (index === undefined || !item) continue;
 		const lvl = Number(owned._u) || 0;
 		let scrolls = 0;
 		if (tab === 'm9') {
 			if (lvl < 5 || lvl >= 10 || (counts.m9 ?? 0) < SCROLLS[lvl]!) continue;
 		} else {
-			if (`m${item.currency}` !== tab) continue;
+			if (!currenciesOf(item).some((currency) => `m${currency}` === tab)) continue;
 			scrolls = Number(upgrades.find((entry) => Number(entry._id) === item.id)?._cnt) || 0;
 			if (lvl >= 5 || scrolls < SCROLLS[lvl]!) continue;
 		}
-		const multiplier = resourceOf(item)?.multiplier || 1;
-		const prices = MULTIPLIER.map((share) => Math.ceil((item.dmg + item.hp) * share) * multiplier);
+		const costs = currenciesOf(item).map((currency) => {
+			const multiplier = resourceOf(currency)?.multiplier || 1;
+			return { currency, prices: MULTIPLIER.map((share) => Math.ceil((item.dmg + item.hp) * share) * multiplier) };
+		});
 		result.push({
 			index,
 			item,
 			lvl,
 			scrolls,
-			prices,
-			blocked: (counts[`m${item.currency}`] ?? 0) < prices[lvl]!,
+			costs,
+			blocked: costs.some((cost) => (counts[`m${cost.currency}`] ?? 0) < cost.prices[lvl]!),
 			dmg: MULTIPLIER.map((share) => Math.ceil(item.dmg * share || 0)),
 			hp: MULTIPLIER.map((share) => Math.ceil(item.hp * share || 0)),
 		});
@@ -96,38 +111,36 @@ function forgeItems(profile: ProfileResponse | null, tab: string, counts: Record
 
 const sumTo = (values: number[], count: number) => values.slice(0, count).reduce((a, b) => a + b, 0);
 
-/** Характеристики выбранного предмета: сейчас и прибавка за улучшение (CounterCell). */
-function Counters({ data }: { data: ForgeItem }) {
+/**
+ * Футер выбранного предмета: сколько спишется (валюта предмета, заточки или жемчужины), что прибавится к урону и здоровью и шанс.
+ * Ячейка без прибавки урона или здоровья не показывается; шанс всегда последний.
+ */
+function ForgeCounters({ data, counts }: { data: ForgeItem; counts: Record<string, number> }) {
 	const currentDmg = sumTo(data.dmg, data.lvl);
 	const currentHp = sumTo(data.hp, data.lvl);
+	const pearls = data.lvl >= 5;
 	return (
-		<div className={styles.counters}>
-			<div className={styles.counter}>
-				<div className={styles.counterTitle}>Урон</div>
-				<div className={styles.counterContent}>
-					<div className={styles.counterText}>{numberSpaces(data.item.dmg + currentDmg)} DMG</div>
-					<div className={styles.counterText}>
-						<Icon16Up /> {numberSpaces(data.dmg[data.lvl])} DMG
-					</div>
-				</div>
-			</div>
-			<div className={styles.counter}>
-				<div className={styles.counterTitle}>Здоровье</div>
-				<div className={styles.counterContent}>
-					<div className={styles.counterText}>{numberSpaces((data.item.hp + currentHp) * 15)} HP</div>
-					<div className={styles.counterText}>
-						<Icon16Up /> {numberSpaces(data.hp[data.lvl]! * 15)} HP
-					</div>
-				</div>
-			</div>
-			<div className={styles.counter}>
-				<div className={styles.counterTitle}>Шанс</div>
-				<div className={styles.counterContent}>
-					<div className={styles.counterText}>{CHANCE[data.lvl]}%</div>
-				</div>
-			</div>
-		</div>
+		<Counters>
+			{data.costs.map((cost) => (
+				<Counter
+					key={cost.currency}
+					title={resourceOf(cost.currency)?.name ?? ''}
+					now={counts[`m${cost.currency}`]}
+					change={-cost.prices[data.lvl]!}
+					suffix={<Currency id={cost.currency} />}
+				/>
+			))}
+			<Counter title={pearls ? 'Жемчужины' : 'Заточки'} now={pearls ? counts.m9 : data.scrolls} change={-SCROLLS[data.lvl]!} suffix={<Currency id={pearls ? 9 : 7} />} />
+			{data.dmg[data.lvl]! > 0 && <Counter title="Урон" now={data.item.dmg + currentDmg} change={data.dmg[data.lvl]} suffix="DMG" />}
+			{data.hp[data.lvl]! > 0 && <Counter title="Здоровье" now={(data.item.hp + currentHp) * 15} change={data.hp[data.lvl]! * 15} suffix="HP" />}
+			<Counter title="Шанс" now={`${CHANCE[data.lvl]}%`} />
+		</Counters>
 	);
+}
+
+/** Уровень улучшения справа в карточке: 0 серым, 1–5 оранжевым, 6–10 фиолетовым. */
+function Level({ lvl }: { lvl: number }) {
+	return <span className={`${styles.level} ${lvl === 0 ? styles.dim : lvl <= 5 ? styles.orange : styles.purple}`}>{lvl}</span>;
 }
 
 /** 10. Кузница: улучшение предметов персонажа за серебро, золото, камни или жемчужины. */
@@ -136,10 +149,13 @@ export function ForgePanel({ id }: { id: string }) {
 	const bot = useRef<BotAuth | null>(null);
 	const [profile, setProfile] = useState<ProfileResponse | null>(null);
 	const [loading, setLoading] = useState(true);
-	const [tab, setTab] = useState('m1');
+	const [tab, setTab] = useState(ALL);
+	const [type, setType] = useState(0);
 	const [active, setActive] = useState<number | null>(null);
 	// Улучшение тратит ресурсы игры: пока оно идёт, закрытие вкладки и уход со страницы просят подтверждения
 	const [upgrading, setUpgrading] = useState(false);
+	// Метка в ref срабатывает сразу, а состояние только после перерисовки: два быстрых нажатия иначе потратили бы ресурсы дважды
+	const lock = useRef(false);
 	useLeaveGuard(upgrading);
 
 	/** Профиль с сервера; null — бот не запустился (нет пароля или он неверный). */
@@ -148,7 +164,7 @@ export function ForgePanel({ id }: { id: string }) {
 		if (!auth) return null;
 		bot.current = auth;
 		setLoading(true);
-		const data = await loadBotProfile(auth, (value) => !!value?.u && asArray(value.i).length > 0);
+		const data = await loadBotProfile(auth);
 		if (data) setProfile(data);
 		setLoading(false);
 		return data;
@@ -159,7 +175,23 @@ export function ForgePanel({ id }: { id: string }) {
 	}, [reload]);
 
 	const counts = useMemo(() => Object.fromEntries(RESOURCES.map((resource) => [resource.id, Number(profile?.u?.[`_${resource.id}`]) || 0])), [profile]);
-	const items = useMemo(() => (profile ? forgeItems(profile, tab, counts) : null), [profile, tab, counts]);
+	// Все улучшаемые предметы по всем ресурсам: из них строится вкладка «Все» и счётчики типов (они не зависят от выбранного ресурса).
+	// Предмет с двумя валютами лежит на двух вкладках, но в общем списке он один
+	const everything = useMemo(() => {
+		if (!profile) return [];
+		const byId = new Map<number, ForgeItem>();
+		for (const resource of RESOURCES) for (const data of forgeItems(profile, resource.id, counts)) if (!byId.has(data.item.id)) byId.set(data.item.id, data);
+		return [...byId.values()].sort((x, y) => y.lvl - x.lvl);
+	}, [profile, counts]);
+	const items = useMemo(
+		() => (profile ? (tab === ALL ? everything : forgeItems(profile, tab, counts)).filter((data) => type === 0 || data.item.type === type) : null),
+		[profile, tab, counts, type, everything],
+	);
+	const typeOptions = useMemo(
+		() =>
+			TYPE_TABS.map((option) => ({ value: option.value, title: option.title, status: everything.filter((data) => option.value === 0 || data.item.type === option.value).length })),
+		[everything],
+	);
 	const selected = items?.find((data) => data.item.id === active) ?? null;
 
 	const changeTab = (value: string) => {
@@ -167,9 +199,15 @@ export function ForgePanel({ id }: { id: string }) {
 		setActive(null);
 	};
 
+	const changeType = (value: number) => {
+		setType(value);
+		setActive(null);
+	};
+
 	const upgrade = async (data: ForgeItem) => {
 		// Второе нажатие, пока идёт первое, потратило бы ресурсы ещё раз
-		if (!bot.current || upgrading) return;
+		if (!bot.current || lock.current) return;
+		lock.current = true;
 		setLoading(true);
 		setUpgrading(true);
 		try {
@@ -182,68 +220,64 @@ export function ForgePanel({ id }: { id: string }) {
 			} else {
 				notify({ text: result?.msg ?? (typeof result === 'string' ? result : 'Неизвестная ошибка при улучшении предмета'), icon: 'error' });
 			}
-			await reload();
+			const fresh = await reload();
+			const lvl = Number(asArray(fresh?.i).find((entry) => Number(entry._id) === data.item.id)?._u);
+			// Остальные разделы берут уровни предметов из сессии
+			if (Number.isFinite(lvl)) setSession((state) => ({ ...state, itemsFull: state.itemsFull.map((owned) => (owned.id === data.item.id ? { ...owned, lvl } : owned)) }));
 			setActive(data.item.id);
 		} finally {
 			// Метка снимается всегда: иначе охранник выхода остался бы включённым, а кнопка заблокированной
+			lock.current = false;
 			setUpgrading(false);
 			setLoading(false);
 		}
 	};
 
 	// Подсказка внизу той же высоты, что и выбранный предмет с характеристиками
-	const placeholderSize = 68 + 16 + (isDesktop ? 56 : 100) - (20 + 56 + 12);
+	const placeholderSize = 68 + 16 + 56 + (isDesktop ? 0 : MOBILE_ACTION_HEIGHT) - (20 + 56 + 12);
 	const hint = (
 		<Placeholder className={styles.hint} icon={<Icon56FragmentsOutline />} style={{ padding: `${placeholderSize / 2 + 1}px 32px ${placeholderSize / 2}px` }}>
 			Выберите предмет для улучшения
 		</Placeholder>
 	);
 
-	const ready = !loading || items;
+	const ready = !!profile;
 	const top = ready ? (
-		<Tabs options={RESOURCES.map((resource) => ({ value: resource.id, title: resource.name, status: numberSpaces(counts[resource.id]) }))} value={tab} onChange={changeTab} />
+		<>
+			<Tabs options={typeOptions} value={type} onChange={changeType} />
+			<Divider size={8} />
+			<Tabs
+				options={[{ value: ALL, title: 'Все' }, ...RESOURCES.map((resource) => ({ value: resource.id, title: resource.name, status: numberSpaces(counts[resource.id]) }))]}
+				value={tab}
+				onChange={changeTab}
+			/>
+		</>
 	) : (
-		<Skeleton height={isDesktop ? 44 : 48} style={isDesktop ? undefined : { margin: '0 8px', width: 'auto' }} />
+		<TabsSkeleton rows={2} />
 	);
 
 	let bottom;
 	if (!ready) {
-		bottom = (
-			<>
-				<Skeleton height={68} style={isDesktop ? undefined : { margin: '0 8px', width: 'auto' }} />
-				<Divider />
-				<div className={styles.counters}>
-					<Skeleton height={56} width={isDesktop ? '30%' : '40%'} />
-					<Skeleton height={56} width={isDesktop ? '30%' : '40%'} />
-					<Skeleton height={isDesktop ? 56 : 36} width={isDesktop ? '30%' : '40%'} />
-				</div>
-			</>
-		);
+		bottom = <FooterSkeleton />;
 	} else if (selected) {
-		const resource = resourceOf(selected.item);
-		const price = selected.prices[selected.lvl]!;
-		const scrolls = SCROLLS[selected.lvl]!;
 		bottom = (
 			<>
-				<div className={styles.selected}>
-					<ItemCard
-						index={selected.index}
-						caption={`Необходимо ${numberSpaces(price)} ${resource ? numberForm(price, resource.forms) : ''} и ${scrolls} ${numberForm(scrolls, selected.lvl >= 5 ? ['жемчужина', 'жемчужины', 'жемчужин'] : ['заточка', 'заточки', 'заточек'])}`}
-						after={
-							selected.blocked ? (
-								<Button size="s" mode="secondary" disabled>
-									Не хватает ресурсов
-								</Button>
-							) : (
-								<Button size="s" mode="commerce" loading={loading} before={<Icon12ArrowUp />} onClick={() => void upgrade(selected)}>
-									Улучшить
-								</Button>
-							)
-						}
-					/>
-				</div>
+				<SelectedItem
+					index={selected.index}
+					button={({ stretched }) =>
+						selected.blocked ? (
+							<FooterButton stretched={stretched} mode="secondary" disabled>
+								Не хватает ресурсов
+							</FooterButton>
+						) : (
+							<FooterButton stretched={stretched} mode="commerce" loading={loading} before={<Icon12Add />} onClick={() => void upgrade(selected)}>
+								Улучшить
+							</FooterButton>
+						)
+					}
+				/>
 				<Divider />
-				<Counters data={selected} />
+				<ForgeCounters data={selected} counts={counts} />
 			</>
 		);
 	} else {
@@ -257,18 +291,18 @@ export function ForgePanel({ id }: { id: string }) {
 					items={items ?? []}
 					step={30}
 					height={372}
-					resetKey={tab}
+					resetKey={`${tab}-${type}`}
 					render={(data) => (
 						<ItemCard
 							key={data.item.id}
 							index={data.index}
 							selected={active === data.item.id}
 							onClick={() => setActive(active === data.item.id ? null : data.item.id)}
-							caption={`${data.lvl} уровень${data.scrolls ? `, ${data.scrolls} ${numberForm(data.scrolls, ['заточка', 'заточки', 'заточек'])}` : ''}`}
+							end={<Level lvl={data.lvl} />}
 						/>
 					)}
 				/>
-			) : (
+			) : loading ? (
 				<ScrollBox height={372}>
 					<ItemCardGrid>
 						{Array.from({ length: 10 }, (_, index) => (
@@ -276,6 +310,8 @@ export function ForgePanel({ id }: { id: string }) {
 						))}
 					</ItemCardGrid>
 				</ScrollBox>
+			) : (
+				<LoadFailed onRetry={() => void reload()} />
 			)}
 		</WikiPanel>
 	);

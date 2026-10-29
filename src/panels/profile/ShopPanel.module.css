@@ -1,0 +1,34 @@
+/* Цена справа в карточке списка */
+.price {
+	display: flex;
+	align-items: center;
+	font-size: 15px;
+	line-height: 20px;
+	font-weight: 500;
+	color: var(--text_primary);
+	white-space: nowrap;
+}
+
+.prices {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.short {
+	color: var(--destructive);
+}
+
+.dim {
+	color: var(--text_secondary);
+}
+
+/* Галочка у купленного предмета */
+.owned {
+	color: var(--dynamic_green);
+}
+
+/* Подсказка «Выберите предмет»: высота как у выбранного предмета с характеристиками */
+.hint {
+	overflow: hidden;
+}

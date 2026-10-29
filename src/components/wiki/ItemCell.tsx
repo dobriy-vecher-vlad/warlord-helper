@@ -55,9 +55,13 @@ export function ItemCell({ data, full = false }: ItemCellProps) {
 						<span>{numberSpaces(item.hp * 15)}</span>
 					</div>
 				</div>
-				<div className={styles.price}>
-					{numberSpaces(item.price)}
-					<span style={{ backgroundImage: `url(${PATH_IMAGES}currency/${item.currency}.png)` }} />
+				<div className={styles.prices}>
+					{item.prices.map(([currency, price]) => (
+						<div key={currency} className={styles.price}>
+							{numberSpaces(price)}
+							<span style={{ backgroundImage: `url(${PATH_IMAGES}currency/${currency}.png)` }} />
+						</div>
+					))}
 				</div>
 			</div>
 			<div className={`${styles.tooltip} ${full || tooltip ? styles.tooltipFull : ''}`}>

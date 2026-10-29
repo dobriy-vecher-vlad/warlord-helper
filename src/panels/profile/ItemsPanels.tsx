@@ -99,22 +99,6 @@ const ALL_ITEMS = ITEMS.map((_, index) => index);
 const COLLECTION_IDS = new Set<number>(Collections.items);
 const COLLECTION_ITEMS = ALL_ITEMS.filter((index) => COLLECTION_IDS.has(ITEMS[index]!.id));
 
-/** 1. Магазин: все предметы игры и какие из них куплены. */
-export function ShopPanel({ id }: { id: string }) {
-	return (
-		<StockPanel
-			id={id}
-			title="Магазин"
-			label={12}
-			source={ALL_ITEMS}
-			forms={['предмет', 'предмета', 'предметов']}
-			owned={['куплен', 'куплены', 'куплены']}
-			yesTitle="Купленные предметы"
-			noTitle="Не купленные предметы"
-		/>
-	);
-}
-
 /** 2. Коллекции: предметы-коллекции и какие из них собраны. */
 export function CollectionsPanel({ id }: { id: string }) {
 	return (

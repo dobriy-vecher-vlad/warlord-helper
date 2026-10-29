@@ -1,0 +1,14 @@
+/* Выбранный предмет внизу: без подложки и рамки (Card__Item--action) */
+.selected {
+	display: flex;
+	flex-direction: column;
+}
+
+:global([data-layout='mobile']) .selected {
+	padding: 0 8px;
+}
+
+/* Кнопка на телефоне: вторая строка под карточкой на всю ширину */
+.action {
+	margin-top: 8px;
+}

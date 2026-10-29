@@ -27,10 +27,14 @@ interface ItemCardProps {
 	selected?: boolean;
 	/** Своё содержимое справа (кнопка); подпись тогда переносится на несколько строк */
 	after?: ReactNode;
+	/** Содержимое справа без кнопки (цена, статус): карточка при этом остаётся нажимаемой */
+	end?: ReactNode;
+	/** Карточку нельзя нажать (без подсветки и действия) */
+	disabled?: boolean;
 }
 
 /** Компактная карточка предмета (в старом приложении — getItemPreview). */
-export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plain = false, selected, after }: ItemCardProps) {
+export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plain = false, selected, after, end, disabled }: ItemCardProps) {
 	const item = itemAt(index);
 	const open =
 		onClick ??
@@ -42,11 +46,17 @@ export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plai
 	const { loaded, imgProps } = useImgLoaded();
 	const { isDonut, owns } = useOwned();
 	if (!item) return null;
-	const classes = [styles.card, selected !== undefined ? styles.selectable : '', selected ? styles.selected : '', after ? styles.withAction : '', bottom ? styles.withBottom : '']
+	const classes = [
+		styles.card,
+		selected !== undefined ? styles.selectable : '',
+		selected ? styles.selected : '',
+		after || disabled ? styles.withAction : '',
+		bottom ? styles.withBottom : '',
+	]
 		.filter(Boolean)
 		.join(' ');
 	return (
-		<Tappable className={classes} onClick={after ? undefined : open} hasHover={!after} hasActive={!after}>
+		<Tappable className={classes} onClick={after || disabled ? undefined : open} hasHover={!after && !disabled} hasActive={!after && !disabled}>
 			<BorderedImage src={item.icon} className={styles.image} imgProps={imgProps}>
 				{!loaded && <Spinner size="m" className={styles.preload} />}
 			</BorderedImage>
@@ -57,6 +67,8 @@ export function ItemCard({ index, kind, caption, onClick, deepLink, bottom, plai
 			</span>
 			{after ? (
 				<span className={styles.action}>{after}</span>
+			) : end ? (
+				<span className={styles.end}>{end}</span>
 			) : plain || selected !== undefined ? null : isDonut ? (
 				// С подпиской вместо вида награды — есть ли предмет у персонажа
 				<span className={styles.after}>

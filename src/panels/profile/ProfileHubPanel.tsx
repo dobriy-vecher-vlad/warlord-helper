@@ -1,14 +1,14 @@
-import { useEffect, useMemo, useState, useSyncExternalStore } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import { Group, Panel, PullToRefresh, Spacing } from '@vkontakte/vkui';
 import { Icon28DonateCircleFillYellow, Icon56FaceIdOutline } from '@vkontakte/icons';
 import { findServer } from '../../api/servers';
 import { useIsDesktop } from '../../app/layout';
 import { AppHeader, CopyButton, HeaderTextButton } from '../../components/AppHeader';
 import { Divider } from '../../components/Divider';
-import { Skeleton } from '../../components/Skeleton';
 import { Button } from '../../components/form/Form';
 import { NavCell } from '../../components/wiki/NavCell';
 import Collections from '../../data/collections.json';
+import ShopData from '../../data/shop.json';
 import { numberForm, numberSpaces, type Forms } from '../../lib/format';
 import { ADMIN_VK_ID, CAMERA_PHOTO } from '../../profile/constants';
 import { hasPlayers } from '../../profile/invites/realms';
@@ -69,18 +69,8 @@ function EmptyName() {
 	);
 }
 
-/** Сколько всего предметов в каталоге. Каталог большой и грузится отдельным файлом, а не вместе с приложением; пока его нет — null. */
-function useCatalogSize(): number | null {
-	const [size, setSize] = useState<number | null>(null);
-	useEffect(() => {
-		let alive = true;
-		void import('../../lib/items').then((module) => alive && setSize(module.ITEMS.length));
-		return () => {
-			alive = false;
-		};
-	}, []);
-	return size;
-}
+/** Предметы, которые продаются в магазине (снимок каталога игры, как в панели «Магазин»): главная считает купленное из них, а не из всего каталога. */
+const SHOP_IDS = new Set(ShopData.map(([id]) => id));
 
 /** «Мой профиль»: галерея профилей, настройки и разделы профиля. */
 export function ProfileHubPanel({ id }: { id: string }) {
@@ -95,7 +85,6 @@ export function ProfileHubPanel({ id }: { id: string }) {
 	const server = useSession((s) => s.profiles[s.index]?.server);
 	const donutCount = useSession((s) => s.donutUsers?.response?.count ?? 0);
 	const draftId = useSession((s) => s.draft.id);
-	const catalogSize = useCatalogSize();
 	const donutIcon = !isDonut ? <Icon28DonateCircleFillYellow width={24} height={24} /> : undefined;
 
 	const header = (
@@ -123,6 +112,7 @@ export function ProfileHubPanel({ id }: { id: string }) {
 		if (isDonut && next !== index) void selectProfile(next);
 	};
 	// Коллекций сотни, предметов у игрока тоже: пересчёт только при изменении набора, а не при каждой отрисовке
+	const bought = useMemo(() => items.filter((id) => SHOP_IDS.has(id)).length, [items]);
 	const collected = useMemo(() => {
 		const owned = new Set(items);
 		return Collections.items.filter((item) => owned.has(item)).length;
@@ -158,29 +148,27 @@ export function ProfileHubPanel({ id }: { id: string }) {
 						Настройки профиля
 					</Button>
 					<Divider size={12} />
-					<NavCell profile title="Рейды" subtitle="Автоматизация" image="labels/4.png" count={donutIcon} onClick={() => openPanel('6')} />
+					<NavCell profile title="Рейды" subtitle="Подземелья и награды" image="labels/4.png" count={donutIcon} onClick={() => openPanel('6')} />
 					<NavCell
 						profile
 						title="Арена"
-						subtitle="Автоматизация"
+						subtitle="Бои и сундуки"
 						image="labels/30.png"
 						{...indicatorProps(numberSpaces(Number(game?._ap ?? 0)), Number(game?._ap ?? 0), ['кубок', 'кубка', 'кубков'])}
 						onClick={() => openPanel('7')}
 					/>
-					<NavCell profile title="Ресурсы" subtitle="Автоматизация" image="labels/14.png" count={donutIcon} onClick={() => openPanel('9')} />
-					<NavCell profile title="Кузница" subtitle="Автоматизация" image="labels/20.png" count={donutIcon} onClick={() => openPanel('10')} />
-					{hasPlayers(server ?? 1) && <NavCell profile title="Боссы" subtitle="Автоматизация" image="labels/29.png" count={donutIcon} onClick={() => openPanel('11')} />}
-					<Divider size={12} />
+					<NavCell profile title="Ресурсы" subtitle="Сбор наград и энергии" image="labels/14.png" count={donutIcon} onClick={() => openPanel('9')} />
 					<NavCell
 						profile
 						title="Магазин"
 						subtitle="Ассортимент предметов"
 						image="labels/12.png"
-						{...(catalogSize === null && isDonut
-							? { count: <Skeleton width={48} height={16} />, countLabel: <Skeleton width={56} height={14} /> }
-							: indicatorProps(`${items.length} / ${catalogSize}`, catalogSize ?? 0, ['предмет', 'предмета', 'предметов']))}
+						{...indicatorProps(`${bought} / ${ShopData.length}`, ShopData.length, ['предмет', 'предмета', 'предметов'])}
 						onClick={() => openPanel('1')}
 					/>
+					<NavCell profile title="Кузница" subtitle="Улучшение предметов" image="labels/20.png" count={donutIcon} onClick={() => openPanel('10')} />
+					{hasPlayers(server ?? 1) && <NavCell profile title="Боссы" subtitle="Приглашения и бои" image="labels/29.png" count={donutIcon} onClick={() => openPanel('11')} />}
+					<Divider size={12} />
 					<NavCell
 						profile
 						title="Коллекции"

@@ -5,7 +5,7 @@ import { ITEMS } from '../../lib/items';
 import { setSession } from '../../profile/session';
 import { initNav } from '../../store/nav';
 import { flush, installBrowserStubs, render } from '../../test/harness';
-import { CollectionsPanel, InlayPanel, ShopPanel } from './ItemsPanels';
+import { CollectionsPanel, InlayPanel } from './ItemsPanels';
 import { getGame } from '../../api/game';
 import { getBridge } from '../../profile/vk';
 import { getModalStack, closeModal } from '../../store/modal';
@@ -63,14 +63,6 @@ beforeEach(() => {
 });
 
 describe('страницы предметов профиля', () => {
-	it('«Магазин» считает купленные и не купленные предметы', async () => {
-		await show(ShopPanel);
-		await settle();
-		expect(text()).toContain('Магазин');
-		expect(text()).toContain(`${ITEMS.length} `);
-		expect(text()).toContain('1 предмет');
-	});
-
 	it('«Коллекции» не падают с пустым набором собранных', async () => {
 		setSession({ items: [], itemsFull: [] });
 		await show(CollectionsPanel);

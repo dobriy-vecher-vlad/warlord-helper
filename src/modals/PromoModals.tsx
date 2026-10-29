@@ -5,7 +5,7 @@ import {
 	Icon24PawOutline,
 	Icon24CupOutline,
 	Icon24HammerOutline,
-	Icon24MoneyCircleOutline,
+	Icon24MarketOutline,
 	Icon24PollOutline,
 	Icon24SkullOutline,
 	Icon24TshirtOutline,
@@ -36,7 +36,13 @@ const ARENA = { icon: icon(Icon24CupOutline), title: 'Арена', text: 'Наб
 const BOSSES: FeatureData = {
 	icon: icon(Icon24PawOutline),
 	title: 'Боссы',
-	text: 'Принимайте приглашения на боссов со всей игры и автоматически их убивайте',
+	text: 'Приглашения на боссов со всей игры и удобное создание своих',
+	badge: { mode: 'prominent', label: 'Новое' },
+};
+const SHOP: FeatureData = {
+	icon: icon(Icon24MarketOutline),
+	title: 'Магазин',
+	text: 'Удобная сортировка магазина и быстрая покупка предметов',
 	badge: { mode: 'prominent', label: 'Новое' },
 };
 const FORGE = { icon: icon(Icon24HammerOutline), title: 'Кузница', text: 'Удобно сортируйте и улучшайте в один клик любой предмет' };
@@ -48,9 +54,9 @@ const DONUT_FEATURES: FeatureData[] = [
 	ARENA,
 	FORGE,
 	BOSSES,
+	SHOP,
 	{ icon: icon(Icon24Users3Outline), title: 'Друзья', text: 'Сканируйте всех ваших друзей, выводя их в удобном и сортируемом списке' },
 	{ icon: icon(Icon24TshirtOutline), title: 'Наличие предметов', text: 'Напротив каждого предмета в приложении будет указываться его наличие у вас' },
-	{ icon: icon(Icon24MoneyCircleOutline), title: 'Список предметов', text: 'Список предметов с подробной информацией' },
 	{ icon: icon(Icon24PollOutline), title: 'Затраты', text: 'Считайте затраты на боссов, арену, казну гильдии и предметы ещё эффективнее' },
 ];
 
@@ -63,7 +69,7 @@ const GLOWS = [
 ];
 
 /** В окне акции показаны главные преимущества, об остальных сказано кратко. */
-const SALES_FEATURES = [BIND, RAID, ARENA, FORGE, BOSSES];
+const SALES_FEATURES = [BIND, RAID, ARENA, FORGE, BOSSES, SHOP];
 
 /** Неразрывные пробелы: после коротких слов (предлоги, союзы, числа) и перед последним словом, чтобы строка не рвалась неудачно. */
 const tie = (text: string) => {

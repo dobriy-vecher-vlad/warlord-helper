@@ -52,6 +52,8 @@ export interface ProfileResponse {
 	pets?: { p?: OneOrMany<Attrs> };
 	/** Заточки (свитки) по предметам: `_id` предмета и количество `_cnt` */
 	iupgrade?: { i?: OneOrMany<Attrs> };
+	/** Каталог магазина игры: `i` — предмет (`_id`, цены `_p1…_p6`, уровень `_l4`, признак личного `_is_p`, условия получения `_l1…_l16`) */
+	shop?: { i?: OneOrMany<Attrs> };
 	/** Все боссы игры: `u` — босс (`_rid`, `_rn` — место на карте, `_type`, `_epr` — энергия, `_rq1` — уровень, `_rlmt` — попыток), `r` — награда */
 	npcs?: { npc?: OneOrMany<{ u: Attrs; r?: Attrs }>; /** Сколько раз игрок убил каждого босса: `_id` босса и `_v` убийств */ kill?: OneOrMany<Attrs> };
 }

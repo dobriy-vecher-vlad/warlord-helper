@@ -2,6 +2,9 @@ import ITEMS_JSON from '../data/items.json';
 import type { ItemFilter } from '../store/itemFilter';
 export { DEFAULT_FILTER, type ItemFilter } from '../store/itemFilter';
 
+/** Цена в одной валюте: номер валюты (media/images/currency/{n}.png) и сумма. */
+export type ItemPrice = [currency: number, price: number];
+
 /** Предмет из каталога. */
 export interface Item {
 	id: number;
@@ -9,9 +12,8 @@ export interface Item {
 	description: string;
 	dmg: number;
 	hp: number;
-	price: number;
-	/** Номер валюты: media/images/currency/{n}.png */
-	currency: number;
+	/** Цена по валютам: у большинства предметов одна, у предметов кузницы гильдии две (аметисты и топазы) */
+	prices: ItemPrice[];
 	icon: string;
 	type: number;
 	fragments: unknown[];
@@ -30,7 +32,11 @@ export interface ItemRef {
 	tooltip?: string[] | string;
 }
 
-export const ITEMS: readonly Item[] = ITEMS_JSON;
+/** JSON отдаёт цены как number[][], а не кортежи, поэтому приведение через unknown. */
+export const ITEMS = ITEMS_JSON as unknown as readonly Item[];
+
+/** Индекс предмета в каталоге по игровому id. */
+export const ITEM_INDEX: ReadonlyMap<number, number> = new Map(ITEMS.map((item, index) => [item.id, index]));
 
 /** Типы предметов каталога: номер типа и название группы (порядок как на вкладках профиля). */
 export const ITEM_TYPES = [

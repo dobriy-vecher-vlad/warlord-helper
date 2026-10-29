@@ -22,7 +22,8 @@ export type ModalId =
 	| 'battleResult'
 	| 'participants'
 	| 'create'
-	| 'killAll';
+	| 'killAll'
+	| 'shopBuy';
 
 export interface ModalEntry {
 	id: ModalId;
