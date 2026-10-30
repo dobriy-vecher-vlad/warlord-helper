@@ -40,32 +40,36 @@ interface GroupLinkProps {
 	onClick?: () => void;
 	/** Значение `modal=` в ссылке, по которому действие выполняется автоматически */
 	deepLink?: string;
+	/** Стрелка справа от надписи (по умолчанию есть): у ссылок, которые открывают раздел; у действий («Изменить») её нет */
+	chevron?: boolean;
 }
 
 /** Ссылка в заголовке группы со стрелкой: «Открыть карту ›». Внешняя (`href`) или действие (`onClick`, его можно вызвать ссылкой). */
-export function GroupLink({ children, href, onClick, deepLink }: GroupLinkProps) {
+export function GroupLink({ children, href, onClick, deepLink, chevron = true }: GroupLinkProps) {
 	return href ? (
-		<ExternalGroupLink href={href}>{children}</ExternalGroupLink>
+		<ExternalGroupLink href={href} chevron={chevron}>
+			{children}
+		</ExternalGroupLink>
 	) : (
-		<ActionGroupLink onClick={onClick} deepLink={deepLink}>
+		<ActionGroupLink onClick={onClick} deepLink={deepLink} chevron={chevron}>
 			{children}
 		</ActionGroupLink>
 	);
 }
 
-function ExternalGroupLink({ href, children }: { href: string; children: ReactNode }) {
+function ExternalGroupLink({ href, children, chevron }: { href: string; children: ReactNode; chevron: boolean }) {
 	return (
 		<a href={href} target="_blank" rel="noreferrer" className={styles.headerLink}>
-			{children} <Icon12ChevronOutline />
+			{children} {chevron && <Icon12ChevronOutline />}
 		</a>
 	);
 }
 
-function ActionGroupLink({ onClick, deepLink, children }: Omit<GroupLinkProps, 'href'>) {
+function ActionGroupLink({ onClick, deepLink, children, chevron }: Omit<GroupLinkProps, 'href'> & { chevron: boolean }) {
 	useDeepLink(deepLink, onClick);
 	return (
 		<a {...clickable(onClick)} className={styles.headerLink}>
-			{children} <Icon12ChevronOutline />
+			{children} {chevron && <Icon12ChevronOutline />}
 		</a>
 	);
 }

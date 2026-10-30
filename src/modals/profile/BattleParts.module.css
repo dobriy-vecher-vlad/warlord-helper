@@ -256,14 +256,23 @@
 }
 
 /*
- * Высота лога в закреплённом низу: без кнопки «Позвать друзей» 244px, с ней 204px (кнопка занимает 40px) — и на компьютере,
- * и на телефоне (там место под две строки кнопок освобождено списком участников в три строки).
+ * Высота лога в закреплённом низу: без кнопки «Позвать друзей» 192px на компьютере и 244px на телефоне, с ней меньше на высоту
+ * кнопки с зазором (на компьютере 44px, на телефоне 40px). На компьютере «Обновить» и «Рассчитать убийство» стоят двумя строками
+ * по 36px, а на телефоне место под них освобождено списком участников в три строки.
  */
 .logBox > div:first-child > div:first-child {
-	height: 244px;
+	height: 192px;
 }
 
 .logBoxShort > div:first-child > div:first-child {
+	height: 148px;
+}
+
+:global([data-layout='mobile']) .logBox > div:first-child > div:first-child {
+	height: 244px;
+}
+
+:global([data-layout='mobile']) .logBoxShort > div:first-child > div:first-child {
 	height: 204px;
 }
 
@@ -272,17 +281,6 @@
 	margin: -6px -8px;
 	padding: 6px 8px;
 	border-radius: 10px;
-}
-
-/* Рассчитать убийство и Обновить в один ряд, ровно над четырьмя кнопками ударов; на телефоне — двумя строками на всю ширину */
-.pairButtons {
-	display: grid;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: 8px;
-}
-
-:global([data-layout='mobile']) .pairButtons {
-	grid-template-columns: minmax(0, 1fr);
 }
 
 /* Разделитель между блоками боя и настройками: во всю ширину окна */

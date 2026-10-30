@@ -1,6 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { Button } from '../components/form/Form';
 import styles from './ErrorBoundary.module.css';
+import { FooterButton } from '../components/form/FooterButton';
 
 interface ErrorBoundaryProps {
 	children: ReactNode;
@@ -27,9 +27,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, { failed: boole
 			<div className={styles.error}>
 				<div className={styles.title}>Что-то пошло не так</div>
 				<div className={styles.text}>Приложение столкнулось с ошибкой. Попробуйте обновить страницу.</div>
-				<Button mode="primary" onClick={() => window.location.reload()}>
+				<FooterButton mode="primary" onClick={() => window.location.reload()}>
 					Обновить
-				</Button>
+				</FooterButton>
 			</div>
 		);
 	}

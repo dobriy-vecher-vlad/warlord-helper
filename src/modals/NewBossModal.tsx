@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { FormItem, Input } from '@vkontakte/vkui';
 import { CopyButton } from '../components/AppHeader';
-import { Button } from '../components/form/Form';
 import { NEW_BOSS_LINK } from '../panels/calcPanels';
 import { createCustomBoss } from '../store/bossCalc';
 import { backModal } from '../store/modal';
 import { ClassicModal } from './ClassicModal';
 import styles from './NewBossModal.module.css';
 import { useOnChange } from '../lib/useOnChange';
+import { FooterButton } from '../components/form/FooterButton';
 
 /** Поле в карточке окна (Card + FormItem + Input в старом приложении). */
 function Field({ label, hint, value, onChange }: { label: string; hint: string; value: string; onChange: (value: string) => void }) {
@@ -42,9 +42,9 @@ export function NewBossModal({ open }: { open: boolean }) {
 					<Field label="Атака" hint="Введите атаку вашего противника" value={dmg} onChange={setDmg} />
 				</div>
 				<div className={styles.actions}>
-					<Button stretched mode="commerce" onClick={create}>
+					<FooterButton stretched mode="commerce" onClick={create}>
 						Подтвердить
-					</Button>
+					</FooterButton>
 				</div>
 			</div>
 		</ClassicModal>

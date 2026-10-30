@@ -6,7 +6,7 @@ import { ITEMS, ITEM_INDEX, type Item, type ItemPrice } from '../lib/items';
 import type { Forms } from '../lib/format';
 import { asArray, type BotAuth } from './bots/common';
 
-/** Валюты предметов магазина в порядке вкладки «Ресурсы»: номер — `Item.currency` (картинка `currency/N.png`, поле профиля `_mN`). */
+/** Валюты предметов магазина в порядке вкладки «Ресурсы»: номер — `Item.currency` (картинка `currency/all/mN.png`, поле профиля `_mN`). */
 export const CURRENCIES: readonly { id: number; name: string; forms: Forms }[] = [
 	{ id: 3, name: 'Золото', forms: ['золото', 'золота', 'золота'] },
 	{ id: 1, name: 'Серебро', forms: ['серебро', 'серебра', 'серебра'] },
@@ -134,11 +134,6 @@ export function sortShop(list: readonly ShopItem[], wallet: Wallet): ShopItem[] 
 		.sort((a, b) => a.rank - b.rank || a.entry.level - b.entry.level || a.entry.prices[0]![1] - b.entry.prices[0]![1])
 		.map(({ entry }) => entry);
 }
-
-/** Дорогая цена (от 100 000 серебра или золота, от 1000 любых других валют): перед покупкой с ней спрашивается подтверждение. */
-export const isExpensivePrice = ([currency, price]: ItemPrice): boolean => (currency === 1 || currency === 3 ? price >= 100_000 : price >= 1000);
-
-export const isExpensive = ({ prices }: { prices: readonly ItemPrice[] }): boolean => prices.some(isExpensivePrice);
 
 /** Предметы профиля игры по признаку `_o`: 1 — куплены, 0 — выпали, но не куплены. */
 function idsWhere(profile: ProfileResponse | null, flag: 0 | 1): Set<number> {

@@ -1,0 +1,32 @@
+/*
+ * Кнопки размера S (лоадер 16px, как на стартовом экране рейдов) высотой 36px и на ПК, и на телефоне:
+ * у S 28px (30px на телефоне), у M 32px (36px); шрифт на ПК у обоих размеров одинаковый, на телефоне — см. ниже
+ */
+.footerButton.footerButton {
+	min-height: var(--vkui--size_button_medium_height--regular);
+}
+
+/* Телефон: шрифт как у M (у S 14/18); тройной класс, чтобы перебить подгонку шрифта размера S в Form.module.css */
+:global([data-layout='mobile']) .footerButton.footerButton.footerButton :global(.vkuiButton__content) {
+	font-size: 16px;
+	line-height: 20px;
+}
+
+/* Число на зелёной кнопке (Counter s prominent на кнопке VKUI 4): круг цвета текста кнопки, цифра цветом кнопки */
+.buttonCounter {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 18px;
+	height: 18px;
+	padding: 0 5px;
+	box-sizing: border-box;
+	border-radius: 9px;
+	background: currentColor;
+	font-size: 12px;
+	line-height: 14px;
+}
+
+.buttonCounter > span {
+	color: var(--button_commerce_background);
+}

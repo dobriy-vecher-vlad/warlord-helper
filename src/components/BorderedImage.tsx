@@ -16,8 +16,11 @@ interface BorderedImageProps {
 /** Папки, где белая обводка нарисована в самой картинке: её убираем (ImageCrop в shell.css). */
 const CROPPED = /^(stones|rooms|keys|collections|bosses\/icons|items)\//;
 
+/** Плитки валют с фоном (`currency/all/m1_big.png`, 67×71): белая обводка нарисована в самом файле, как у картинок из CROPPED. */
+export const isCurrencyTile = (src: string) => /^currency\/all\/\w+_big\.png$/.test(src);
+
 /** У картинки из этих папок белая обводка нарисована в самом файле. */
-export const hasBakedBorder = (src: string) => CROPPED.test(src);
+export const hasBakedBorder = (src: string) => CROPPED.test(src) || isCurrencyTile(src);
 
 /**
  * Срез вшитой обводки по папкам, % от размера картинки: [по ширине, по высоте]. Обводка 5px при размере файла 67×71 даёт 7,5% и 7%,

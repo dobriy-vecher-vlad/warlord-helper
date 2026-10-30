@@ -1,0 +1,41 @@
+/* Заголовок как у модалок (VK Sans Display 21px), выравнивание слева, как в штатном Alert */
+.title {
+	display: block;
+	color: var(--text_primary);
+	font-family: var(--font-display);
+	font-size: 21px;
+	font-weight: 500;
+	line-height: 26px;
+}
+
+/* Текст как в окне ошибки: 15px, вторичным цветом, слева */
+.text {
+	display: block;
+	margin-top: 6px;
+	color: var(--text_secondary);
+	font-size: 15px;
+	line-height: 20px;
+}
+
+/*
+ * Кнопки как в нижней панели бота, без стилей Alert: он подставляет шрифт платформы vkcom (Roboto → Arial, тоньше) и отступ 4px
+ * у каждой кнопки. Шрифт возвращается приложению, отступ заменён зазором 8px, как между кнопками футера.
+ */
+.alert :global(.vkuiAlert__actions) {
+	gap: 8px;
+	/* Отступ от границы окна 16px со всех сторон (у Alert 24px, а у кнопок справа 20px и снизу 12px) */
+	padding: 0 16px 16px;
+}
+
+.alert :global(.vkuiAlert__content) {
+	/* Сверху и по бокам 16px, снизу 20px, как у Alert: это зазор между текстом и кнопками */
+	padding: 16px 16px 20px;
+}
+
+.alert :global(.vkuiAlert__actions) > * {
+	margin: 0;
+}
+
+.alert :global(.vkuiAlert__actions) :global(.vkuiButton__content) {
+	font-family: -apple-system, system-ui, 'Helvetica Neue', Roboto, sans-serif;
+}

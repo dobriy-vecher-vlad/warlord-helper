@@ -175,14 +175,14 @@ export function rewardCards(reward: Reward | undefined): { image: string; title:
 		else cards.push({ image: '', title: 'Ошибка', subtitle: 'Предмет не найден', item: true });
 	}
 	const resources: [`_${string}`, string, string, boolean][] = [
-		['_exp', 'bot/raids/10.png', 'Опыт', true],
-		['_m1', 'bot/raids/12.png', 'Серебро', true],
-		['_m3', 'bot/raids/11.png', 'Золото', true],
-		['_m6', 'bot/raids/21.png', 'Турмалины', false],
-		['_pf1', 'bot/raids/20.png', 'Еда', false],
-		['_i2', 'bot/raids/18.png', 'Целебные зелья', false],
-		['_i1', 'bot/raids/17.png', 'Свитки молнии', false],
-		['_i3', 'bot/raids/16.png', 'Свитки огня', false],
+		['_exp', 'currency/all/exp_big.png', 'Опыт', true],
+		['_m1', 'currency/all/m1_big.png', 'Серебро', true],
+		['_m3', 'currency/all/m3_big.png', 'Золото', true],
+		['_m6', 'currency/all/m6_big.png', 'Турмалины', false],
+		['_pf1', 'currency/all/pf1_big.png', 'Еда', false],
+		['_i2', 'currency/all/i2_big.png', 'Целебные зелья', false],
+		['_i1', 'currency/all/i1_big.png', 'Свитки молнии', false],
+		['_i3', 'currency/all/i3_big.png', 'Свитки огня', false],
 	];
 	for (const [key, image, title, spaces] of resources) {
 		const value = reward?.[key];

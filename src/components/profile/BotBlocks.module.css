@@ -25,6 +25,11 @@
 	height: calc(100% + 6px);
 }
 
+/* Плитка валюты: растягиваем от центра ровно на вшитую обводку (--crop-kx из cropStyle), лишнее срезает overflow */
+.thumbTile img {
+	transform: scale(var(--crop-kx, 1.176));
+}
+
 .thumb::after {
 	content: '';
 	position: absolute;
@@ -321,22 +326,4 @@
 
 .gap {
 	height: 8px;
-}
-
-/*
- * Кнопки под логом размера S (лоадер 16px, как на стартовом экране рейдов) по высоте такие же, как M:
- * у S 28px (30px на телефоне), у M 32px (36px); шрифт на ПК у обоих размеров одинаковый, на телефоне — см. ниже
- */
-.footerButton.footerButton {
-	min-height: var(--vkui--size_button_medium_height--compact);
-}
-
-:global([data-layout='mobile']) .footerButton.footerButton {
-	min-height: var(--vkui--size_button_medium_height--regular);
-}
-
-/* Телефон: шрифт как у M (у S 14/18); тройной класс, чтобы перебить подгонку шрифта размера S в Form.module.css */
-:global([data-layout='mobile']) .footerButton.footerButton.footerButton :global(.vkuiButton__content) {
-	font-size: 16px;
-	line-height: 20px;
 }

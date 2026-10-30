@@ -9,9 +9,10 @@
 	padding: 0 8px;
 }
 
-/* Создать и Обновить в один ряд */
+/* Обновить и Создать: каждая кнопка в своём ряду на всю ширину */
 .buttons {
 	display: flex;
+	flex-direction: column;
 	gap: 8px;
 }
 

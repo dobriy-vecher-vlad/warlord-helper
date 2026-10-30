@@ -40,22 +40,51 @@ export function joinRewards(rewards: readonly RawReward[]): Joined {
 	return result;
 }
 
+/**
+ * Предметы для улучшения зданий на карте (поля `_k1…_k10`): названия те же, что в `map.json` (`builds[].item`). Список здесь, а не импорт карты:
+ * `map.json` весит 53 КБ, а этот файл входит в главный чанк.
+ */
+const BUILD_ITEMS = [
+	'Хвост Крысюка',
+	'Паучье жало',
+	'Яд паука',
+	'Череп скелета',
+	'Украденный свиток',
+	'Ожерелье тролля',
+	'Лапа Болотника',
+	'Свиток Некроманта',
+	'Золотые дублоны',
+	'Руна',
+];
+
 /** Ресурсы награды: поле ответа, картинка и подпись (порядок как в старом логе). */
 const RESOURCES: [`_${string}`, string, string][] = [
-	['_m1', 'bot/raids/12.png', 'Серебро'],
-	['_m2', 'bot/raids/13.png', 'Рубины'],
-	['_m3', 'bot/raids/11.png', 'Золото'],
-	['_m4', 'bot/raids/15.png', 'Аметисты'],
-	['_m5', 'bot/raids/14.png', 'Топазы'],
-	['_m6', 'bot/raids/21.png', 'Турмалины'],
-	['_m7', 'bot/raids/22.png', 'Пергаменты'],
-	['_m9', 'bot/raids/112.png', 'Редкие жемчужины'],
-	['_i2', 'bot/raids/18.png', 'Целебные зелья'],
-	['_i1', 'bot/raids/17.png', 'Свитки молнии'],
-	['_i3', 'bot/raids/16.png', 'Свитки огня'],
-	['_pf1', 'bot/raids/20.png', 'Еда'],
-	['_en', 'bot/raids/19.png', 'Энергия'],
-	['_exp', 'bot/raids/10.png', 'Опыт'],
+	['_m1', 'currency/all/m1_big.png', 'Серебро'],
+	['_m2', 'currency/all/m2_big.png', 'Рубины'],
+	['_m3', 'currency/all/m3_big.png', 'Золото'],
+	['_m4', 'currency/all/m4_big.png', 'Аметисты'],
+	['_m5', 'currency/all/m5_big.png', 'Топазы'],
+	['_m6', 'currency/all/m6_big.png', 'Турмалины'],
+	['_m7', 'currency/all/m7_big.png', 'Пергаменты'],
+	['_m9', 'currency/all/m9_big.png', 'Редкие жемчужины'],
+	['_i2', 'currency/all/i2_big.png', 'Целебные зелья'],
+	['_i1', 'currency/all/i1_big.png', 'Свитки молнии'],
+	['_i3', 'currency/all/i3_big.png', 'Свитки огня'],
+	['_pf1', 'currency/all/pf1_big.png', 'Еда'],
+	['_en', 'currency/all/en_big.png', 'Энергия'],
+	['_exp', 'currency/all/exp_big.png', 'Опыт'],
+	['_ap', 'currency/all/ap_big.png', 'Кубки арены'],
+	// Ключи 1…10: предметы для улучшения зданий на карте (картинка из currency/all)
+	...BUILD_ITEMS.map((title, index): [`_${string}`, string, string] => [`_k${index + 1}`, `currency/all/k${index + 1}_big.png`, title]),
+	// Ивентовые валюты: клиент считает только 2…6 и 8…10 (event8 — повтор значка защитника)
+	['_event2', 'currency/all/event2_big.png', 'Тыквы'],
+	['_event3', 'currency/all/event3_big.png', 'Конфеты'],
+	['_event4', 'currency/all/event4_big.png', 'Значки защитника'],
+	['_event5', 'currency/all/event5_big.png', 'Самоцветы'],
+	['_event6', 'currency/all/event6_big.png', 'Значки обороны'],
+	['_event8', 'currency/all/event8_big.png', 'Значки защитника'],
+	['_event9', 'currency/all/event9_big.png', 'Футбольные мячи'],
+	['_event10', 'currency/all/event10_big.png', 'Осколки'],
 ];
 
 /** Предмет награды -> строка лога; неизвестный предмет пропускается (как в старом приложении). */

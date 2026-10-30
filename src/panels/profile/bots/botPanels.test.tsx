@@ -52,7 +52,7 @@ describe('страница «Ресурсы»', () => {
 		expect(text()).toContain('Ресурсы');
 		expect(text()).toContain('Ежедневная награда');
 		expect(text()).toContain('Обыск друзей');
-		expect(button('Собрать всё')?.disabled).toBe(false);
+		expect(button('Запустить')?.disabled).toBe(false);
 		expect(button('Обновить')?.disabled).toBe(false);
 	});
 
@@ -81,6 +81,42 @@ describe('страница «Ресурсы»', () => {
 		await show(ResourcesBotPanel);
 		await settle();
 		expect(getModalStack().map((entry) => entry.id)).toEqual(['settings']);
+	});
+
+	it('во время сбора «Остановить» блокируется, в лог пишется пауза, после остановки кнопки возвращаются', async () => {
+		const release: { fn?: (value: unknown) => void } = {};
+		let armed = false;
+		game.mockImplementation(async (_server: number | string, body: Record<string, string | number> = {}) => {
+			if (Object.keys(body).length === 0 && armed) await new Promise((resolve) => (release.fn = resolve));
+			return profile;
+		});
+		// У кнопки с индикатором загрузки в тексте есть служебная надпись спиннера: ищем по вхождению
+		const stopButton = () => [...document.body.querySelectorAll('button')].find((item) => item.textContent?.includes('Остановить')) as HTMLButtonElement | undefined;
+		await show(ResourcesBotPanel);
+		await settle();
+		expect(stopButton()?.disabled).toBe(true);
+		armed = true;
+		await click(button('Запустить')!);
+		await flush();
+		expect(stopButton()?.disabled).toBe(false);
+		await click(stopButton()!);
+		await flush();
+		expect(stopButton()?.disabled).toBe(true);
+		expect(text()).toContain('Бот поставлен на паузу');
+		armed = false;
+		release.fn?.(null);
+		await settle();
+		expect(button('Запустить')?.disabled).toBe(false);
+		expect(stopButton()?.disabled).toBe(true);
+		expect(text()).not.toContain('все ресурсы собраны');
+	});
+
+	it('первая строка нижней панели: «Обновить» одна, во второй «Запустить», в третьей «Остановить»', async () => {
+		game.mockResolvedValue(profile);
+		await show(ResourcesBotPanel);
+		await settle();
+		const parents = ['Обновить', 'Запустить', 'Остановить'].map((name) => button(name)!.parentElement);
+		expect(new Set(parents).size).toBe(3);
 	});
 });
 
@@ -130,7 +166,11 @@ describe('страница «Арена»', () => {
 		await click(button('Запустить')!);
 		await settle();
 		expect(text()).toContain('Бот запущен');
-		expect(text()).toContain('Убили противника');
+		expect(text()).toContain('Убит противник с 30 HP и 1 DMG');
+		expect(text()).toContain('Кубки арены');
+		expect(text()).toContain('+19 ед.');
+		expect(text()).toContain('Опыт');
+		expect(text()).not.toContain('Обнаружен противник');
 		expect(text()).toContain('Не хватает золота на создание противника');
 		// Бот остановлен: страница снова управляется кнопками
 		expect(button('Запустить')?.disabled).toBe(false);
@@ -154,6 +194,94 @@ describe('страница «Арена»', () => {
 		await settle();
 		// Данные арены не пришли в первый раз: бот уходит со страницы (панель закрывается), кнопки не должны висеть в загрузке
 		expect(button('Запустить')?.disabled ?? false).toBe(false);
+	});
+
+	it('победа с сундуком: тип выпавшего сундука берётся из нового сундука в профиле, под записью награда', async () => {
+		let fought = false;
+		game.mockImplementation(async (_server: number | string, body: Record<string, string | number> = {}) => {
+			if (Object.keys(body).length === 0) {
+				const old = [{ _id: '1', _ci: '1' }];
+				return { u: player(), chests: { ch: fought ? [...old, { _id: '2', _ci: '3' }] : old } };
+			}
+			if (body.i === 9) return { u: enemy, my_rating: { _val: '42' } };
+			if (body.i === 11) return { fight: { _hp: '15', _myhp: '300', _esk: '0', _myr: '0' } };
+			if (body.i === 12) {
+				fought = true;
+				return { fight: { _hp: '0', _myhp: '300', _esk: '0', _myr: '0' }, r: [{ _ci: '3' }, { _exp: '7' }] };
+			}
+			return null;
+		});
+		await show(ArenaBotPanel);
+		await settle();
+		await click(button('Запустить')!);
+		await settle();
+		expect(text()).toContain('Убит противник с 30 HP и 1 DMG');
+		expect(text()).toContain('Золотой сундук');
+		expect(text()).toContain('7 ед.');
+		expect(text()).toContain('+19 ед.');
+	});
+
+	it('сундук без новой записи в профиле показывается общим «Сундук»', async () => {
+		game.mockImplementation(async (_server: number | string, body: Record<string, string | number> = {}) => {
+			if (Object.keys(body).length === 0) return { u: player(), chests: { ch: [{ _id: '1', _ci: '1' }] } };
+			if (body.i === 9) return { u: enemy, my_rating: { _val: '42' } };
+			if (body.i === 11) return { fight: { _hp: '15', _myhp: '300', _esk: '0', _myr: '0' } };
+			if (body.i === 12) return { fight: { _hp: '0', _myhp: '300', _esk: '0', _myr: '0' }, r: [{}, { _exp: '7' }] };
+			return null;
+		});
+		await show(ArenaBotPanel);
+		await settle();
+		await click(button('Запустить')!);
+		await settle();
+		expect(text()).toContain('Убит противник');
+		expect(text()).toContain('Сундук');
+		expect(text()).not.toContain('Золотой сундук');
+	});
+
+	it('проигрыш: запись с потерянными кубками и отдельная строка со счётчиком', async () => {
+		game.mockImplementation(async (_server: number | string, body: Record<string, string | number> = {}) => {
+			if (Object.keys(body).length === 0) return { u: player(), chests: { ch: [] } };
+			if (body.i === 9) return { u: enemy, my_rating: { _val: '42' } };
+			if (body.i === 11) return { fight: { _hp: '15', _myhp: '300', _esk: '0', _myr: '0' } };
+			if (body.i === 12) return { fight: { _hp: '15', _myhp: '0', _esk: '0', _myr: '0' } };
+			return null;
+		});
+		await show(ArenaBotPanel);
+		await settle();
+		await click(button('Запустить')!);
+		await settle();
+		expect(text()).toContain('Противник оказался сильнее с 30 HP и 1 DMG');
+		expect(text()).toContain('-16 ед.');
+		expect(text()).toContain('Противник оказался сильнее 1 из 20');
+	});
+
+	it('пропуск за энергию: запись о противнике и отдельная строка со счётчиком', async () => {
+		localStorage.setItem('arenaSettings', JSON.stringify({ useEnergy: true, useGold: false, useLoss: true, useChest: false, tryLimit: 20 }));
+		const strong = { ...enemy, _dmgi: '100000', _end: '1000', _endi: '1000' };
+		game.mockImplementation(async (_server: number | string, body: Record<string, string | number> = {}) => {
+			if (Object.keys(body).length === 0) return { u: player(), chests: { ch: [] } };
+			if (body.i === 9) return { u: strong, my_rating: { _val: '42' } };
+			return null;
+		});
+		await show(ArenaBotPanel);
+		await settle();
+		await click(button('Запустить')!);
+		await settle();
+		expect(text()).toContain('Пропущен противник с');
+		expect(text()).toContain('Пропустили противника 1 из 20');
+		expect(text()).toContain('Не хватает энергии на пропуск противника');
+	});
+
+	it('кнопки: «Обновить» одна в первой строке, «Запустить» и «Остановить» во второй', async () => {
+		game.mockImplementation(reply());
+		await show(ArenaBotPanel);
+		await settle();
+		const rows = (names: string[]) => names.map((name) => button(name)!.parentElement!);
+		const [refresh, start, stop] = rows(['Обновить', 'Запустить', 'Остановить']);
+		expect(refresh).not.toBe(start);
+		expect(start).toBe(stop);
+		expect(refresh!.querySelectorAll('button')).toHaveLength(1);
+		expect(start!.querySelectorAll('button')).toHaveLength(2);
 	});
 });
 

@@ -15,6 +15,7 @@ import {
 import { useIsDesktop } from '../app/layout';
 import { AppHeader } from '../components/AppHeader';
 import { Divider } from '../components/Divider';
+import { FooterButton } from '../components/form/FooterButton';
 import { PATH_IMAGES, WIKI_VERSION } from '../config';
 import dataMain from '../data/main.json';
 import { isEmbedded } from '../lib/platform';
@@ -112,9 +113,9 @@ function Banners() {
 						<Preload src={`${PATH_IMAGES}${banner.icon}`} size="xl" className={styles.bannerPreload} />
 						<div className={styles.bannerImage} style={{ backgroundImage: `url(${PATH_IMAGES}${banner.icon})` }} />
 						<div className={styles.bannerContent}>
-							<a className={styles.bannerButton} href={banner.link} target="_blank" rel="noreferrer">
+							<FooterButton mode="secondary" className={styles.bannerButton} href={banner.link}>
 								{banner.action}
-							</a>
+							</FooterButton>
 						</div>
 					</div>
 				</div>

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Button } from '../../components/form/Form';
 import { Currency } from '../../components/wiki/Currency';
 import { ItemCard } from '../../components/wiki/ItemCard';
 import { numberSpaces } from '../../lib/format';
@@ -7,6 +6,7 @@ import { PARCHMENTS, stoneBonusText, stoneIcon } from '../../profile/inlay';
 import { backModal, type ModalEntry } from '../../store/modal';
 import { ClassicModal } from '../ClassicModal';
 import styles from './InlayModal.module.css';
+import { FooterButton } from '../../components/form/FooterButton';
 
 /** Камень в списке окна: вид, уровень, название, бонус и сколько таких камней в запасе. */
 export interface InlayStone {
@@ -46,10 +46,10 @@ export function InlayModal({ open, entry }: { open: boolean; entry: ModalEntry |
 			title="Вставить камень"
 			footer={
 				<div className={styles.actions}>
-					<Button stretched mode="secondary" onClick={backModal}>
+					<FooterButton stretched mode="secondary" onClick={backModal}>
 						Отмена
-					</Button>
-					<Button
+					</FooterButton>
+					<FooterButton
 						stretched
 						mode="commerce"
 						disabled={!chosen || (data && data.balance < chosen.price)}
@@ -60,7 +60,7 @@ export function InlayModal({ open, entry }: { open: boolean; entry: ModalEntry |
 						}}
 					>
 						Вставить
-					</Button>
+					</FooterButton>
 				</div>
 			}
 		>

@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Spacing } from '@vkontakte/vkui';
 import { getGame } from '../../api/game';
 import { SERVERS, findServer } from '../../api/servers';
-import { Button, Field, FormStatus, Radio } from '../../components/form/Form';
+import { Field, FormStatus, Radio } from '../../components/form/Form';
 import { setDraft, useSession } from '../../profile/session';
 import { backModal } from '../../store/modal';
 import { ClassicModal, ModalBack, ModalSubmit } from '../ClassicModal';
 import styles from './SettingsModals.module.css';
 import { ArticleCell } from './settingsShared';
 import { useOnChange } from '../../lib/useOnChange';
+import { FooterButton } from '../../components/form/FooterButton';
 
 /** Идентификатор профиля (число). */
 export function IdModal({ open }: { open: boolean }) {
@@ -108,9 +109,9 @@ export function LoginModal({ open }: { open: boolean }) {
 					onChange={setKey}
 					aside={
 						serverId ? (
-							<Button mode="secondary" disabled={!value.length} loading={loading} onClick={() => void check()}>
+							<FooterButton mode="secondary" disabled={!value.length} loading={loading} onClick={() => void check()}>
 								Проверить
-							</Button>
+							</FooterButton>
 						) : undefined
 					}
 				/>

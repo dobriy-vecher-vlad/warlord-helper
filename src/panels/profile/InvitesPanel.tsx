@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from 'react';
 import { Icon56UsersOutline } from '@vkontakte/icons';
-import { FooterButton } from '../../components/profile/BotBlocks';
+import { ButtonCounter, FooterButton } from '../../components/form/FooterButton';
 import { Placeholder } from '../../components/profile/Placeholder';
+import { CREATABLE_BOSS_COUNT } from '../bosses/bossCalcData';
 import { ScrollBox } from '../../components/profile/ScrollBox';
 import { Skeleton } from '../../components/Skeleton';
 import { NavCell } from '../../components/wiki/NavCell';
@@ -98,11 +99,11 @@ function InvitesList({ id }: { id: string }) {
 			bottom={
 				<div className={styles.footer}>
 					<div className={styles.buttons}>
-						<FooterButton stretched mode="primary" onClick={() => openPanel('12')}>
-							Создать
-						</FooterButton>
 						<FooterButton stretched mode="secondary" loading={loading} disabled={loading} onClick={() => void refresh()}>
 							Обновить
+						</FooterButton>
+						<FooterButton stretched mode="commerce" after={<ButtonCounter>{CREATABLE_BOSS_COUNT}</ButtonCounter>} onClick={() => openPanel('12')}>
+							Список боссов
 						</FooterButton>
 					</div>
 				</div>

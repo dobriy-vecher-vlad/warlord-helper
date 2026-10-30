@@ -1,1 +1,0 @@
-var e=(e,t)=>(n,r,i)=>({id:n,parent:e,title:r,description:t,avatar:`labels/${i}.png`});export{e as t};

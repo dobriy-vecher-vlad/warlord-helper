@@ -2,22 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { getGame } from '../api/game';
 import ShopData from '../data/shop.json';
 import { ITEMS } from '../lib/items';
-import {
-	balanceOf,
-	buyItem,
-	characterOf,
-	statGain,
-	buyMessage,
-	droppedIds,
-	isExpensive,
-	ownedIds,
-	shopFromCatalog,
-	shopStatus,
-	SHOP_ALL,
-	sortShop,
-	type ShopItem,
-	type Wallet,
-} from './shop';
+import { balanceOf, buyItem, characterOf, statGain, buyMessage, droppedIds, ownedIds, shopFromCatalog, shopStatus, SHOP_ALL, sortShop, type ShopItem, type Wallet } from './shop';
 
 vi.mock('../api/game', () => ({ getGame: vi.fn() }));
 
@@ -78,23 +63,6 @@ describe('предметы магазина', () => {
 		const list = [entry(1, 1, 5), entry(2, 60, 5), entry(3, 10, 5000), entry(4, 30, 100), entry(5, 5, 100), entry(6, 5, 10), entry(7, 1, 5, 1, 'drop')];
 		const sorted = sortShop(list, wallet({ owned: new Set([1]) })).map((value) => value.item.id);
 		expect(sorted).toEqual([6, 5, 4, 3, 2, 7, 1]);
-	});
-
-	it('дорогая покупка: от 100 000 серебра или золота, от 1000 других валют', () => {
-		expect(isExpensive({ prices: [[1, 99_999]] })).toBe(false);
-		expect(isExpensive({ prices: [[1, 100_000]] })).toBe(true);
-		expect(isExpensive({ prices: [[3, 250_000]] })).toBe(true);
-		expect(isExpensive({ prices: [[2, 999]] })).toBe(false);
-		expect(isExpensive({ prices: [[2, 1000]] })).toBe(true);
-		// Цен несколько: дорогой достаточно одной
-		expect(
-			isExpensive({
-				prices: [
-					[1, 10],
-					[3, 300_000],
-				],
-			}),
-		).toBe(true);
 	});
 
 	it('купленные, выпавшие предметы и баланс берутся из профиля игры', () => {
@@ -217,7 +185,7 @@ describe('цены справочника предметов', () => {
 });
 
 describe('предмет с двумя ценами', () => {
-	it('покупка списывает обе: не хватает любой — «не хватает»; дорогой достаточно одной', () => {
+	it('покупка списывает обе: не хватает любой — «не хватает»', () => {
 		const spear = {
 			...entry(30, 1, 10),
 			prices: [
@@ -227,6 +195,5 @@ describe('предмет с двумя ценами', () => {
 		};
 		expect(shopStatus(spear, wallet({ balance: { 1: 1000, 3: 0 } }))).toBe('short');
 		expect(shopStatus(spear, wallet({ balance: { 1: 1000, 3: 300_000 } }))).toBe('buy');
-		expect(isExpensive(spear)).toBe(true);
 	});
 });

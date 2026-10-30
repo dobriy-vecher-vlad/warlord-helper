@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { useLeaveGuard } from '../../lib/leaveGuard';
 import { FormStatus } from '../../components/form/Form';
-import { FooterButton } from '../../components/profile/BotBlocks';
+import { FooterButton } from '../../components/form/FooterButton';
 import { ATTEMPTS_FROM, getTime, numberForm, numberSpaces } from '../../lib/format';
 import { canKillAlone } from '../../profile/invites/battle';
 import { acceptInvite, fetchInviteFight, requestInvitesRefresh, showBattle, useInvitesContext } from '../../profile/invites/battleStore';

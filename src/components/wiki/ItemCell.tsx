@@ -59,7 +59,7 @@ export function ItemCell({ data, full = false }: ItemCellProps) {
 					{item.prices.map(([currency, price]) => (
 						<div key={currency} className={styles.price}>
 							{numberSpaces(price)}
-							<span style={{ backgroundImage: `url(${PATH_IMAGES}currency/${currency}.png)` }} />
+							<span style={{ backgroundImage: `url(${PATH_IMAGES}currency/all/m${currency}.png)` }} />
 						</div>
 					))}
 				</div>

@@ -1,7 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PRIORITY } from '../../api/http';
 import { notify } from '../../app/notify';
-import { BotLog, FooterButton, useBotLog } from '../../components/profile/BotBlocks';
+import { BotLog, useBotLog } from '../../components/profile/BotBlocks';
+import { ButtonCounter, FooterButton } from '../../components/form/FooterButton';
 import { Placeholder } from '../../components/profile/Placeholder';
 import { Skeleton } from '../../components/Skeleton';
 import { NavCell } from '../../components/wiki/NavCell';
@@ -270,7 +271,7 @@ export function KillAllModal({ open }: { open: boolean }) {
 			<div className={killStyles.logBox}>
 				<MemoLog entries={log.entries} compact onClear={log.clear} />
 			</div>
-			<Actions loading={loading} running={running} stopping={stopping} canKill={fights > 0} onReload={onReload} onRun={onRun} onHalt={onHalt} />
+			<Actions loading={loading} running={running} stopping={stopping} canKill={fights > 0} fights={fights} onReload={onReload} onRun={onRun} onHalt={onHalt} />
 		</div>
 	);
 
@@ -347,6 +348,7 @@ const Actions = memo(function Actions({
 	running,
 	stopping,
 	canKill,
+	fights,
 	onReload,
 	onRun,
 	onHalt,
@@ -355,6 +357,8 @@ const Actions = memo(function Actions({
 	running: 'one' | 'all' | null;
 	stopping: boolean;
 	canKill: boolean;
+	/** Сколько боёв ещё осталось: все убийства списка, повторы одного босса считаются каждое */
+	fights: number;
 	onReload: () => void;
 	onRun: (mode: 'one' | 'all') => void;
 	onHalt: () => void;
@@ -369,7 +373,14 @@ const Actions = memo(function Actions({
 				<FooterButton stretched mode="commerce" loading={running === 'one'} disabled={idle || !canKill} onClick={() => onRun('one')}>
 					Убить
 				</FooterButton>
-				<FooterButton stretched mode="commerce" loading={running === 'all'} disabled={idle || !canKill} onClick={() => onRun('all')}>
+				<FooterButton
+					stretched
+					mode="commerce"
+					loading={running === 'all'}
+					disabled={idle || !canKill}
+					after={<ButtonCounter>{fights}</ButtonCounter>}
+					onClick={() => onRun('all')}
+				>
 					Убить всех
 				</FooterButton>
 			</div>

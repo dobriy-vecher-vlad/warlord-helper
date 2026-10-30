@@ -38,10 +38,15 @@
 	margin-left: 18px;
 }
 
+/* Прозрачные иконки без рамки и фона: целиком в клетке 18px; плитка (сундук) со скруглением и по размеру клетки */
 .chip img {
 	display: block;
 	width: 18px;
 	height: 18px;
+	object-fit: contain;
+}
+
+.chip img.chipTile {
 	border-radius: 4px;
 	object-fit: cover;
 }
@@ -251,23 +256,4 @@
 	padding: 1px 11px;
 	font-size: 13px;
 	line-height: 16px;
-}
-
-/* Число профилей на кнопке «Собрать со всех» (Counter s prominent на вторичной кнопке VKUI 4): цвет текста кнопки, цифра цветом фона */
-.counter {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 18px;
-	height: 18px;
-	padding: 0 5px;
-	box-sizing: border-box;
-	border-radius: 9px;
-	background: currentColor;
-	font-size: 12px;
-	line-height: 14px;
-}
-
-.counter > span {
-	color: var(--background_content);
 }

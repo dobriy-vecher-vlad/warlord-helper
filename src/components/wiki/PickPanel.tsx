@@ -1,12 +1,13 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState, type ComponentProps, type PointerEvent, type ReactNode } from 'react';
-import { Button, Header, Search, filterFnForSelect } from '@vkontakte/vkui';
+import { Header, Search, filterFnForSelect } from '@vkontakte/vkui';
 import { EmptyCell } from './Description';
 import { NavCell } from './NavCell';
 import { ReorderHandle } from './ReorderHandle';
 import { WikiPanel } from './WikiPanel';
 import styles from './PickPanel.module.css';
+import { GroupLink } from './TileGroup';
 
-/** Действие справа от заголовка группы («Изменить», «Очистить»). */
+/** Действие справа от заголовка группы («Изменить список», «Очистить список»). */
 export interface GroupAction {
 	label: string;
 	onClick: () => void;
@@ -218,9 +219,9 @@ export function PickPanel<T>({
 						actions.length > 0 && (
 							<span className={styles.headerActions}>
 								{actions.map((action) => (
-									<Button key={action.label} mode="secondary" size="s" className={styles.headerButton} onClick={action.onClick}>
+									<GroupLink key={action.label} onClick={action.onClick} chevron={false}>
 										{action.label}
-									</Button>
+									</GroupLink>
 								))}
 							</span>
 						)

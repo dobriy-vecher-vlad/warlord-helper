@@ -21,7 +21,7 @@ describe('большие версии картинок', () => {
 		expect(preferLarge('items/5b.png')).toBe('items/5b.png');
 		expect(preferLarge('items/5.webp')).toBe('items/5x.webp');
 		expect(preferLarge('bot/arena/avatar_3.png')).toBe('bot/arena/avatar_3.png');
-		expect(preferLarge('currency/1.png')).toBe('currency/1.png');
+		expect(preferLarge('currency/all/m1.png')).toBe('currency/all/m1.png');
 		expect(preferLarge('')).toBe('');
 	});
 });

@@ -56,14 +56,26 @@
 	line-height: 18px;
 }
 
-.horizontal {
-	align-items: flex-start;
+/* Поле и кнопка в одном ряду: кнопка тянется по высоте поля (высоту задаёт сосед) */
+.inputRow {
+	display: flex;
+	align-items: stretch;
+}
+
+.inputGrow {
+	flex: 1;
+	min-width: 0;
 }
 
 /* Кнопка рядом с полем: отступ 8px слева, как в старом приложении */
 .aside {
+	display: flex;
 	flex-shrink: 0;
 	margin-left: 8px;
+}
+
+.aside > * {
+	height: auto;
 }
 
 .sliderField {

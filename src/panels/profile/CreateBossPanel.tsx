@@ -172,13 +172,13 @@ export function CreateBossPanel({ id }: { id: string }) {
 	const groupActions = (title: string, searching: boolean): GroupAction[] => {
 		const actions: GroupAction[] = [];
 		if (title === FAVORITES && !searching) {
-			// В режиме изменения порядка «Убить» не показывается
-			if (!reordering) actions.push({ label: 'Убить', onClick: () => openModal('killAll') });
-			if (lists.favorites.length > 1) actions.push({ label: reordering ? 'Готово' : 'Изменить', onClick: () => setEditing(!reordering) });
+			// В режиме изменения порядка «Список боя» не показывается
+			if (!reordering) actions.push({ label: 'Список боя', onClick: () => openModal('killAll') });
+			if (lists.favorites.length > 1) actions.push({ label: reordering ? 'Готово' : 'Изменить список', onClick: () => setEditing(!reordering) });
 		}
 		if (title === RECENT && bot)
 			actions.push({
-				label: 'Очистить',
+				label: 'Очистить список',
 				onClick: () =>
 					askConfirm({
 						title: 'Очистить недавние?',

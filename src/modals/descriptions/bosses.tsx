@@ -32,10 +32,10 @@ export const BOSSES_DESCRIPTIONS = {
 						<>
 							<Divider />
 							<CardGrid>
-								{m1 !== 0 && <DescriptionCard label={`${numberSpaces(m1)} серебра`} text="Награда за победу" avatar="bot/raids/12.png" />}
-								{m2 !== 0 && <DescriptionCard label={`${numberSpaces(m2)} золота`} text="Награда за победу" avatar="bot/raids/11.png" />}
-								{!!m6 && <DescriptionCard label={`${numberSpaces(m6)} турмалинов`} text="Награда за победу" avatar="bot/raids/21.png" />}
-								{exp !== 0 && <DescriptionCard label={`${numberSpaces(exp)} опыта`} text="Награда за победу" avatar="bot/raids/10.png" />}
+								{m1 !== 0 && <DescriptionCard label={`${numberSpaces(m1)} серебра`} text="Награда за победу" avatar="currency/all/m1_big.png" />}
+								{m2 !== 0 && <DescriptionCard label={`${numberSpaces(m2)} золота`} text="Награда за победу" avatar="currency/all/m3_big.png" />}
+								{!!m6 && <DescriptionCard label={`${numberSpaces(m6)} турмалинов`} text="Награда за победу" avatar="currency/all/m6_big.png" />}
+								{exp !== 0 && <DescriptionCard label={`${numberSpaces(exp)} опыта`} text="Награда за победу" avatar="currency/all/exp_big.png" />}
 							</CardGrid>
 						</>
 					)}

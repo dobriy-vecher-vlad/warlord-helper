@@ -46,15 +46,14 @@
 	padding-left: var(--vkui--size_base_padding_horizontal--regular);
 }
 
-/* VKUI даёт содержимому справа свои отступы сверху и снизу (под ссылки): у кнопки они не нужны */
-.header.header .headerButton.headerButton,
+/* VKUI даёт содержимому справа свои отступы сверху и снизу (под ссылки): у обёртки с действиями они не нужны */
 .header.header .headerActions.headerActions {
 	margin-top: 0;
 	margin-bottom: 0;
 }
 
-/* Несколько кнопок справа от заголовка группы */
+/* Несколько ссылок справа от заголовка группы */
 .headerActions {
 	display: flex;
-	gap: 8px;
+	gap: 16px;
 }

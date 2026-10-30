@@ -16,6 +16,8 @@ import { storageGetWithDefault, storageSet } from '../../../lib/storage';
 import { wait } from '../../../lib/async';
 import { asArray, botAuth, errorText, loadBotProfile, type BotAuth } from '../../../profile/bots/common';
 import { fightHash } from '../../../profile/bots/hash';
+import { CHEST_NAMES } from './resourcesData';
+import { parseReward, type RewardLine } from '../../../profile/bots/reward';
 import { openPanel } from '../../../store/nav';
 import styles from './Bots.module.css';
 
@@ -65,6 +67,9 @@ function fightKey(fields: Record<string, string | number>) {
 		.join(' ')} /></data>`;
 }
 
+/** Строка кубков арены в награде: `delta` со знаком (победа даёт плюс, поражение минус). */
+const cupsLine = (delta: number): RewardLine => ({ avatar: 'currency/all/ap_big.png', title: 'Кубки арены', message: `${delta > 0 ? '+' : ''}${numberSpaces(delta)} ед.` });
+
 /** 7. Арена: бот проводит бои, пропускает сильных противников и останавливается по лимиту. */
 export function ArenaBotPanel({ id }: { id: string }) {
 	const isDesktop = useIsDesktop();
@@ -82,6 +87,8 @@ export function ArenaBotPanel({ id }: { id: string }) {
 	// Состояние запущенного бота читается из циклов, поэтому хранится в ref
 	const run = useRef({
 		tries: 0,
+		/** Номера сундуков, которые уже есть в профиле: по новому номеру находится выпавший в бою сундук */
+		chestIds: new Set<string>(),
 		player: null as Player | null,
 		settings: DEFAULT_SETTINGS,
 		tryLimit: 20,
@@ -111,6 +118,7 @@ export function ArenaBotPanel({ id }: { id: string }) {
 			return null;
 		}
 		run.current.player = { ...profile.u, enemy: arena.u, rating: arena.my_rating, chests: asArray(profile?.chests?.ch).length };
+		run.current.chestIds = new Set(asArray(profile?.chests?.ch).map((entry) => String(entry._id)));
 		setPlayer(run.current.player);
 		return bot;
 	}, [flags]);
@@ -155,6 +163,19 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		void storageSet('arenaSettings', JSON.stringify({ ...next, tryLimit: limit }));
 	};
 
+	/** Сундук, выпавший за победу: профиль перечитывается, новая запись в `chests.ch` даёт тип (`_ci`). Не нашлась — общий сундук. */
+	const droppedChest = async (bot: BotAuth): Promise<RewardLine> => {
+		const data = await getGame(bot.server, {}, bot.auth);
+		const list = asArray(data?.chests?.ch);
+		const known = run.current.chestIds;
+		const fresh = list.find((entry) => !known.has(String(entry._id)));
+		for (const entry of list) known.add(String(entry._id));
+		const type = Number(fresh?._ci);
+		return CHEST_NAMES[type]
+			? { avatar: `bot/resources/1_${type}.png`, title: CHEST_NAMES[type], message: '1 ед.' }
+			: { avatar: 'bot/arena/2.png', title: 'Сундук', message: '1 ед.' };
+	};
+
 	/** Один бой: противник, пропуск или бой до конца. */
 	const fight = async (bot: BotAuth) => {
 		const state = run.current;
@@ -168,13 +189,10 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		update({ enemy: enemyData.u, rating: enemyData.my_rating });
 		const enemy = enemyData.u;
 		const enemyHp = Number(enemy._end) + Number(enemy._endi);
-		if (flags.start) {
-			log.message(
-				`bot/arena/avatar_${Number(enemy._aid)}.png`,
-				enemy._name === '' ? `Player${enemy._id}` : enemy._name,
-				`Обнаружен противник с ${numberSpaces(enemyHp * 15)} HP и ${numberSpaces(Number(enemy._dmgi))} DMG`,
-			);
-		}
+		// Запись о противнике: аватар и имя, статистика в подписи («Убит противник с … HP и … DMG»), результат боя под ней
+		const enemyStats = `с ${numberSpaces(enemyHp * 15)} HP и ${numberSpaces(Number(enemy._dmgi))} DMG`;
+		const enemyAvatar = `bot/arena/avatar_${Number(enemy._aid)}.png`;
+		const enemyName = enemy._name === '' ? `Player${enemy._id}` : enemy._name;
 
 		const hits = Math.ceil((enemyHp * 15) / Number(me._dmgi));
 		const canTake = Math.ceil(((Number(me._end) + Number(me._endi)) * 15) / Number(enemy._dmgi));
@@ -183,7 +201,10 @@ export function ArenaBotPanel({ id }: { id: string }) {
 				update({ _en: Number(state.player!._en) - 4 });
 				await getGame(bot.server, { i: 121 }, bot.auth);
 				state.tries++;
-				if (flags.start) log.text(`Пропустили противника${state.settings.useLoss ? ` ${state.tries} из ${state.tryLimit}` : ''}`, 'green');
+				if (flags.start) {
+					log.message(enemyAvatar, enemyName, `Пропущен противник ${enemyStats}`);
+					log.text(`Пропустили противника${state.settings.useLoss ? ` ${state.tries} из ${state.tryLimit}` : ''}`, 'green');
+				}
 			} else {
 				if (flags.start) log.text('Не хватает энергии на пропуск противника', 'red');
 				pause();
@@ -246,19 +267,33 @@ export function ArenaBotPanel({ id }: { id: string }) {
 			if ((Number(fightState._myhp) > 0 && Number(fightState._hp) <= 0) || (Number(fightState._myhp) <= 0 && Number(fightState._hp) <= 0)) {
 				alive = false;
 				const cups = Math.max(0, Number(state.player!._ap) + 19);
+				const gained = cups - Number(state.player!._ap);
 				update({
 					chests: (state.player!.chests ?? 0) + (chest ? 1 : 0),
 					_ap: cups,
 					_exp: Number(state.player!._exp) + (Number.isInteger(Number(reward?._exp)) ? Number(reward._exp) : 0),
 					_al: leagueOf(cups),
 				});
-				if (flags.start) log.text('Убили противника', 'green');
+				if (flags.start) {
+					// Награда: что пришло от сервера (опыт), кубки и сундук (выпадает не всегда)
+					const lines = parseReward(reward);
+					if (!lines.some((line) => line.title === 'Кубки арены')) lines.push(cupsLine(gained));
+					if (chest) lines.push(await droppedChest(bot));
+					log.message(enemyAvatar, enemyName, lines, `Убит противник ${enemyStats}`);
+				}
 			} else if (Number(fightState._myhp) <= 0) {
 				alive = false;
 				const cups = Math.max(0, Number(state.player!._ap) - 16);
+				const lost = cups - Number(state.player!._ap);
 				update({ _ap: cups, _al: leagueOf(cups) });
 				state.tries++;
-				if (flags.start) log.text(`Противник оказался сильнее${state.settings.useLoss ? ` ${state.tries} из ${state.tryLimit}` : ''}`, 'red');
+				if (flags.start) {
+					const note = `Противник оказался сильнее ${enemyStats}`;
+					// Кубков уже нет: терять нечего, под записью ничего не показываем
+					if (lost < 0) log.message(enemyAvatar, enemyName, [cupsLine(lost)], note);
+					else log.message(enemyAvatar, enemyName, note);
+					log.text(`Противник оказался сильнее${state.settings.useLoss ? ` ${state.tries} из ${state.tryLimit}` : ''}`, 'red');
+				}
 			}
 		}
 	};
@@ -267,9 +302,7 @@ export function ArenaBotPanel({ id }: { id: string }) {
 		const state = run.current;
 		// Лоадер на кнопке сразу по клику, не после ответа сервера; остальные кнопки, кроме «Остановить», заблокированы
 		if (!beginStart()) return;
-		setLoading(true);
 		const bot = await load();
-		setLoading(false);
 		if (!bot || !flags.mounted || flags.startCancelled) {
 			// Запуск закончен без цикла: ошибка данных или отмена кнопкой «Остановить»
 			abortStart();
@@ -304,27 +337,27 @@ export function ArenaBotPanel({ id }: { id: string }) {
 			avatar="labels/30.png"
 			bottom={
 				<BotFooter
-					buttonSize="s"
+					rowSizes={[1, 2]}
 					loading={!player}
 					log={log.entries}
 					onClear={log.clear}
 					actions={[
-						{ title: 'Запустить', mode: 'commerce', onClick: () => void start(), disabled: running || starting || loading, loading: running || starting },
-						{ title: 'Остановить', mode: 'destructive', onClick: () => (setPausing(true), pause()), disabled: !(running || starting) || (loading && !starting), loading: pausing },
 						{ title: 'Обновить', mode: 'secondary', onClick: () => void reload(), disabled: running || starting || loading, loading },
+						{ title: 'Запустить', mode: 'commerce', onClick: () => void start(), disabled: running || starting || loading, loading: running || starting },
+						{ title: 'Остановить', mode: 'destructive', onClick: () => (setPausing(true), pause()), disabled: !(running || starting) || loading || pausing, loading: pausing },
 					]}
 				/>
 			}
 		>
 			<ScrollBox height={299} locked={!player}>
-				{player && !loading ? (
+				{player ? (
 					<InfoGrid>
 						<InfoCard image="bot/arena/2.png" title="Сундуки" subtitle={numberSpaces(player.chests)} />
-						<InfoCard image="bot/arena/19.png" title="Энергия" subtitle={numberSpaces(player._en)} />
-						<InfoCard image="bot/arena/11.png" title="Золото" subtitle={numberSpaces(player._m3)} />
+						<InfoCard image="currency/all/en_big.png" title="Энергия" subtitle={numberSpaces(player._en)} />
+						<InfoCard image="currency/all/m3_big.png" title="Золото" subtitle={numberSpaces(player._m3)} />
 						<InfoCard image={`bot/arena/${LEAGUE_IMAGES[Number(player._al)]}.png`} title="Лига" subtitle={LEAGUE_NAMES[Number(player._al)]} />
 						<InfoCard image="bot/arena/8.png" title="Место в лиге" subtitle={numberSpaces(player.rating?._val)} />
-						<InfoCard image="bot/arena/1.png" title="Кубки арены" subtitle={numberSpaces(player._ap)} />
+						<InfoCard image="currency/all/ap_big.png" title="Кубки арены" subtitle={numberSpaces(player._ap)} />
 					</InfoGrid>
 				) : (
 					<InfoGrid>

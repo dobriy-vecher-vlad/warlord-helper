@@ -4,8 +4,8 @@ import { getGame } from '../../../api/game';
 import type { RaidNode } from '../../../api/gameTypes';
 import { notify } from '../../../app/notify';
 import { Divider } from '../../../components/Divider';
-import { Button } from '../../../components/form/Form';
 import { BotFooter, InfoCard, InfoGrid, InfoSkeleton, Option, OptionGrid, useBotLog } from '../../../components/profile/BotBlocks';
+import { FooterButton } from '../../../components/form/FooterButton';
 import { ScrollBox } from '../../../components/profile/ScrollBox';
 import { Skeleton } from '../../../components/Skeleton';
 import { WikiPanel } from '../../../components/wiki/WikiPanel';
@@ -486,18 +486,17 @@ export function RaidsBotPanel({ id }: { id: string }) {
 							{settings.selectedRaid == null ? <span className={styles.choiceEmpty}>рейд</span> : RAIDS[settings.selectedRaid - 1]?.title} –{' '}
 							{settings.selectedMode == null ? <span className={styles.choiceEmpty}>режим</span> : MODES[settings.selectedMode]?.title}
 						</div>
-						<Button
-							size="s"
+						<FooterButton
 							className={styles.startButton}
 							disabled={settings.selectedRaid == null || settings.selectedMode == null || raid.limit === 3 || loading}
 							loading={loading}
 							onClick={() => void create()}
 						>
 							Начать рейд
-						</Button>
-						<Button size="s" mode="tertiary" className={`${styles.startButton} ${styles.limit}`}>
+						</FooterButton>
+						<FooterButton mode="tertiary" className={`${styles.startButton} ${styles.limit}`}>
 							<span>{raid.limit} из 3</span>
-						</Button>
+						</FooterButton>
 					</div>
 				}
 			>
@@ -557,11 +556,11 @@ export function RaidsBotPanel({ id }: { id: string }) {
 					loading={!data && loading}
 					log={log.entries}
 					onClear={logClear}
-					mobileRows={2}
-					buttonSize="s"
+					rowSizes={[1, 2, 1]}
 					actions={[
+						{ title: 'Обновить', mode: 'secondary', onClick: () => (setLoading(true), void reload()), disabled: running || starting || exiting || loading, loading },
 						{ title: 'Запустить', mode: 'commerce', onClick: () => void start(), disabled: running || starting || exiting || loading, loading: running || starting },
-						{ title: 'Остановить', mode: 'destructive', onClick: () => (setPausing(true), pause()), disabled: !(running || starting) || loading, loading: pausing },
+						{ title: 'Остановить', mode: 'destructive', onClick: () => (setPausing(true), pause()), disabled: !(running || starting) || loading || pausing, loading: pausing },
 						{
 							title: 'Завершить',
 							mode: 'secondary',
@@ -576,25 +575,24 @@ export function RaidsBotPanel({ id }: { id: string }) {
 							disabled: running || starting || exiting || !data?.point || loading,
 							loading: exiting,
 						},
-						{ title: 'Обновить', mode: 'secondary', onClick: () => (setLoading(true), void reload()), disabled: running || starting || exiting || loading, loading },
 					]}
 				/>
 			}
 		>
 			<ScrollBox height={299} locked={!data}>
-				{data && !loading ? (
+				{data ? (
 					<InfoGrid>
 						<InfoCard image="bot/raids/8.png" title={RAIDS[data.id - 1]?.title} subtitle={MODES[data.mode]?.title} />
 						<InfoCard image="bot/raids/9.png" title="Попытки" subtitle={`${data.limit} из 3`} />
 						<InfoCard image="bot/raids/7.png" title="Здоровье" subtitle={numberSpaces(data.hp)} />
-						<InfoCard image="bot/raids/19.png" title="Энергия" subtitle={`${numberSpaces(data.player._en)} из ${data.energy}`} />
+						<InfoCard image="currency/all/en_big.png" title="Энергия" subtitle={`${numberSpaces(data.player._en)} из ${data.energy}`} />
 						<InfoCard
-							image="bot/raids/17.png"
+							image="currency/all/i1_big.png"
 							title="Свитки молнии"
 							subtitle={`${numberSpaces(data.player._item1)} ${numberForm(Number(data.player._item1), ['свиток', 'свитка', 'свитков'])}`}
 						/>
 						<InfoCard
-							image="bot/raids/16.png"
+							image="currency/all/i3_big.png"
 							title="Свитки огня"
 							subtitle={`${numberSpaces(data.player._item3)} ${numberForm(Number(data.player._item3), ['свиток', 'свитка', 'свитков'])}`}
 						/>
@@ -641,7 +639,7 @@ export function RaidsBotPanel({ id }: { id: string }) {
 					</OptionGrid>
 				)}
 				<Divider />
-				{data && !loading ? (
+				{data ? (
 					<>
 						<InfoGrid>
 							{bosses.map(([name, image], index) => {

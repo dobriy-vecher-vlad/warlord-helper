@@ -7,8 +7,30 @@ import { Divider } from '../Divider';
 import { Skeleton } from '../Skeleton';
 import styles from './Counters.module.css';
 
-/** Ряд ячеек футера: в одну строку, листается по горизонтали, ячейки прижаты к левому краю. */
-export function Counters({ children }: { children: ReactNode }) {
+/** Высота ячейки сетки и зазор между ячейками (px): ячейка из двух строк по 20px и полей по 8px, зазор как у ряда. */
+const GRID_CELL = 56;
+const GRID_GAP = 6;
+
+/**
+ * Высота сетки `Counters grid`: не меньше двух рядов (на ПК по три ячейки, на телефоне по две), даже если ячеек меньше, поэтому по ней
+ * считается заглушка. Ячеек больше четырёх на телефоне сетка растёт ещё на ряд.
+ */
+export const COUNTERS_GRID_HEIGHT = 2 * GRID_CELL + GRID_GAP;
+
+/**
+ * Ряд ячеек футера: в одну строку, листается по горизонтали, ячейки прижаты к левому краю.
+ * `grid` — сеткой в три колонки равной ширины (на телефоне в две; ячеек не больше шести), без прокрутки.
+ */
+export function Counters({ children, grid = false }: { children: ReactNode; grid?: boolean }) {
+	if (grid) {
+		return (
+			<div className={styles.scroll}>
+				<div className={`${styles.counters} ${styles.grid}`} style={{ minHeight: COUNTERS_GRID_HEIGHT }}>
+					{children}
+				</div>
+			</div>
+		);
+	}
 	return (
 		<HorizontalScroll className={styles.scroll} arrowSize="m">
 			<div className={styles.counters}>{children}</div>
@@ -59,17 +81,17 @@ export function Counter({
 	);
 }
 
-/** Заглушка загрузки футера выбранного предмета: карточка, разделитель и ряд ячеек той же высоты. */
-export function FooterSkeleton({ cell = { count: 4, width: 140, height: 56 } }: { cell?: { count: number; width: number; height: number } }) {
+/** Заглушка загрузки футера выбранного предмета: карточка, разделитель и ряд ячеек той же высоты; `grid` — ячейки сеткой, как у `Counters grid` (по ширине колонки). */
+export function FooterSkeleton({ cell = { count: 4, width: 140, height: 56 }, grid = false }: { cell?: { count: number; width: number; height: number }; grid?: boolean }) {
 	const isDesktop = useIsDesktop();
 	return (
 		<>
 			<Skeleton height={68} style={isDesktop ? undefined : { margin: '0 8px', width: 'auto' }} />
 			{!isDesktop && <Skeleton height={36} style={{ margin: '8px 8px 0', width: 'auto' }} />}
 			<Divider />
-			<Counters>
+			<Counters grid={grid}>
 				{Array.from({ length: cell.count }, (_, index) => (
-					<Skeleton key={index} height={cell.height} width={cell.width} />
+					<Skeleton key={index} height={cell.height} width={grid ? '100%' : cell.width} />
 				))}
 			</Counters>
 		</>

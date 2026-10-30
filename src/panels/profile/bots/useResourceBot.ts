@@ -14,7 +14,7 @@ export interface ResourceView {
 	times: Times;
 	hints: ResourceState['hints'];
 	counts: Record<string, number>;
-	/** Профили для «Собрать со всех» */
+	/** Профили для «Запустить со всех» */
 	profiles: BotProfile[];
 	/** «Собирать со всех» дань гильдии */
 	guildReward: boolean;
@@ -45,7 +45,7 @@ function shownProfile(): BotProfile {
 
 const sameAccount = (a: BotProfile, b: BotProfile) => String(a.login) === String(b.login) && a.server === b.server;
 
-/** Остальные профили для «Собрать со всех»: основной (первый заполненный слот) — последним. */
+/** Остальные профили для «Запустить со всех»: основной (первый заполненный слот) — последним. */
 function allProfiles(): BotProfile[] {
 	const list: BotProfile[] = getSession()
 		.profiles.filter((slot) => slot.id)
@@ -68,14 +68,19 @@ export function useResourceBot() {
 	const [loading, setLoading] = useState(true);
 	// Сбор меняет данные игры: пока он идёт, закрытие вкладки на ПК и уход со страницы просят подтверждения (простое обновление не считается)
 	const [acting, setActing] = useState(false);
+	// «Остановить» нажали: сбор заканчивает начатое действие и не начинает новых
+	const [pausing, setPausing] = useState(false);
 	useLeaveGuard(acting);
 	// Рабочее состояние меняют действия и таймеры; страница получает его только снимками
 	const work = useRef(emptyState());
 	const alive = useRef(true);
 	const busy = useRef(false);
+	const stopRequested = useRef(false);
 
 	const publish = useCallback(() => setView(snapshot(work.current, true)), []);
 	const republish = useCallback(() => setView((current) => snapshot(work.current, current.synced)), []);
+	/** Тик таймеров: меняются только числовые таймеры, остальные части снимка остаются теми же ссылками, чтобы страница не перерисовывала то, что не менялось. */
+	const republishTimers = useCallback(() => setView((current) => ({ ...current, times: { ...work.current.times, guildWars: current.times.guildWars } })), []);
 
 	const env = useMemo<ResourceEnv>(
 		() => ({
@@ -83,7 +88,7 @@ export function useResourceBot() {
 			get state() {
 				return work.current;
 			},
-			alive: () => alive.current,
+			alive: () => alive.current && !stopRequested.current,
 			isShown: (profile) => profile.main || sameAccount(profile, shownProfile()),
 			publish,
 			logText,
@@ -118,15 +123,24 @@ export function useResourceBot() {
 		async (mode: Mode, action: string): Promise<boolean> => {
 			work.current.profiles = allProfiles();
 			try {
-				return await runResources(env, mode, action, shownProfile());
+				const done = await runResources(env, mode, action, shownProfile());
+				if (stopRequested.current && alive.current) {
+					// Остановлено кнопкой: данные обновляются, как у других ботов; «сбор выполнен» не сообщается
+					stopRequested.current = false;
+					await runResources(env, '', '', shownProfile());
+					return false;
+				}
+				return done;
 			} catch (error) {
 				logText(`Ошибка при сборе: ${error instanceof Error ? error.message : 'неизвестная'}`, 'red');
 				return false;
 			} finally {
 				busy.current = false;
+				stopRequested.current = false;
 				if (alive.current) {
 					setLoading(false);
 					setActing(false);
+					setPausing(false);
 				}
 			}
 		},
@@ -144,6 +158,14 @@ export function useResourceBot() {
 		},
 		[execute],
 	);
+
+	/** Остановить сбор: текущее действие заканчивается, следующие не начинаются. */
+	const stop = useCallback(() => {
+		if (!busy.current || stopRequested.current) return;
+		stopRequested.current = true;
+		setPausing(true);
+		logText('Бот поставлен на паузу, завершаем последнее действие');
+	}, [logText]);
 
 	useEffect(() => {
 		alive.current = true;
@@ -163,14 +185,14 @@ export function useResourceBot() {
 					changed = true;
 				}
 			}
-			if (changed) republish();
+			if (changed) republishTimers();
 		}, 1000);
 		return () => {
 			alive.current = false;
 			resetEnergyLinks();
 			clearInterval(timer);
 		};
-	}, [execute, republish]);
+	}, [execute, republishTimers]);
 
 	const setGuildReward = useCallback(
 		(value: boolean) => {
@@ -188,5 +210,5 @@ export function useResourceBot() {
 		[republish],
 	);
 
-	return { view, loading, log, start, setGuildReward, setWar };
+	return { view, loading, acting, pausing, log, start, stop, setGuildReward, setWar };
 }

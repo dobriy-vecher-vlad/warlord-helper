@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { Input } from '@vkontakte/vkui';
 import { useDeepLink } from '../../app/deepLink';
 import { useIsDesktop } from '../../app/layout';
-import { Button } from '../../components/form/Form';
 import { PickSelect } from '../../components/form/PickSelect';
 import { GameBanner, Parchment } from '../../components/GameBanner';
 import { Photo } from '../../components/Photo';
@@ -20,6 +19,7 @@ import { DISCOUNTS } from './bossCalcData';
 import { calculateBossFight, type FightInput } from './bossFight';
 import { useSelectedBoss } from './useBossCalc';
 import styles from './BossCalcPanel.module.css';
+import { FooterButton } from '../../components/form/FooterButton';
 
 const base = sectionBase('bosses', 'Боссы');
 
@@ -42,9 +42,9 @@ function CreateBossButton() {
 	const open = useCallback(() => openModal('newBoss'), []);
 	useDeepLink(NEW_BOSS_LINK, open);
 	return (
-		<Button mode="secondary" className={styles.create} onClick={open}>
+		<FooterButton mode="secondary" className={styles.create} onClick={open}>
 			Создать своего
-		</Button>
+		</FooterButton>
 	);
 }
 

@@ -23,7 +23,6 @@ export type ModalId =
 	| 'participants'
 	| 'create'
 	| 'killAll'
-	| 'shopBuy'
 	| 'inlay';
 
 export interface ModalEntry {

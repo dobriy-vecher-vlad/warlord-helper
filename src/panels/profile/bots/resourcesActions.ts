@@ -38,7 +38,7 @@ export interface ResourceContext {
 	state: ResourceState;
 	profile: BotProfile;
 	server: number;
-	/** Действие запущено отдельно (не частью «Собрать всё»): сообщает и о том, что собирать нечего */
+	/** Действие запущено отдельно (не частью «Запустить»): сообщает и о том, что собирать нечего */
 	needReload: boolean;
 	logText: (text: string, color?: 'red' | 'green' | 'blue') => void;
 	logMessage: (avatar: string, title: string, body: string | ReturnType<typeof parseReward>) => void;

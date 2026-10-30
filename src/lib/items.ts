@@ -2,7 +2,7 @@ import ITEMS_JSON from '../data/items.json';
 import type { ItemFilter } from '../store/itemFilter';
 export { DEFAULT_FILTER, type ItemFilter } from '../store/itemFilter';
 
-/** Цена в одной валюте: номер валюты (media/images/currency/{n}.png) и сумма. */
+/** Цена в одной валюте: номер валюты (media/images/currency/all/m{n}.png) и сумма. */
 export type ItemPrice = [currency: number, price: number];
 
 /** Предмет из каталога. */

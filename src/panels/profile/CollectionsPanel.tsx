@@ -5,7 +5,7 @@ import { useIsDesktop } from '../../app/layout';
 import { notify } from '../../app/notify';
 import { BorderedImage } from '../../components/BorderedImage';
 import { Divider } from '../../components/Divider';
-import { FooterButton } from '../../components/profile/BotBlocks';
+import { FooterButton } from '../../components/form/FooterButton';
 import { Counter, Counters, FooterSkeleton } from '../../components/profile/Counters';
 import { LazyGrid } from '../../components/profile/LazyGrid';
 import { LoadFailed } from '../../components/profile/LoadFailed';

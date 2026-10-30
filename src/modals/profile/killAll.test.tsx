@@ -35,6 +35,17 @@ beforeEach(async () => {
 });
 
 describe('окно «Список боя»', () => {
+	it('на «Убить всех» стоит число всех убийств списка, повторы одного босса считаются каждый', async () => {
+		vi.mocked(getGame).mockImplementation(async (_server, body) => {
+			if (body?.i === 10) return parseResponse('<data><u hp="1" mhp="1" avail="3" nrgn="0"/></data>');
+			return parseResponse(profile);
+		});
+		await render(<KillAllModal open />);
+		await flush();
+		const all = [...document.body.querySelectorAll('button')].find((item) => item.textContent?.startsWith('Убить всех'));
+		expect(all?.textContent).toMatch(/^Убить всех\s*3$/);
+	});
+
 	it('показывает избранного босса, который убьётся один; «Убить» делает одно убийство и пишет его в лог', async () => {
 		let attempts = 3;
 		vi.mocked(getGame).mockImplementation(async (_server, body) => {

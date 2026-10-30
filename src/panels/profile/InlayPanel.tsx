@@ -7,7 +7,7 @@ import { notify } from '../../app/notify';
 import { askConfirm } from '../../lib/confirmAction';
 import { BorderedImage } from '../../components/BorderedImage';
 import { Divider } from '../../components/Divider';
-import { FooterButton } from '../../components/profile/BotBlocks';
+import { FooterButton } from '../../components/form/FooterButton';
 import { Counter, Counters, FooterSkeleton } from '../../components/profile/Counters';
 import { LazyGrid } from '../../components/profile/LazyGrid';
 import { LoadFailed } from '../../components/profile/LoadFailed';

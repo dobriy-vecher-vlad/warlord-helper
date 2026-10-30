@@ -153,15 +153,6 @@
 }
 
 /* В старом приложении отступ 2px добавлялся к высоте кнопки: 28 + 4 */
-.startButton.startButton {
-	min-height: 32px;
-	padding: 0 16px;
-}
-
-:global([data-layout='mobile']) .startButton.startButton {
-	min-height: 34px;
-}
-
 .startButton + .startButton {
 	margin-top: 8px;
 }

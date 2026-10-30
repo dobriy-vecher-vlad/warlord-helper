@@ -1,8 +1,8 @@
-import { Button } from '../../components/form/Form';
 import { Divider } from '../../components/Divider';
 import { backModal, type ModalEntry } from '../../store/modal';
 import { ClassicModal } from '../ClassicModal';
 import styles from './AlertModal.module.css';
+import { FooterButton } from '../../components/form/FooterButton';
 
 interface AlertData {
 	header?: string;
@@ -22,9 +22,9 @@ export function AlertModal({ open, entry }: { open: boolean; entry: ModalEntry |
 				<div className={styles.title}>{data.header ?? 'Неизвестная ошибка'}</div>
 				<div className={styles.text}>{data.subheader ?? 'Обновите приложение'}</div>
 				<div className={styles.actions}>
-					<Button stretched href="https://vk.ru/im?media=&sel=-138604865">
+					<FooterButton stretched href="https://vk.ru/im?media=&sel=-138604865">
 						Сообщить об ошибке
-					</Button>
+					</FooterButton>
 				</div>
 			</div>
 		</ClassicModal>

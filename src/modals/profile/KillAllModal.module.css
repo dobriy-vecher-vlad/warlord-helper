@@ -42,7 +42,7 @@
 }
 
 .logBox > div:first-child > div:first-child {
-	height: 160px;
+	height: 148px;
 }
 
 :global([data-layout='mobile']) .logBox > div:first-child > div:first-child {

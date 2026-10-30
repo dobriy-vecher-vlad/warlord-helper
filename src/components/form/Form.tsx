@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Button as VKButton, FormItem, FormLayoutGroup, FormStatus as VKFormStatus, IconButton, Input, Radio as VKRadio, SimpleCell, Slider as VKSlider } from '@vkontakte/vkui';
+import { Button as VKButton, FormItem, FormStatus as VKFormStatus, IconButton, Input, Radio as VKRadio, SimpleCell, Slider as VKSlider } from '@vkontakte/vkui';
 import { Icon16Clear } from '@vkontakte/icons';
 import styles from './Form.module.css';
 
@@ -101,35 +101,37 @@ interface FieldProps {
 	type?: 'text' | 'number';
 	placeholder?: string;
 	maxLength?: number;
-	/** Кнопка справа от поля (FormLayoutGroup mode="horizontal") */
+	/** Кнопка справа от поля: стоит в одном ряду с полем ввода и тянется по его высоте (подпись и подсказка остаются над рядом и под ним) */
 	aside?: ReactNode;
 }
 
 /** Поле ввода с подписью сверху, крестиком очистки и подсказкой снизу (FormItem + Input). */
 export function Field({ label, status = 'default', bottom, value, onChange, type = 'text', placeholder, maxLength, aside }: FieldProps) {
-	const item = (
-		<FormItem top={label} status={status === 'default' ? undefined : status} bottom={bottom}>
-			<Input
-				type={type}
-				value={value}
-				placeholder={placeholder}
-				maxLength={maxLength}
-				onChange={(event) => onChange(event.target.value)}
-				after={
-					<IconButton hoverMode="opacity" aria-label="Очистить поле" onClick={() => onChange('')}>
-						<Icon16Clear />
-					</IconButton>
-				}
-			/>
-		</FormItem>
+	const input = (
+		<Input
+			type={type}
+			value={value}
+			placeholder={placeholder}
+			maxLength={maxLength}
+			onChange={(event) => onChange(event.target.value)}
+			after={
+				<IconButton hoverMode="opacity" aria-label="Очистить поле" onClick={() => onChange('')}>
+					<Icon16Clear />
+				</IconButton>
+			}
+		/>
 	);
-	return aside ? (
-		<FormLayoutGroup mode="horizontal" className={styles.horizontal}>
-			{item}
-			<div className={styles.aside}>{aside}</div>
-		</FormLayoutGroup>
-	) : (
-		item
+	return (
+		<FormItem top={label} status={status === 'default' ? undefined : status} bottom={bottom}>
+			{aside ? (
+				<div className={styles.inputRow}>
+					<div className={styles.inputGrow}>{input}</div>
+					<div className={styles.aside}>{aside}</div>
+				</div>
+			) : (
+				input
+			)}
+		</FormItem>
 	);
 }
 

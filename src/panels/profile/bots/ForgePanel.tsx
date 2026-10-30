@@ -6,9 +6,9 @@ import { getGame } from '../../../api/game';
 import { useIsDesktop } from '../../../app/layout';
 import { notify } from '../../../app/notify';
 import { SelectedItem, MOBILE_ACTION_HEIGHT } from '../../../components/profile/SelectedItem';
-import { FooterButton } from '../../../components/profile/BotBlocks';
+import { FooterButton } from '../../../components/form/FooterButton';
 import { LoadFailed } from '../../../components/profile/LoadFailed';
-import { Counter, Counters, FooterSkeleton } from '../../../components/profile/Counters';
+import { Counter, Counters, FooterSkeleton, COUNTERS_GRID_HEIGHT } from '../../../components/profile/Counters';
 import { Divider } from '../../../components/Divider';
 import { LazyGrid } from '../../../components/profile/LazyGrid';
 import { Placeholder } from '../../../components/profile/Placeholder';
@@ -126,7 +126,7 @@ function ForgeCounters({ data, counts, clanBonus }: { data: ForgeItem; counts: R
 	const base = CHANCE[data.lvl]!;
 	const chance = Math.min(100, base + clanBonus);
 	return (
-		<Counters>
+		<Counters grid>
 			<Counter title="Шанс" now={base} change={chance - base} suffix="%" tight />
 			{data.dmg[data.lvl]! > 0 && <Counter title="Урон" now={data.item.dmg + currentDmg} change={data.dmg[data.lvl]} suffix="DMG" />}
 			{data.hp[data.lvl]! > 0 && <Counter title="Здоровье" now={(data.item.hp + currentHp) * 15} change={data.hp[data.lvl]! * 15} suffix="HP" />}
@@ -240,7 +240,7 @@ export function ForgePanel({ id }: { id: string }) {
 	};
 
 	// Подсказка внизу той же высоты, что и выбранный предмет с характеристиками
-	const placeholderSize = 68 + 16 + 56 + (isDesktop ? 0 : MOBILE_ACTION_HEIGHT) - (20 + 56 + 12);
+	const placeholderSize = 68 + 16 + COUNTERS_GRID_HEIGHT + (isDesktop ? 0 : MOBILE_ACTION_HEIGHT) - (20 + 56 + 12);
 	const hint = (
 		<Placeholder className={styles.hint} icon={<Icon56FragmentsOutline />} style={{ padding: `${placeholderSize / 2 + 1}px 32px ${placeholderSize / 2}px` }}>
 			Выберите предмет для улучшения
@@ -264,7 +264,7 @@ export function ForgePanel({ id }: { id: string }) {
 
 	let bottom;
 	if (!ready) {
-		bottom = <FooterSkeleton />;
+		bottom = <FooterSkeleton grid cell={{ count: isDesktop ? 6 : 4, width: 140, height: 56 }} />;
 	} else if (selected) {
 		bottom = (
 			<>

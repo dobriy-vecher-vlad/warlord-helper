@@ -86,7 +86,7 @@ describe('runResources: действие', () => {
 		expect(env.publish).toHaveBeenCalled();
 	});
 
-	it('действие внутри «Собрать всё» не перезагружает профиль и не пишет «собирать нечего»', async () => {
+	it('действие внутри «Запустить» не перезагружает профиль и не пишет «собирать нечего»', async () => {
 		const { env, requests } = setup();
 		await runResources(env, 'daily', 'collect', me, false);
 		expect(requests.map((body) => body.i ?? 'profile')).toEqual(['profile', 20]);
@@ -100,7 +100,7 @@ describe('runResources: действие', () => {
 	});
 });
 
-describe('runResources: «Собрать всё»', () => {
+describe('runResources: «Запустить»', () => {
 	it('проходит все шаги по порядку, проверка профиля перед каждым и итоговое обновление в конце', async () => {
 		const { env, requests } = setup();
 		expect(await runResources(env, 'all', '', me)).toBe(true);
@@ -125,7 +125,7 @@ describe('runResources: «Собрать всё»', () => {
 	});
 });
 
-describe('runResources: «Собрать со всех»', () => {
+describe('runResources: «Запустить со всех»', () => {
 	it('чужие профили собираются с собственным состоянием: показанный профиль не затирается', async () => {
 		const state = emptyState();
 		state.profiles = [other];

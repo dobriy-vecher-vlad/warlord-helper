@@ -46,6 +46,9 @@ export const GAME_BOSS_GROUPS: readonly BossGroup[] = GROUPS.map(([title, ids]) 
 	items: ids.map((id) => ({ id, boss: bossById.get(id)! })),
 }));
 
+/** Боссы, которых можно позвать в бой: временные, общие и одиночные (рейдовых боссов создать нельзя). Число на плитке «Боссы» в профиле и на кнопке «Создать». */
+export const CREATABLE_BOSS_COUNT = GAME_BOSS_GROUPS.filter((group) => group.title !== RAID_BOSSES).reduce((sum, group) => sum + group.items.length, 0);
+
 /** Ослабление боссов (события и бонусы). */
 export const DISCOUNTS = [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50].map((value) => ({
 	value,

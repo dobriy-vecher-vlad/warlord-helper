@@ -5,7 +5,7 @@ import { useIsDesktop } from '../../app/layout';
 import { notify } from '../../app/notify';
 import { Divider } from '../../components/Divider';
 import { SelectedItem, MOBILE_ACTION_HEIGHT, type ActionLayout } from '../../components/profile/SelectedItem';
-import { FooterButton } from '../../components/profile/BotBlocks';
+import { FooterButton } from '../../components/form/FooterButton';
 import { LoadFailed } from '../../components/profile/LoadFailed';
 import { Counter, Counters, FooterSkeleton } from '../../components/profile/Counters';
 import { LazyGrid } from '../../components/profile/LazyGrid';
@@ -19,7 +19,6 @@ import { WikiPanel } from '../../components/wiki/WikiPanel';
 import { useLeaveGuard } from '../../lib/leaveGuard';
 import { numberSpaces } from '../../lib/format';
 import { ITEM_TYPES } from '../../lib/items';
-import type { ShopBuyData } from '../../modals/profile/ShopBuyModal';
 import { botAuth, loadBotProfile, type BotAuth } from '../../profile/bots/common';
 import { setSession } from '../../profile/session';
 import {
@@ -29,7 +28,6 @@ import {
 	buyItem,
 	characterOf,
 	droppedIds,
-	isExpensive,
 	ownedIds,
 	shopFromCatalog,
 	shopStatus,
@@ -39,7 +37,6 @@ import {
 	type ShopStatus,
 	type Wallet,
 } from '../../profile/shop';
-import { openModal } from '../../store/modal';
 import { sectionBase } from '../section';
 import styles from './ShopPanel.module.css';
 
@@ -102,7 +99,7 @@ function ShopCounters({ entry, wallet }: { entry: ShopItem; wallet: Wallet }) {
  * 1. Магазин: предметы, которые покупаются за валюту, и покупка. Только с подпиской и паролем авторизации игры (как кузница и боссы): без пароля
  * открываются настройки профиля, а страница закрывается. Список, баланс, уровень, купленные и выпавшие предметы берутся из профиля игры:
  * каталог магазина игры сам говорит, что продаётся сразу, что только после выпадения с босса, из сундука или рейда, а что выдаётся иначе
- * (арена, ивенты, кузница гильдии) и в магазин не входит. Дорогие покупки (`isExpensive`) просят подтверждения. Удалась ли покупка,
+ * (арена, ивенты, кузница гильдии) и в магазин не входит. Покупка идёт одним нажатием, без подтверждения. Удалась ли покупка,
  * определяется по обновлённому профилю.
  */
 export function ShopPanel({ id }: { id: string }) {
@@ -230,15 +227,6 @@ export function ShopPanel({ id }: { id: string }) {
 		}
 	};
 
-	const requestPurchase = (entry: ShopItem) => {
-		if (!isExpensive(entry)) return void purchase(entry);
-		openModal('shopBuy', {
-			index: entry.index,
-			prices: entry.prices.map(([currency, price]) => ({ currency, price, balance: wallet.balance?.[currency] ?? 0 })),
-			onConfirm: () => void purchase(entry),
-		} satisfies ShopBuyData);
-	};
-
 	const placeholderSize = 68 + 16 + 56 + (isDesktop ? 0 : MOBILE_ACTION_HEIGHT) - (20 + 56 + 12);
 	const hint = (
 		<Placeholder className={styles.hint} icon={<Icon56FragmentsOutline />} style={{ padding: `${placeholderSize / 2 + 1}px 32px ${placeholderSize / 2}px` }}>
@@ -278,7 +266,7 @@ export function ShopPanel({ id }: { id: string }) {
 					Не хватает ресурсов
 				</FooterButton>
 			) : (
-				<FooterButton stretched={stretched} mode="commerce" loading={buying} before={<Icon12Add />} onClick={() => requestPurchase(selected)}>
+				<FooterButton stretched={stretched} mode="commerce" loading={buying} before={<Icon12Add />} onClick={() => void purchase(selected)}>
 					Купить
 				</FooterButton>
 			);

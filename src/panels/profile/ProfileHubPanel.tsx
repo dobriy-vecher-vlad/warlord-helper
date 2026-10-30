@@ -5,10 +5,9 @@ import { findServer } from '../../api/servers';
 import { useIsDesktop } from '../../app/layout';
 import { AppHeader, CopyButton, HeaderTextButton } from '../../components/AppHeader';
 import { Divider } from '../../components/Divider';
-import { Button } from '../../components/form/Form';
 import { NavCell } from '../../components/wiki/NavCell';
 import Collections from '../../data/collections.json';
-import { GAME_BOSS_GROUPS, RAID_BOSSES } from '../bosses/bossCalcData';
+import { CREATABLE_BOSS_COUNT } from '../bosses/bossCalcData';
 import { CARDS } from './bots/resourcesData';
 import { RAIDS } from './bots/raidData';
 import ShopData from '../../data/shop.json';
@@ -22,6 +21,7 @@ import { openPanel } from '../../store/nav';
 import styles from './ProfileHubPanel.module.css';
 import { ProfileCarousel } from './ProfileCarousel';
 import { useOnChange } from '../../lib/useOnChange';
+import { FooterButton } from '../../components/form/FooterButton';
 
 /** Аватар профиля в галерее: выбранный крупно с обводкой, остальные уменьшены. */
 function ProfileAvatar({ profile, selected }: { profile: ProfileView; selected: boolean }) {
@@ -77,9 +77,6 @@ const SHOP_IDS = new Set(ShopData.map(([id]) => id));
 
 /** Предметы, которые вообще могут быть у персонажа и улучшаться в кузнице: из магазина и из коллекций. */
 const FORGE_IDS = new Set<number>([...ShopData.map(([id]) => id!), ...Collections.items]);
-
-/** Боссы, которых можно позвать в бой: временные, общие и одиночные (рейдовых боссов создать нельзя). */
-const BOSS_COUNT = GAME_BOSS_GROUPS.filter((group) => group.title !== RAID_BOSSES).reduce((sum, group) => sum + group.items.length, 0);
 
 /** «Мой профиль»: галерея профилей, настройки и разделы профиля. */
 export function ProfileHubPanel({ id }: { id: string }) {
@@ -154,9 +151,9 @@ export function ProfileHubPanel({ id }: { id: string }) {
 						}}
 					/>
 					<Spacing size={12} />
-					<Button stretched size="m" mode="tertiary" onClick={() => openSettings()}>
+					<FooterButton stretched mode="tertiary" onClick={() => openSettings()}>
 						Настройки профиля
-					</Button>
+					</FooterButton>
 					<Divider size={12} />
 					{hasPlayers(server ?? 1) && (
 						<NavCell
@@ -164,7 +161,7 @@ export function ProfileHubPanel({ id }: { id: string }) {
 							title="Боссы"
 							subtitle="Приглашения и бои"
 							image="labels/29.png"
-							{...indicatorProps(BOSS_COUNT, BOSS_COUNT, ['босс', 'босса', 'боссов'])}
+							{...indicatorProps(CREATABLE_BOSS_COUNT, CREATABLE_BOSS_COUNT, ['босс', 'босса', 'боссов'])}
 							onClick={() => openPanel('11')}
 						/>
 					)}

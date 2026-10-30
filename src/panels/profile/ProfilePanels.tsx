@@ -1,7 +1,6 @@
 import type { ReactElement } from 'react';
 import { Panel, PanelSpinner } from '@vkontakte/vkui';
 import { Icon56ErrorTriangleOutline } from '@vkontakte/icons';
-import { Button } from '../../components/form/Form';
 import { Placeholder } from '../../components/profile/Placeholder';
 import { isEmbedded } from '../../lib/platform';
 import { useSession } from '../../profile/session';
@@ -18,6 +17,7 @@ import { ResourcesBotPanel } from './bots/ResourcesBotPanel';
 import { CreateBossPanel } from './CreateBossPanel';
 import { InvitesPanel } from './InvitesPanel';
 import { DonorsPanel, FriendsPanel } from './PeoplePanels';
+import { FooterButton } from '../../components/form/FooterButton';
 
 /**
  * Подраздел профиля показывается, когда профили и персонаж загружены: по ссылке панель открывается раньше,
@@ -44,13 +44,13 @@ function afterSessionLoaded(Component: PanelComponent): PanelComponent {
 					action={
 						<>
 							{isEmbedded() && (
-								<Button size="m" mode="primary" onClick={() => void startSession()}>
+								<FooterButton mode="primary" onClick={() => void startSession()}>
 									Повторить
-								</Button>
+								</FooterButton>
 							)}
-							<Button size="m" mode="tertiary" onClick={() => openPanel(null, { force: true })}>
+							<FooterButton mode="tertiary" onClick={() => openPanel(null, { force: true })}>
 								Назад
-							</Button>
+							</FooterButton>
 						</>
 					}
 				>

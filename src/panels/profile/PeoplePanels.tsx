@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Icon16ChevronOutline, Icon24SadFaceOutline, Icon56DonateOutline } from '@vkontakte/icons';
 import { getGame } from '../../api/game';
 import { useIsDesktop } from '../../app/layout';
-import { Button } from '../../components/form/Form';
 import { ScrollBox } from '../../components/profile/ScrollBox';
 import { Placeholder } from '../../components/profile/Placeholder';
 import { Skeleton } from '../../components/Skeleton';
@@ -19,6 +18,7 @@ import styles from './PeoplePanels.module.css';
 import { Photo } from '../../components/Photo';
 import { CAMERA_PHOTO } from '../../profile/constants';
 import { sectionBase } from '../section';
+import { FooterButton } from '../../components/form/FooterButton';
 
 const base = sectionBase('profile', 'Мой профиль');
 
@@ -279,9 +279,9 @@ export function DonorsPanel({ id }: { id: string }) {
 					icon={<Icon56DonateOutline width={56} height={56} style={{ color: '#ffae26' }} />}
 					title="VK Donut"
 					action={
-						<Button href="https://vk.ru/donut/wiki.warlord" size="m" mode="commerce">
+						<FooterButton href="https://vk.ru/donut/wiki.warlord" mode="commerce">
 							Узнать подробнее
-						</Button>
+						</FooterButton>
 					}
 				>
 					Донов пока нет,

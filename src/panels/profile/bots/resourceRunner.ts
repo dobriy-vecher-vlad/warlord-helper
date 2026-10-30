@@ -30,7 +30,7 @@ export interface ResourceEnv {
 
 const defaultRequest: Request = (server, body, auth) => getGame(server, body, auth, 1, false, PRIORITY.action);
 
-/** Шаги «Собрать всё» по порядку. */
+/** Шаги «Запустить» по порядку. */
 export const ALL_STEPS: readonly (readonly [Mode, string])[] = [
 	['map', 'collect'],
 	['chest', 'collect'],
@@ -47,7 +47,7 @@ export const ALL_STEPS: readonly (readonly [Mode, string])[] = [
 	['guildWars', 'collect'],
 ];
 
-/** Пустое состояние для профиля, который не показан на странице («Собрать со всех»): настройки сбора берутся у показанного. */
+/** Пустое состояние для профиля, который не показан на странице («Запустить со всех»): настройки сбора берутся у показанного. */
 export function scratchState(shown: ResourceState): ResourceState {
 	return { guildReward: shown.guildReward, wars: { start: shown.wars.start, end: null }, profiles: [], counts: {}, times: { ...INITIAL_TIMES }, hints: {} };
 }
@@ -132,8 +132,8 @@ async function perform(env: ResourceEnv, synced: Synced, mode: Mode, action: str
 
 /**
  * Один сбор: проверить профиль, выполнить действие режима и обновить данные. `needReload` — действие запущено отдельно:
- * после него данные профиля загружаются заново, а пустые итоги попадают в лог. «Собрать всё» идёт по шагам (после них данные
- * обновляются один раз), «Собрать со всех» — по остальным профилям; данные чужих профилей на странице не показываются.
+ * после него данные профиля загружаются заново, а пустые итоги попадают в лог. «Запустить» идёт по шагам (после них данные
+ * обновляются один раз), «Запустить со всех» — по остальным профилям; данные чужих профилей на странице не показываются.
  * Возвращает false, если профиль подготовить не удалось.
  */
 export async function runResources(env: ResourceEnv, mode: Mode, action: string, profile: BotProfile, needReload = true): Promise<boolean> {

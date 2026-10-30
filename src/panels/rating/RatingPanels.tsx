@@ -4,7 +4,6 @@ import { Icon12ChevronOutline } from '@vkontakte/icons';
 import { useIsDesktop } from '../../app/layout';
 import sadFace from '../../assets/sadFace.svg';
 import { CopyButton } from '../../components/AppHeader';
-import { Button } from '../../components/form/Form';
 import { Skeleton } from '../../components/Skeleton';
 import { Pager, TableHead, TableRow, TableStatic } from '../../components/profile/Table';
 import { ScrollBox } from '../../components/profile/ScrollBox';
@@ -19,6 +18,7 @@ import styles from './RatingPanels.module.css';
 import type { SectionPanels } from '../section';
 import { Photo } from '../../components/Photo';
 import { useOnChange } from '../../lib/useOnChange';
+import { FooterButton } from '../../components/form/FooterButton';
 
 /** Открытый список (панель «1»): какой рейтинг и чей номер показать внизу. */
 const ratingStore = createStore<{ tab: RatingTab; current: (RatingBlock & { tab: RatingTab; id: number | null }) | null }>({ tab: 2, current: null });
@@ -129,9 +129,9 @@ function RatingError({ text, action, onAction, minHeight }: { text: string; acti
 			<img src={sadFace} alt="" />
 			<div className={styles.errorTitle}>Произошла ошибка</div>
 			<div className={styles.errorText}>{text}</div>
-			<Button mode="tertiary" onClick={onAction}>
+			<FooterButton mode="tertiary" onClick={onAction}>
 				<span className={styles.errorAction}>{action}</span>
-			</Button>
+			</FooterButton>
 		</div>
 	);
 }

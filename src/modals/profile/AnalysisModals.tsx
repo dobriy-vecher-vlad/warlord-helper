@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button, Div } from '@vkontakte/vkui';
+import { Div } from '@vkontakte/vkui';
 import { getGame } from '../../api/game';
 import sadFace from '../../assets/sadFace.svg';
 import { cropStyle } from '../../components/BorderedImage';
@@ -15,6 +15,7 @@ import styles from './AnalysisModals.module.css';
 import { ClassicModal } from '../ClassicModal';
 import { useOnChange } from '../../lib/useOnChange';
 import { LargeImg } from '../../components/LargeImg';
+import { FooterButton } from '../../components/form/FooterButton';
 
 type Kind = 'arenaItems' | 'eventsItems';
 
@@ -183,9 +184,9 @@ function AnalysisModal({ id, open }: { id: Kind; open: boolean }) {
 
 	const footer = (
 		<Div>
-			<Button size="l" stretched onClick={done}>
+			<FooterButton stretched onClick={done}>
 				Хорошо
-			</Button>
+			</FooterButton>
 		</Div>
 	);
 	return (

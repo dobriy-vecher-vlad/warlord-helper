@@ -44,25 +44,15 @@
 	padding: 16px;
 }
 
-.bannerButton {
-	display: inline-flex;
-	align-items: center;
-	height: 30px;
-	padding: 0 16px;
-	border-radius: 10px;
+/* Кнопка баннера: FooterButton (S с общей высотой), светлая на любой теме, потому что лежит на картинке */
+.bannerButton.bannerButton {
 	background: #e1e3e6;
 	color: #19191a;
-	font-size: 14px;
-	line-height: 18px;
-	font-weight: 500;
-	text-decoration: none;
 }
 
-:global([data-layout='desktop']) .bannerButton {
-	height: 36px;
-	padding: 0 20px;
-	font-size: 15px;
-	line-height: 20px;
+.bannerButton.bannerButton:hover,
+.bannerButton.bannerButton:active {
+	background: #d3d5d9;
 }
 
 /* Новости */

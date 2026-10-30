@@ -5,7 +5,7 @@ import { notify } from '../../app/notify';
 import { getSession, setSession } from '../../profile/session';
 import { numberSpaces } from '../../lib/format';
 import { ITEMS } from '../../lib/items';
-import { SHOP_ALL, isExpensive, type ShopItem } from '../../profile/shop';
+import { SHOP_ALL, type ShopItem } from '../../profile/shop';
 import { closeModal, getModalStack } from '../../store/modal';
 import { initNav } from '../../store/nav';
 import { button, click, flush, installBrowserStubs, render } from '../../test/harness';
@@ -29,8 +29,8 @@ const catalogRow = (entry: ShopItem) => ({
 	_l4: String(entry.level),
 });
 
-const cheap = FREE.find((entry) => entry.level <= 60 && entry.prices.length === 1 && entry.prices[0]![0] === 1 && entry.prices[0]![1] <= 1000 && !isExpensive(entry))!;
-const costly = FREE.find((entry) => entry.level <= 60 && entry.prices.length === 1 && entry.prices[0]![0] === 3 && isExpensive(entry))!;
+const cheap = FREE.find((entry) => entry.level <= 60 && entry.prices.length === 1 && entry.prices[0]![0] === 1 && entry.prices[0]![1] <= 1000)!;
+const costly = FREE.find((entry) => entry.level <= 60 && entry.prices.length === 1 && entry.prices[0]![0] === 3 && entry.prices[0]![1] >= 100_000)!;
 
 /** Профиль игры: все предметы магазина, кроме названных, уже куплены, чтобы нужные карточки были в начале списка. */
 function profile(extra: ShopItem[] = [], balance: Record<string, string> = {}) {
@@ -155,18 +155,14 @@ describe('«Магазин»', () => {
 		expect(notify).toHaveBeenCalledWith({ text: 'Не удалось купить предмет', icon: 'error' });
 	});
 
-	it('дорогая покупка просит подтверждения и уходит только после него', async () => {
+	it('дорогая покупка идёт сразу, без подтверждения', async () => {
 		game.mockResolvedValue(profile());
 		await show();
 		await settle();
 		await click(card(costly.item.title));
 		await click(button('Купить')!);
 		await settle();
-		const entry = getModalStack().at(-1);
-		expect(entry?.id).toBe('shopBuy');
-		expect(purchases()).toHaveLength(0);
-		await (async () => (entry!.data as { onConfirm: () => void }).onConfirm())();
-		await settle();
+		expect(getModalStack()).toHaveLength(0);
 		expect(purchases()).toHaveLength(1);
 		expect((purchases()[0]![1] as { t: number }).t).toBe(costly.item.id);
 	});

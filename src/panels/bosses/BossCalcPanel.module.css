@@ -67,7 +67,7 @@
 /* Выбор босса, «Создать своего», ослабление: на ПК один ряд, на телефоне ослабление отдельным рядом */
 .selects {
 	display: flex;
-	align-items: center;
+	align-items: stretch;
 	gap: 8px;
 }
 
@@ -78,6 +78,8 @@
 
 .selects > .create {
 	flex: 0 0 auto;
+	/* Высоту кнопки задаёт сосед по ряду (выбор босса), а не её минимальная высота */
+	height: auto;
 }
 
 :global([data-layout='mobile']) .selects {

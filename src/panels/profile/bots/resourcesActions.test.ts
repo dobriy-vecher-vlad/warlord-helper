@@ -95,7 +95,7 @@ describe('действия', () => {
 		expect(logText).toHaveBeenCalledWith('Лимит обыска зданий');
 	});
 
-	it('в составе «Собрать всё» об отсутствии награды не сообщает', async () => {
+	it('в составе «Запустить» об отсутствии награды не сообщает', async () => {
 		const { ctx, logText } = context({ needReload: false });
 		await RESOURCE_ACTIONS['map:collect']!.run(ctx);
 		expect(logText).not.toHaveBeenCalled();

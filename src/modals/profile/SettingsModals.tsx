@@ -2,7 +2,7 @@ import { Spacing } from '@vkontakte/vkui';
 import { Icon28FaceIdOutline, Icon28GlobeOutline, Icon28KeySquareOutline, Icon28WriteSquareOutline } from '@vkontakte/icons';
 import { findServer } from '../../api/servers';
 import { useIsDesktop } from '../../app/layout';
-import { ActionCell, Button, FormStatus } from '../../components/form/Form';
+import { ActionCell, FormStatus } from '../../components/form/Form';
 import { addProfile, removeProfile, saveSettings } from '../../profile/profileActions';
 import { useSession } from '../../profile/session';
 import { backModal, openModal, type ModalEntry } from '../../store/modal';
@@ -10,6 +10,7 @@ import { ClassicModal } from '../ClassicModal';
 import styles from './SettingsModals.module.css';
 import { short } from './settingsShared';
 import { askConfirm } from '../../lib/confirmAction';
+import { FooterButton } from '../../components/form/FooterButton';
 
 interface SettingsData {
 	mode?: 'add';
@@ -71,28 +72,28 @@ export function SettingsModal({ open, entry }: { open: boolean; entry: ModalEntr
 				/>
 				<div className={isDesktop ? styles.actions : styles.actionsMobile}>
 					{add ? (
-						<Button
+						<FooterButton
 							stretched
 							mode="primary"
 							disabled={exists || Number(draft.id) == 0 || draft.login == null || draft.auth == null || draft.server == null}
 							onClick={() => void addProfile()}
 						>
 							Добавить профиль
-						</Button>
+						</FooterButton>
 					) : (
 						<>
-							<Button
+							<FooterButton
 								stretched
 								mode="commerce"
 								disabled={Number(draft.id) == 0 || draft.login == null || (isDonut && !current?.main && draft.auth == null)}
 								onClick={() => void saveSettings()}
 							>
 								Сохранить изменения
-							</Button>
+							</FooterButton>
 							{profiles.length !== 0 && !current?.main && (
 								<>
 									<Spacing size={8} />
-									<Button
+									<FooterButton
 										stretched
 										mode="tertiary"
 										className={styles.danger}
@@ -107,7 +108,7 @@ export function SettingsModal({ open, entry }: { open: boolean; entry: ModalEntr
 										}
 									>
 										Удалить профиль
-									</Button>
+									</FooterButton>
 								</>
 							)}
 						</>

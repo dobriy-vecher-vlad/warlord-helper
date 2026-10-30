@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import MapData from '../../data/map.json';
 import { fightHash, md5 } from './hash';
 import { RAID_MAPS, raidPath } from './raidMaps';
 
@@ -117,6 +118,31 @@ describe('награды', async () => {
 			],
 		});
 		expect(lines.map((line) => `${line.title}: ${line.message}`)).toEqual(['Предмет: Рубаха Воина', 'Камень: Кристальный Аквамарин', 'Серебро: 1 500 ед.', 'Золото: 5 ед.']);
+	});
+
+	it('кубки арены, ключи зданий и ивентовые валюты показываются после основных ресурсов', () => {
+		const lines = parseReward({ _event10: '3', _k2: '4', _ap: '7', _exp: '10', _event8: '1', _event7: '9', _m8: '2' });
+		expect(lines.map((line) => `${line.title}: ${line.message}`)).toEqual([
+			'Опыт: 10 ед.',
+			'Кубки арены: 7 ед.',
+			'Паучье жало: 4 ед.',
+			'Значки защитника: 1 ед.',
+			'Осколки: 3 ед.',
+		]);
+		expect(lines.map((line) => line.avatar)).toEqual([
+			'currency/all/exp_big.png',
+			'currency/all/ap_big.png',
+			'currency/all/k2_big.png',
+			'currency/all/event8_big.png',
+			'currency/all/event10_big.png',
+		]);
+	});
+
+	it('названия ключей зданий совпадают с картой (список в reward.ts, чтобы не тянуть map.json в главный чанк)', () => {
+		const fields = Object.fromEntries(MapData.builds.map((_, index) => [`_k${index + 1}`, 1]));
+		const lines = parseReward(fields);
+		expect(lines.map((line) => line.title)).toEqual(MapData.builds.map((build) => build.item));
+		expect(lines.map((line) => line.avatar)).toEqual(MapData.builds.map((_, index) => `currency/all/k${index + 1}_big.png`));
 	});
 
 	it('награда из нескольких узлов: предметы с типом собираются в список', () => {

@@ -1,1 +1,0 @@
-import{r as e}from"./rolldown-runtime-XKyaHtl9.js";import{i as t}from"./react-HFaXCuHX.js";import{V as n,nt as r}from"./vkui-rTXYwRiU.js";function i(){let{viewWidth:e}=n();return e>=r.SMALL_TABLET}var a=e(t(),1);function o(e,t){let[n,r]=(0,a.useState)(e);(n.length!==e.length||n.some((t,n)=>!Object.is(t,e[n])))&&(r(e),t())}export{i as n,o as t};

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { CustomSelect, CustomSelectOption, FormField, Switch, UnstyledTextField } from '@vkontakte/vkui';
 import { notify } from '../../app/notify';
-import { BotLog, FooterButton, Thumb, useBotLog } from '../../components/profile/BotBlocks';
+import { BotLog, Thumb, useBotLog } from '../../components/profile/BotBlocks';
+import { FooterButton } from '../../components/form/FooterButton';
 import { Divider } from '../../components/Divider';
 import { getTime, numberSpaces } from '../../lib/format';
 import { useLeaveGuard } from '../../lib/leaveGuard';
@@ -249,19 +250,17 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 				<BotLog entries={log.entries} compact onClear={log.clear} />
 			</div>
 			{note && <div className={`${styles.hint} ${note.danger ? styles.danger : ''}`}>{note.text}</div>}
+			<FooterButton stretched mode="secondary" loading={refreshing} disabled={busy || refreshing} onClick={() => void refresh()}>
+				Обновить
+			</FooterButton>
 			{shared && (
 				<FooterButton stretched mode="secondary" loading={calling} disabled={calling} onClick={() => void call()}>
 					Позвать друзей
 				</FooterButton>
 			)}
-			<div className={styles.pairButtons}>
-				<FooterButton stretched mode="secondary" disabled={busy} onClick={solve}>
-					Рассчитать убийство
-				</FooterButton>
-				<FooterButton stretched mode="secondary" loading={refreshing} disabled={busy || refreshing} onClick={() => void refresh()}>
-					Обновить
-				</FooterButton>
-			</div>
+			<FooterButton stretched mode="secondary" disabled={busy} onClick={solve}>
+				Рассчитать убийство
+			</FooterButton>
 			<div className={`${styles.hits} ${killAllowed ? styles.hitsKill : ''}`}>
 				{HITS.map((count) => (
 					<FooterButton key={count} className={styles.hitButton} stretched mode="primary" disabled={busy || dead} onClick={() => void attack(count)}>
@@ -316,8 +315,8 @@ function BattleView({ open, session }: { open: boolean; session: BattleSession }
 						)}
 						onChange={(event) => setSkill(Number(event.target.value) as Setup['skill'])}
 					/>
-					<Supply image="bot/raids/16.png" title="Свитки огня" owned={fighter.fire} limit={fire} onChange={setFire} disabled={busy} />
-					<Supply image="bot/raids/17.png" title="Свитки молнии" owned={fighter.lightning} limit={lightning} onChange={setLightning} disabled={busy} />
+					<Supply image="currency/all/i3_big.png" title="Свитки огня" owned={fighter.fire} limit={fire} onChange={setFire} disabled={busy} />
+					<Supply image="currency/all/i1_big.png" title="Свитки молнии" owned={fighter.lightning} limit={lightning} onChange={setLightning} disabled={busy} />
 					<Supply image="character/talent_4.png" title="Зелья лечения" owned={fighter.potions} limit={potions} onChange={setPotions} disabled={busy} />
 				</section>
 			</div>
